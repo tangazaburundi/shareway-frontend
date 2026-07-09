@@ -1,0 +1,87 @@
+<!--
+<app-modal [open]="open" [title]="langService.t(mode === 'trip' ? 'cancel.trip.title' : 'cancel.booking.title')" size="sm" (close)="cancelled.emit()">
+  <div class="cancel-form">
+    <div class="warn-icon">⚠️</div>
+    <div class="form-group">
+      <label>{{ langService.t(mode === 'trip' ? 'cancel.trip.reason' : 'cancel.booking.reason') }}</label>
+      <textarea class="input textarea" [(ngModel)]="reason"
+        [placeholder]="langService.t(mode === 'trip' ? 'cancel.trip.reason.placeholder' : 'bookings.leaveReason.placeholder')"></textarea>
+    </div>
+    <label class="checkbox-row">
+      <input type="checkbox" [(ngModel)]="notify">
+      <span>{{ langService.t(mode === 'trip' ? 'cancel.trip.notify' : 'bookings.notifyDriver') }}</span>
+    </label>
+    <div class="actions">
+      <button class="btn btn-outline" (click)="cancelled.emit()">{{ langService.t('common.cancel') }}</button>
+      <button class="btn btn-danger" (click)="confirm()" [disabled]="!reason.trim() || loading">
+        @if (loading) { <span class="spinner"></span> }
+        {{ langService.t(mode === 'trip' ? 'cancel.trip.confirm' : 'cancel.booking.confirm') }}
+      </button>
+    </div>
+  </div>
+</app-modal>-->
+
+
+<app-modal
+        [open]="open"
+        [title]="langService.t(mode === 'trip' ? 'cancel.trip.title' : 'cancel.booking.title')"
+        size="sm"
+        (close)="cancelled.emit()">
+
+  <div class="cancel-form">
+
+    <div class="warn-icon">⚠️</div>
+    @if (errorMsg) { <div class="alert alert-error">{{ errorMsg }}</div> }
+    @if (successMsg) { <div class="alert alert-success">{{ successMsg }}</div> }
+    <div class="form-group">
+      <label>
+        {{ langService.t(mode === 'trip' ? 'cancel.trip.reason' : 'cancel.booking.reason') }}
+      </label>
+
+      <textarea
+              class="input textarea"
+              [(ngModel)]="reason"
+              [placeholder]="langService.t(
+          mode === 'trip'
+            ? 'cancel.trip.reason.placeholder'
+            : 'bookings.leaveReason.placeholder'
+        )">
+      </textarea>
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" [(ngModel)]="notify">
+      <span>
+        {{ langService.t(mode === 'trip' ? 'cancel.trip.notify' : 'bookings.notifyDriver') }}
+      </span>
+    </label>
+
+    @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+    }
+
+    <div class="actions">
+      <button
+              class="btn btn-outline"
+              (click)="cancelled.emit()">
+        {{ langService.t('common.cancel') }}
+      </button>
+
+      <button
+              class="btn btn-danger"
+              (click)="confirm()"
+              [disabled]="!reason.trim() || loading">
+
+        @if (loading) {
+        <span class="spinner"></span>
+        }
+
+        {{ langService.t(mode === 'trip' ? 'cancel.trip.confirm' : 'cancel.booking.confirm') }}
+      </button>
+    </div>
+
+  </div>
+
+</app-modal>
