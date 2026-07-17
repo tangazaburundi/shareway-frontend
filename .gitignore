@@ -9,18 +9,16 @@ dist/
 
 # IDE
 .idea/
-*.iml
+.vscode/
 
-# SonarLint
-.idea/sonarlint/
-
-# Environment
-.env
-.env.local
-
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
+# Environment files
+.env
+.env.*
+
 # Logs
 *.log
+npm-debug.log*
