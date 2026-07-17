@@ -1,0 +1,21 @@
+
+    .prefs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: .75rem;
+    }
+    .pref-btn {
+      display: flex; flex-direction: column; align-items: center;
+      gap: .25rem; padding: .875rem .5rem;
+      border: 2px solid #e5e7eb; border-radius: 10px;
+      background: #fafafa; cursor: pointer;
+      transition: all .2s;
+    }
+    .pref-btn:hover { border-color: #667eea; background: #f0f4ff; }
+    .pref-btn.active {
+      border-color: #667eea; background: #eef2ff; color: #4f46e5;
+    }
+    .pref-btn.forbidden { border-color: #fca5a5; background: #fff5f5; }
+    .pref-icon { font-size: 1.5rem; }
+    .pref-label { font-size: .8rem; font-weight: 600; color: #374151; }
+    .pref-state { font-size: .7rem; color: #6b7280; }

@@ -1,0 +1,17 @@
+<div class="lang-switcher">
+  <button
+    class="lang-btn"
+    [class.active]="langService.currentLang() === 'fr'"
+    (click)="langService.setLang('fr')"
+    title="Français">
+    <img src="assets/images/france.png" class="flag" alt="Francais">
+  </button>
+  <span class="lang-sep">|</span>
+  <button
+    class="lang-btn"
+    [class.active]="langService.currentLang() === 'ki'"
+    (click)="langService.setLang('ki')"
+    title="Kirundi">
+    <img src="assets/images/burundi.png" class="flag" alt="Kirundi">
+  </button>
+</div>

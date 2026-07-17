@@ -1,0 +1,362 @@
+<div class="page">
+  <div class="container">
+    @if (loading) {
+      <div class="loading-center"><div class="spinner-lg"></div></div>
+    } @else if (user) {
+      <div class="profile-layout">
+        <!-- Sidebar -->
+        <div class="profile-sidebar">
+          <!-- Avatar + identity -->
+          <div class="card profile-card">
+            <div class="avatar-wrap">
+              <label class="avatar-label" [class.clickable]="isOwnProfile">
+                @if (user.avatarUrl) {
+                  <img [src]="user.avatarUrl" class="avatar-xl" alt="">
+                } @else {
+                  <div class="avatar-placeholder-xl">{{ user.firstName.charAt(0) }}</div>
+                }
+                @if (isOwnProfile) {
+                  <div class="avatar-overlay">📷</div>
+                  <input type="file" accept="image/*" (change)="uploadAvatar($event)" hidden>
+                }
+              </label>
+              @if (user.isVerified) { <span class="verified-badge">✅</span> }
+            </div>
+
+            <h2 class="profile-name">{{ user.firstName }} {{ user.lastName }}</h2>
+            <div class="role-pill" [class]="'role-' + user.role.toLowerCase()">
+              {{ langService.t('profile.role.' + user.role.toLowerCase()) }}
+            </div>
+
+            @if (user.rating) {
+              <div class="rating-row">
+                <app-rating-stars [rating]="user.rating" [showValue]="true" />
+                <span class="review-cnt">({{ user.reviewCount }})</span>
+              </div>
+            }
+
+            <p class="since">{{ langService.t('profile.memberSince') }} {{ user.createdAt | date:'MMM yyyy' }}</p>
+
+            @if (user.bio) { <p class="bio">{{ user.bio }}</p> }
+
+            @if (user.phoneVisible && user.phone && !isOwnProfile) {
+              <a [href]="'tel:' + user.phone" class="phone-link">📞 {{ user.phone }}</a>
+            }
+
+            @if (!isOwnProfile && authService.isAuthenticated()) {
+              <a [routerLink]="['/messages', user.id]" class="btn btn-primary btn-full" style="margin-top:16px">
+                💬 {{ langService.t('messages.send') }}
+              </a>
+            }
+          </div>
+
+          <!-- Vehicle card -->
+          @if (user.vehicle) {
+            <div class="card vehicle-card">
+              <h3>🚗 {{ langService.t('profile.vehicle') }}</h3>
+              <div class="vehicle-line">
+                <span class="veh-brand">{{ user.vehicle.brand }} {{ user.vehicle.model }}</span>
+                <span class="veh-year">{{ user.vehicle.year }}</span>
+              </div>
+              <div class="vehicle-line">
+                <span class="plate">{{ user.vehicle.licensePlate }}</span>
+              </div>
+            </div>
+          }
+
+          <!-- Own profile actions -->
+          @if (isOwnProfile) {
+            <div class="card actions-card">
+              <button class="action-btn" (click)="activeSection = activeSection === 'edit' ? '' : 'edit'">
+                ✏️ {{ langService.t('profile.edit') }}
+              </button>
+              <button class="action-btn" (click)="activeSection = activeSection === 'vehicle' ? '' : 'vehicle'">
+                🚗 {{ langService.t('profile.vehicle') }}
+              </button>
+              <button class="action-btn" (click)="activeSection = activeSection === 'identity' ? '' : 'identity'">
+                🪪 {{ langService.t('profile.identity') }}
+              </button>
+              <button class="action-btn" (click)="switchRole()">
+                🔄 {{ langService.t('profile.role.switch') }}
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Main content -->
+        <div class="profile-main">
+
+          <!-- Edit form -->
+          @if (isOwnProfile && activeSection === 'edit') {
+            <div class="card">
+              <h3 class="card-title">✏️ {{ langService.t('profile.edit') }}</h3>
+              <form [formGroup]="editForm" (ngSubmit)="saveProfile()">
+                @if (saveSuccess) { <div class="alert alert-success">✅ Profil mis à jour !</div> }
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>{{ langService.t('auth.register.firstName') }}</label>
+                    <input type="text" formControlName="firstName" class="input" />
+                  </div>
+                  <div class="form-group">
+                    <label>{{ langService.t('auth.register.lastName') }}</label>
+                    <input type="text" formControlName="lastName" class="input" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>{{ langService.t('profile.bio') }}</label>
+                  <textarea formControlName="bio" class="input textarea" [placeholder]="langService.t('profile.bioPlaceholder')"></textarea>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>{{ langService.t('profile.phone') }}</label>
+                    <input type="tel" formControlName="phone" class="input" />
+                  </div>
+                  <div class="form-group center-label">
+                    <label class="checkbox-row">
+                      <input type="checkbox" formControlName="phoneVisible">
+                      <span>{{ langService.t('profile.phoneVisible') }}</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>{{ langService.t('profile.lang') }}</label>
+                  <div class="lang-choice">
+                    <button type="button" class="lang-opt" [class.active]="editForm.get('preferredLang')?.value === 'fr'" (click)="editForm.patchValue({preferredLang:'fr'})">🇫🇷 Français</button>
+                    <button type="button" class="lang-opt" [class.active]="editForm.get('preferredLang')?.value === 'ki'" (click)="editForm.patchValue({preferredLang:'ki'})">🇧🇮 Kirundi</button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>{{ langService.t('profile.preferences') }}</label>
+                  <div class="prefs-grid">
+                    @for (p of prefKeys; track p) {
+                      <label class="pref-toggle">
+                        <input type="checkbox" [formControlName]="'pref_' + p">
+                        <span>{{ langService.t('trips.prefs.' + p) }}</span>
+                      </label>
+                    }
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="button" class="btn btn-outline" (click)="activeSection=''">{{ langService.t('common.cancel') }}</button>
+                  <button type="submit" class="btn btn-primary" [disabled]="savingProfile">
+                    @if (savingProfile) { <span class="spinner"></span> }
+                    {{ langService.t('profile.save') }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          }
+
+          <!-- Vehicle form -->
+          @if (isOwnProfile && activeSection === 'vehicle') {
+            <div class="card">
+              <h3 class="card-title">🚗 {{ langService.t('profile.vehicle') }}</h3>
+              <form [formGroup]="vehicleForm" (ngSubmit)="saveVehicle()">
+                @if (vehicleSaved) { <div class="alert alert-success">✅ Véhicule enregistré !</div> }
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>{{ langService.t('profile.vehicle.brand') }}</label>
+                    <input type="text" formControlName="brand" class="input" placeholder="Toyota" />
+                  </div>
+                  <div class="form-group">
+                    <label>{{ langService.t('profile.vehicle.model') }}</label>
+                    <input type="text" formControlName="model" class="input" placeholder="Corolla" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>{{ langService.t('profile.vehicle.color') }}</label>
+                    <input type="text" formControlName="color" class="input" placeholder="Blanc" />
+                  </div>
+                  <div class="form-group">
+                    <label>{{ langService.t('profile.vehicle.year') }}</label>
+                    <input type="number" formControlName="year" class="input" placeholder="2020" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>{{ langService.t('profile.vehicle.plate') }}</label>
+                  <input type="text" formControlName="licensePlate" class="input" placeholder="AA 1234 BI" style="text-transform:uppercase" />
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" [disabled]="savingVehicle">
+                  @if (savingVehicle) { <span class="spinner"></span> }
+                  {{ langService.t('profile.vehicle.save') }}
+                </button>
+              </form>
+            </div>
+          }
+
+          <!-- Identity -->
+          @if (isOwnProfile && activeSection === 'identity') {
+            <div class="card">
+              <h3 class="card-title">🪪 {{ langService.t('profile.identity') }}</h3>
+              @if (user.identityVerified) {
+                <div class="verified-state">✅ {{ langService.t('profile.identity.verified') }}</div>
+              } @else {
+                <div class="identity-upload">
+                  <label class="upload-zone">
+                    <span>📄</span>
+                    <p>{{ langService.t('profile.identity.upload') }}</p>
+                    <p class="upload-hint">PNG, JPG, PDF — max 5 Mo</p>
+                    <input type="file" accept="image/*,.pdf" (change)="uploadIdentity($event)" hidden>
+                  </label>
+                  @if (identityUploaded) { <div class="alert alert-success" style="margin-top:12px">✅ {{ langService.t('profile.identity.pending') }}</div> }
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Tabs: trips / reviews -->
+          <div class="tabs">
+            <button class="tab" [class.active]="tab === 'trips'" (click)="tab='trips'">
+              {{ langService.t('profile.trips') }} ({{ userTrips.length }})
+            </button>
+            <button class="tab" [class.active]="tab === 'reviews'" (click)="tab='reviews'">
+              {{ langService.t('profile.reviews') }} ({{ reviews.length }})
+            </button>
+            @if (isOwnProfile) {
+              <button class="tab" [class.active]="tab === 'bookings'" (click)="tab='bookings'">
+                {{ langService.t('profile.bookings') }}
+              </button>
+            }
+          </div>
+
+          @if (tab === 'trips') {
+            <div class="list-section">
+              @if (userTrips.length === 0) {
+                <div class="section-empty"><p>{{ langService.t('trips.empty.title') }}</p>
+                  @if (isOwnProfile) { <a routerLink="/trips/new" class="btn btn-primary btn-sm">+ {{ langService.t('nav.propose') }}</a> }
+                </div>
+              }
+              @for (trip of userTrips; track trip.id) {
+                <a [routerLink]="['/trips', trip.id]" class="trip-item">
+                  <div class="ti-route">
+                    <span>{{ trip.departureCity }}</span>
+                    <span class="ti-arrow">→</span>
+                    <span>{{ trip.arrivalCity }}</span>
+                    @if (trip.isRecurring) { <span class="recur-tag">🔁</span> }
+                  </div>
+                  <div class="ti-meta">
+                    <span>{{ trip.departureTime | date:'d MMM HH:mm' }}</span>
+                    <span class="ti-price">{{ trip.pricePerSeat | number }} {{ trip.currency }}</span>
+                    <span class="ti-seats">{{ trip.availableSeats }}/{{ trip.totalSeats }} 💺</span>
+                    <span class="s-badge s-{{ trip.status.toLowerCase() }}">{{ trip.status }}</span>
+                  </div>
+                </a>
+              }
+            </div>
+          }
+<!--
+
+          @if (tab === 'reviews') {
+            <div class="list-section">
+              @if (reviews.length === 0) {
+              <div class="section-empty"><p>Aucun avis</p></div> }
+              @for (r of reviews; track r.id) {
+                <div class="review-item">
+                  <div class="review-header">
+                    <a [routerLink]="['/profile', r.author.id]" class="reviewer">
+                      @if (r.author.avatarUrl) { <img [src]="r.author.avatarUrl" class="av-xs" alt=""> }
+                      @else { <div class="av-xs-placeholder">{{ r.author.firstName.charAt(0) }}</div> }
+                      {{ r.author.firstName }}
+                    </a>
+                    <app-rating-stars [rating]="r.rating" />
+                    <span class="r-date">{{ r.createdAt | timeAgo }}</span>
+                  </div>
+                  @if (r.comment) { <p class="r-comment">{{ r.comment }}</p> }
+                </div>
+              }
+            </div>
+          }
+-->
+
+
+          @if (tab === 'reviews') {
+          <div class="list-section">
+
+            @if ((reviews?.length ?? 0) === 0) {
+            <div class="section-empty">
+              <p>Aucun avis</p>
+            </div>
+            }
+
+            @for (r of reviews; track r.id) {
+            <div class="review-item">
+
+              <div class="review-header">
+                <a [routerLink]="['/profile', r.author?.id]" class="reviewer">
+                  @if (r.author?.avatarUrl) {
+                  <img [src]="r.author.avatarUrl" class="av-xs" alt="">
+                  } @else {
+                  <div class="av-xs-placeholder">
+                    {{ r.author?.firstName?.charAt(0) }}
+                  </div>
+                  }
+                  {{ r.author?.firstName }}
+                </a>
+
+                <app-rating-stars [rating]="r.rating" />
+                <span class="r-date">{{ r.createdAt | timeAgo }}</span>
+              </div>
+
+              @if (r.comment) {
+              <p class="r-comment">{{ r.comment }}</p>
+
+                @if (isOwnProfile) {
+                    <button class="report-btn" (click)="openReportModal(r.id)">
+                      Signaler
+                    </button>
+                }
+              }
+
+
+
+            </div>
+            }
+          </div>
+          }
+
+          <!-- MODAL -->
+          @if (isReportModalOpen) {
+          <div class="modal-overlay" (click)="closeReportModal()">
+            <div class="modal" (click)="$event.stopPropagation()">
+
+              <h3>Signaler un avis</h3>
+
+              <p>Pourquoi signalez-vous cet avis ?</p>
+
+              <textarea
+                      [(ngModel)]="reportReason"
+                      rows="4"
+                      placeholder="Expliquez la raison..."
+              ></textarea>
+
+              <div class="modal-actions">
+                <button class="btn-cancel" (click)="closeReportModal()">
+                  Annuler
+                </button>
+
+                <button
+                        class="btn-submit"
+                        (click)="submitReport()"
+                        [disabled]="!reportReason.trim()"
+                >
+                  Envoyer
+                </button>
+              </div>
+
+            </div>
+          </div>
+          }
+
+          @if (tab === 'bookings' && isOwnProfile) {
+            <div class="list-section">
+              <a routerLink="/bookings" class="btn btn-outline btn-full">
+                {{ langService.t('bookings.title') }} →
+              </a>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,18 @@
+.share-page { min-height: 100vh; background: var(--gray-50); }
+.loading-center { display: flex; justify-content: center; padding: 80px; }
+.spinner-lg { width: 48px; height: 48px; border: 4px solid var(--gray-200); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.share-hero { background: linear-gradient(135deg, var(--primary), #1d4ed8); color: white; padding: 60px 24px 40px; text-align: center; }
+.share-brand { font-size: 1.25rem; font-weight: 700; opacity: .9; margin-bottom: 16px; }
+.share-title { font-size: 2rem; font-weight: 800; margin-bottom: 12px; }
+.share-date { opacity: .85; font-size: 1rem; }
+.share-container { max-width: 440px; margin: -24px auto 0; padding: 0 24px 40px; }
+.share-card { background: white; border-radius: 20px; padding: 32px; box-shadow: 0 8px 32px rgba(0,0,0,.1); }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.info-item { display: flex; align-items: center; gap: 8px; }
+.info-icon { font-size: 1.25rem; } .info-val { font-weight: 600; font-size: .875rem; color: var(--gray-700); }
+.prefs-row { display: flex; gap: 8px; margin-bottom: 20px; font-size: 1.25rem; }
+.pref { background: var(--gray-100); padding: 4px 10px; border-radius: 20px; }
+.cta-btn { margin-bottom: 10px; }
+.not-found { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 80px 24px; text-align: center; color: var(--gray-500); }
+.not-found span { font-size: 3rem; }

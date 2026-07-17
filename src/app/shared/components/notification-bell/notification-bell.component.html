@@ -1,0 +1,49 @@
+
+<div class="bell-wrap">
+  <button class="bell-btn" (click)="toggle()" [class.active]="open">
+    🔔
+    @if (notifService.unreadCount() > 0) {
+      <span class="badge">{{ notifService.unreadCount() > 9 ? '9+' : notifService.unreadCount() }}</span>
+    }
+  </button>
+  @if (open) {
+    <div class="notif-dropdown">
+      <div class="notif-header">
+        <span>{{ langService.t('notifications.title') }}</span>
+        @if (notifService.unreadCount() > 0) {
+          <button class="mark-read" (click)="markAll()">{{ langService.t('notifications.markRead') }}</button>
+        }
+      </div>
+      @if (notifService.notifications().length === 0) {
+        <div class="notif-empty">{{ langService.t('notifications.empty') }}</div>
+      } @else {
+        <div class="notif-list">
+          @for (n of notifService.notifications(); track n.id) {
+            <a class="notif-item" [class.unread]="!n.read" [routerLink]="n.link || null" (click)="open=false">
+              <div class="notif-icon">{{ typeIcon(n.type) }}</div>
+              <div class="notif-content">
+                <div class="notif-title">{{ n.title }}</div>
+                <div class="notif-body">{{ n.body }}</div>
+                <div class="notif-time">{{ n.createdAt | timeAgo }}</div>
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!--<div class="bell-wrap">
+  <button class="bell-btn" (click)="toggle()" [class.active]="open">
+    🔔
+    @if (notifService.unreadCount() > 0) {
+    <span class="badge">{{ notifService.unreadCount() > 9 ? '9+' : notifService.unreadCount() }}</span>
+    }
+  </button>
+
+<div *ngFor="let n of notifService.notifications()" (click)="onClick(n)">
+  <h4>{{ n.title }}</h4>
+  <p>{{ n.body }}</p>
+</div>
+</div>-->

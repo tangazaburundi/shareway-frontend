@@ -1,0 +1,19 @@
+.cancel-form { display: flex; flex-direction: column; gap: 20px; }
+.warn-icon { font-size: 2.5rem; text-align: center; }
+.textarea { resize: vertical; min-height: 80px; }
+.checkbox-row { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: .9rem; color: var(--gray-700); }
+.checkbox-row input { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+.actions { display: flex; gap: 12px; }
+.actions .btn { flex: 1; }
+
+
+.error-message {
+  margin: 12px 0;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 14px;
+  line-height: 1.4;
+}

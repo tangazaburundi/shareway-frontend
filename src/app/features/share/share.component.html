@@ -1,0 +1,42 @@
+<div class="share-page">
+  @if (loading) {
+    <div class="loading-center"><div class="spinner-lg"></div></div>
+  } @else if (trip) {
+    <div class="share-hero">
+      <div class="share-brand">🚗 ShareWay</div>
+      <h1 class="share-title">
+        {{ trip.departureCity }} → {{ trip.arrivalCity }}
+      </h1>
+      <p class="share-date">📅 {{ trip.departureTime | date:'EEEE d MMMM yyyy à HH:mm' }}</p>
+    </div>
+    <div class="share-container">
+      <div class="share-card">
+        <div class="info-grid">
+          <div class="info-item"><span class="info-icon">💰</span><span class="info-val">{{ trip.pricePerSeat | number }} {{ trip.currency }} / pers.</span></div>
+          <div class="info-item"><span class="info-icon">💺</span><span class="info-val">{{ trip.availableSeats }} place(s) dispo</span></div>
+          <div class="info-item"><span class="info-icon">🚗</span><span class="info-val">{{ trip.driver.firstName }}</span></div>
+          @if (trip.driver.rating) { <div class="info-item"><span class="info-icon">⭐</span><span class="info-val">{{ trip.driver.rating | number:'1.1-1' }}/5</span></div> }
+        </div>
+        @if (trip.preferences) {
+          <div class="prefs-row">
+            @if (trip.preferences.music) { <span class="pref">🎵</span> }
+            @if (trip.preferences.pets) { <span class="pref">🐾</span> }
+            @if (trip.preferences.smoking) { <span class="pref">🚬</span> }
+          </div>
+        }
+        <a routerLink="/auth/register" class="btn btn-primary btn-full cta-btn">
+          Rejoindre ce trajet →
+        </a>
+        <a [routerLink]="['/trips', trip.id]" class="btn btn-outline btn-full">
+          Voir les détails
+        </a>
+      </div>
+    </div>
+  } @else {
+    <div class="not-found">
+      <span>😕</span>
+      <h2>Trajet introuvable</h2>
+      <a routerLink="/" class="btn btn-primary">Accueil</a>
+    </div>
+  }
+</div>

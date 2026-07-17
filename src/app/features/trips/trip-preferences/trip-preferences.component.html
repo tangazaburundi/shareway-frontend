@@ -1,0 +1,18 @@
+
+    <div class="prefs-grid">
+
+      <button
+        *ngFor="let pref of prefList"
+        type="button"
+        class="pref-btn"
+        [class.active]="preferences[pref.key]"
+        [class.forbidden]="pref.forbiddenWhenFalse && !preferences[pref.key]"
+        (click)="toggle(pref.key)"
+        [title]="pref.label"
+      >
+        <span class="pref-icon">{{ pref.icon }}</span>
+        <span class="pref-label">{{ pref.label }}</span>
+        <span class="pref-state">{{ preferences[pref.key] ? pref.yes : pref.no }}</span>
+      </button>
+
+    </div>

@@ -1,0 +1,59 @@
+
+<div class="page">
+    <div class="page-header">
+        <div>
+            <h1>Messages signalés</h1>
+            <span class="subtitle">{{ page()?.totalElements | number }} messages à examiner</span>
+        </div>
+    </div>
+
+    <div class="table-card">
+        @if (loading()) {
+        <div class="state-row">Chargement…</div>
+        } @else if (!page()?.content?.length) {
+        <div class="state-row success-state">
+            <span>✅</span>
+            <p>Aucun message signalé.</p>
+        </div>
+        } @else {
+        <table>
+            <thead>
+            <tr>
+                <th>Expéditeur</th>
+                <th>Destinataire</th>
+                <th>Contenu</th>
+                <th>Motif</th>
+                <th>Signalé le</th>
+                <th>Envoyé le</th>
+            </tr>
+            </thead>
+            <tbody>
+            @for (msg of page()!.content; track msg.id) {
+            <tr>
+                <td class="bold">{{ msg.senderName }}</td>
+                <td class="text-muted">{{ msg.receiverName }}</td>
+                <td>
+                    <div class="msg-bubble">{{ truncate(msg.content, 120) }}</div>
+                </td>
+                <td>
+                    <span class="flag-badge">⚑ {{ msg.flagReason ?? 'Non précisé' }}</span>
+                </td>
+                <td class="text-muted">{{ msg.flaggedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td class="text-muted">{{ msg.sentAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+            }
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <button [disabled]="currentPage() === 0" (click)="loadPage(currentPage() - 1)">‹ Précédent</button>
+            <span>Page {{ currentPage() + 1 }} / {{ page()!.totalPages }}</span>
+            <button [disabled]="currentPage() + 1 >= page()!.totalPages" (click)="loadPage(currentPage() + 1)">Suivant ›</button>
+        </div>
+        }
+    </div>
+</div>
+
+
+
+

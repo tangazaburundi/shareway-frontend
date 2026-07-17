@@ -1,0 +1,18 @@
+.stars { display: flex; align-items: center; gap: 2px; }
+
+.star {
+  font-size: var(--star-size, 1rem);
+  color: var(--gray-300);
+  transition: color 0.15s;
+  line-height: 1;
+}
+
+.star.filled { color: #f59e0b; }
+.interactive .star { cursor: pointer; }
+
+.rating-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-left: 4px;
+}

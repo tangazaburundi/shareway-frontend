@@ -1,0 +1,15 @@
+<div class="stars" [class.interactive]="interactive">
+  @for (star of stars; track star) {
+    <span
+      class="star"
+      [class.filled]="star <= (hovered || rating)"
+      (mouseenter)="interactive && (hovered = star)"
+      (mouseleave)="interactive && (hovered = 0)"
+      (click)="interactive && select(star)">
+      ★
+    </span>
+  }
+  @if (showValue && rating > 0) {
+    <span class="rating-value">{{ rating.toFixed(1) }}</span>
+  }
+</div>

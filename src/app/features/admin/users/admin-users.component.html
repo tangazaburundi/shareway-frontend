@@ -1,0 +1,145 @@
+
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <h1>👥 Gestion des utilisateurs</h1>
+          <p class="sub">{{ total | number }} utilisateurs au total</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-outline" (click)="exportCsv()">⬇️ CSV</button>
+          <button class="btn-outline" (click)="exportExcel()">📊 Excel</button>
+        </div>
+      </div>
+
+      <!-- Recherche -->
+      <div class="search-bar">
+        <input type="text" [(ngModel)]="search" placeholder="Rechercher par nom, email…"
+               (keyup.enter)="load()" />
+        <button class="btn-search" (click)="load()">🔍</button>
+      </div>
+
+      <div *ngIf="loading" class="loading">Chargement…</div>
+
+      <!-- Table -->
+      <div *ngIf="!loading" class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Utilisateur</th>
+              <th>Rôle</th>
+              <th>Statut</th>
+              <th>Vérifications</th>
+              <th>Note</th>
+              <th>Inscrit le</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of users" [class.blocked-row]="u.blocked">
+              <td>
+                <div class="user-cell">
+                  <div class="avatar">{{ u.firstName[0] }}{{ u.lastName[0] }}</div>
+                  <div>
+                    <div class="user-name">{{ u.firstName }} {{ u.lastName }}</div>
+                    <div class="user-email">{{ u.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="role-badge">{{ u.role }}</span></td>
+              <td>
+                <span *ngIf="u.blocked"  class="status blocked">🚫 Bloqué</span>
+                <span *ngIf="!u.blocked && u.active"  class="status active">✅ Actif</span>
+                <span *ngIf="!u.blocked && !u.active" class="status inactive">⛔ Inactif</span>
+              </td>
+              <td>
+                <span class="check" [class.ok]="u.emailVerified">
+                  {{ u.emailVerified ? '✅' : '❌' }} Email
+                </span>
+                <span class="check" [class.ok]="u.identityVerified">
+                  {{ u.identityVerified ? '✅' : '❌' }} Identité
+                </span>
+              </td>
+              <td>
+                <span *ngIf="u.rating">⭐ {{ u.rating | number:'1.1-1' }} ({{ u.reviewCount }})</span>
+                <span *ngIf="!u.rating" class="muted">—</span>
+              </td>
+              <td class="muted">{{ u.createdAt | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <div class="action-btns">
+                  <!-- Vérifier identité -->
+                  <button *ngIf="!u.identityVerified"
+                          class="btn-action green" title="Vérifier l'identité"
+                          (click)="verifyIdentity(u)" [disabled]="acting === u.id">
+                    🪪
+                  </button>
+                  <!-- Bloquer -->
+                  <button *ngIf="!u.blocked"
+                          class="btn-action orange" title="Bloquer"
+                          (click)="openBlock(u)">
+                    🚫
+                  </button>
+                  <!-- Débloquer -->
+                  <button *ngIf="u.blocked"
+                          class="btn-action blue" title="Débloquer"
+                          (click)="unblock(u)" [disabled]="acting === u.id">
+                    🔓
+                  </button>
+                  <!-- Supprimer -->
+                  <button class="btn-action red" title="Supprimer le compte"
+                          (click)="openDelete(u)">
+                    🗑️
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <button [disabled]="page === 0" (click)="prev()">← Précédent</button>
+          <span>Page {{ page + 1 }} / {{ totalPages }}</span>
+          <button [disabled]="page >= totalPages - 1" (click)="next()">Suivant →</button>
+        </div>
+      </div>
+
+      <!-- Modal bloquer -->
+      <div *ngIf="showBlockModal" class="modal-overlay" (click)="closeBlock()">
+        <div class="modal" (click)="$event.stopPropagation()">
+          <h2>🚫 Bloquer {{ targetUser?.firstName }} {{ targetUser?.lastName }}</h2>
+          <p>L'utilisateur sera notifié et ne pourra plus se connecter.</p>
+          <div class="field">
+            <label>Raison du blocage *</label>
+            <textarea [(ngModel)]="blockReason" rows="3"
+                      placeholder="Ex : Comportement inapproprié…"></textarea>
+          </div>
+          <div *ngIf="actionError" class="error-box">❌ {{ actionError }}</div>
+          <div class="modal-actions">
+            <button class="btn-outline" (click)="closeBlock()">Annuler</button>
+            <button class="btn-danger" (click)="confirmBlock()" [disabled]="!blockReason.trim() || acting !== null">
+              <span *ngIf="acting" class="spin"></span>
+              Bloquer
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal supprimer -->
+      <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDelete()">
+        <div class="modal" (click)="$event.stopPropagation()">
+          <h2>🗑️ Supprimer le compte</h2>
+          <p>Vous allez supprimer définitivement le compte de
+            <strong>{{ targetUser?.firstName }} {{ targetUser?.lastName }}</strong>.<br/>
+            Cette action est irréversible.</p>
+          <div *ngIf="actionError" class="error-box">❌ {{ actionError }}</div>
+          <div class="modal-actions">
+            <button class="btn-outline" (click)="closeDelete()">Annuler</button>
+            <button class="btn-danger" (click)="confirmDelete()" [disabled]="acting !== null">
+              <span *ngIf="acting" class="spin"></span>
+              Supprimer définitivement
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>

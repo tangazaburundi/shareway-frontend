@@ -1,0 +1,66 @@
+<div class="hero">
+  <div class="hero-content">
+    <h1 class="hero-title">
+      {{ langService.t('home.hero.title') }}<br>
+      <span class="hero-accent">{{ langService.t('home.hero.accent') }}</span>
+    </h1>
+    <p class="hero-subtitle">{{ langService.t('home.hero.subtitle') }}</p>
+
+    <div class="search-card">
+      <div class="search-row">
+        <div class="search-field">
+          <label>{{ langService.t('home.search.from') }}</label>
+          <input type="text" [(ngModel)]="from"
+            [placeholder]="langService.t('home.search.fromPlaceholder')" class="input" />
+        </div>
+        <div class="search-divider">→</div>
+        <div class="search-field">
+          <label>{{ langService.t('home.search.to') }}</label>
+          <input type="text" [(ngModel)]="to"
+            [placeholder]="langService.t('home.search.toPlaceholder')" class="input" />
+        </div>
+        <div class="search-field">
+          <label>{{ langService.t('home.search.date') }}</label>
+          <input type="date" [(ngModel)]="date" class="input" />
+        </div>
+        <button class="btn btn-primary search-btn" (click)="search()">
+          {{ langService.t('home.search.btn') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="hero-illustration">
+      <img src="assets/images/shareway-car.png" height="90" alt="ShareWay" />
+    </div>
+  </div>
+</div>
+
+<section class="features">
+  <div class="container">
+    <h2 class="section-title">{{ langService.t('home.why.title') }}</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">💸</div>
+        <h3>{{ langService.t('home.feature.economic') }}</h3>
+        <p>{{ langService.t('home.feature.economic.desc') }}</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌱</div>
+        <h3>{{ langService.t('home.feature.eco') }}</h3>
+        <p>{{ langService.t('home.feature.eco.desc') }}</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤝</div>
+        <h3>{{ langService.t('home.feature.friendly') }}</h3>
+        <p>{{ langService.t('home.feature.friendly.desc') }}</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>{{ langService.t('home.feature.safe') }}</h3>
+        <p>{{ langService.t('home.feature.safe.desc') }}</p>
+      </div>
+    </div>
+  </div>
+</section>

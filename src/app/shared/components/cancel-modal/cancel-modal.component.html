@@ -1,0 +1,122 @@
+<!--
+
+    <div class="modal-overlay" (click)="onOverlayClick($event)">
+      <div class="modal-box" role="dialog" aria-modal="true">
+
+        &lt;!&ndash; En-tête &ndash;&gt;
+        <div class="modal-header">
+          <div class="modal-icon">⚠️</div>
+          <h2 class="modal-title">{{ config.title }}</h2>
+          <button class="modal-close" (click)="onCancel()" aria-label="Fermer">✕</button>
+        </div>
+
+        &lt;!&ndash; Corps &ndash;&gt;
+        <div class="modal-body">
+          <p class="modal-desc">{{ config.description }}</p>
+
+          <div class="field">
+            <label class="field-label">
+              {{ config.placeholder }}
+              <span *ngIf="config.reasonRequired" class="required">*</span>
+            </label>
+            <textarea
+              class="field-textarea"
+              [(ngModel)]="reason"
+              [placeholder]="config.placeholder"
+              rows="3"
+              maxlength="500"
+            ></textarea>
+            <span class="char-count">{{ reason.length }}/500</span>
+          </div>
+
+          &lt;!&ndash; Erreur provenant du backend &ndash;&gt;
+          <div *ngIf="errorMessage" class="error-banner">
+            <span class="error-icon">❌</span>
+            <span class="error-text">{{ errorMessage }}</span>
+          </div>
+        </div>
+
+        &lt;!&ndash; Actions &ndash;&gt;
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="onCancel()" [disabled]="loading">
+            {{ config.cancelLabel || 'Garder ma réservation' }}
+          </button>
+          <button
+            class="btn btn-danger"
+            (click)="onConfirm()"
+            [disabled]="loading || (config.reasonRequired && !reason.trim())"
+          >
+            <span *ngIf="loading" class="spinner"></span>
+            {{ loading ? 'En cours…' : (config.confirmLabel || 'Confirmer l\'annulation') }}
+          </button>
+        </div>
+
+      </div>
+    </div>-->
+
+
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+  <div class="modal-box" role="dialog" aria-modal="true">
+
+    <!-- En-tête -->
+    <div class="modal-header">
+      <div class="modal-icon">⚠️</div>
+      <h2 class="modal-title">{{ config.title }}</h2>
+      <button class="modal-close" (click)="onCancel()" aria-label="Fermer">✕</button>
+    </div>
+
+    <!-- Corps -->
+    <div class="modal-body">
+      <p class="modal-desc">{{ config.description }}</p>
+
+      <div class="field">
+        <label class="field-label">
+          {{ config.placeholder }}
+          <span *ngIf="config.reasonRequired" class="required">*</span>
+        </label>
+
+        <textarea
+                class="field-textarea"
+                [(ngModel)]="reason"
+                [placeholder]="config.placeholder"
+                rows="3"
+                maxlength="500">
+        </textarea>
+
+        <span class="char-count">{{ reason.length }}/500</span>
+      </div>
+
+      <!-- ✅ AJOUT NOTIFY ICI -->
+      <div class="field notify-field">
+        <label class="notify-label">
+          <input type="checkbox" [(ngModel)]="notify" />
+          <span>Notifier les autres participants</span>
+        </label>
+      </div>
+
+      <!-- Erreur provenant du backend -->
+      <div *ngIf="errorMessage" class="error-banner">
+        <span class="error-icon">❌</span>
+        <span class="error-text">{{ errorMessage }}</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="onCancel()" [disabled]="loading">
+        {{ config.cancelLabel || 'Garder ma réservation' }}
+      </button>
+
+      <button
+              class="btn btn-danger"
+              (click)="onConfirm()"
+              [disabled]="loading || (config.reasonRequired && !reason.trim())">
+
+        <span *ngIf="loading" class="spinner"></span>
+
+        {{ loading ? 'En cours…' : (config.confirmLabel || 'Confirmer l\'annulation') }}
+      </button>
+    </div>
+
+  </div>
+</div>

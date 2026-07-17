@@ -1,0 +1,33 @@
+
+<div class="page">
+  <div class="container">
+    <div class="page-header">
+      <h1>{{ langService.t('notifications.title') }}</h1>
+      @if (notifService.unreadCount() > 0) {
+        <button class="btn btn-outline btn-sm" (click)="notifService.markAllRead()">
+          {{ langService.t('notifications.markRead') }}
+        </button>
+      }
+    </div>
+
+    @if (notifService.notifications().length === 0) {
+      <div class="empty-state">
+        <span>🔔</span>
+        <h3>{{ langService.t('notifications.empty') }}</h3>
+      </div>
+    } @else {
+      <div class="notif-list">
+        @for (n of notifService.notifications(); track n.id) {
+          <a class="notif-item" [class.unread]="!n.read" [routerLink]="n.link || null">
+            <div class="notif-icon">{{ typeIcon(n.type) }}</div>
+            <div class="notif-content">
+              <div class="notif-title">{{ n.title }}</div>
+              <div class="notif-body">{{ n.body }}</div>
+              <div class="notif-time">{{ n.createdAt | timeAgo }}</div>
+            </div>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,98 @@
+<div class="messages-layout">
+  <!-- Liste des conversations -->
+  <div class="conversations-panel">
+    <div class="panel-header">
+      <h2>{{ langService.t('messages.title') }}</h2>
+    </div>
+
+    @if (loadingConvs) {
+      <div class="panel-loading"><div class="spinner"></div></div>
+    } @else if (conversations.length === 0) {
+      <div class="panel-empty">
+        <span>💬</span>
+        <p>{{ langService.t('messages.empty') }}</p>
+      </div>
+    } @else {
+      <div class="conversations-list">
+        @for (conv of conversations; track conv.id) {
+          <div class="conversation-item"
+            [class.active]="activeUserId === conv?.participant?.id"
+            (click)="openConversation(conv.participant.id)">
+            <div class="conv-avatar">
+
+<!--              <pre>{{ conv | json }}</pre>-->
+
+
+              @if (conv.participant?.avatarUrl) {
+                <img [src]="conv.participant?.avatarUrl" alt="">
+              } @else {
+                <div class="avatar-placeholder">{{ conv.participant?.firstName?.charAt(0) }}</div>
+              }
+              @if (conv.unreadCount > 0) {
+                <span class="unread-badge">{{ conv.unreadCount }}</span>
+              }
+            </div>
+            <div class="conv-info">
+              <div class="conv-name">{{ conv.participant?.firstName }} {{ conv.participant?.lastName }}</div>
+              <div class="conv-last">{{ conv.lastMessage }}</div>
+            </div>
+            <div class="conv-time">{{ conv.lastMessageAt | timeAgo }}</div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Panneau de discussion -->
+  <div class="chat-panel">
+    @if (!activeUserId) {
+      <div class="chat-empty">
+        <span class="chat-empty-icon">💬</span>
+        <h3>{{ langService.t('messages.selectConv') }}</h3>
+      </div>
+    } @else {
+      <div class="chat-header">
+        @if (activeConv) {
+          <div class="chat-user">
+            @if (activeConv.participant.avatarUrl) {
+              <img [src]="activeConv.participant.avatarUrl" class="avatar-sm" alt="">
+            } @else {
+              <div class="avatar-placeholder-sm">{{ activeConv.participant.firstName.charAt(0) }}</div>
+            }
+            <div>
+              <div class="chat-user-name">
+                {{ activeConv.participant.firstName }} {{ activeConv.participant.lastName }}
+              </div>
+              <a [routerLink]="['/profile', activeUserId]" class="chat-user-link">
+                {{ langService.t('profile.edit') }}
+              </a>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="messages-list" #messagesList>
+        @if (loadingMessages) {
+          <div class="chat-loading"><div class="spinner"></div></div>
+        } @else {
+          @for (msg of messages; track msg.id) {
+            <div class="message-bubble" [class.own]="msg.senderId === currentUserId">
+              <div class="bubble-content">{{ msg.content }}</div>
+              <div class="bubble-time">{{ msg.createdAt | timeAgo }}</div>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="chat-input-bar">
+        <input type="text" [(ngModel)]="newMessage" class="input chat-input"
+          [placeholder]="langService.t('messages.inputPlaceholder')"
+          (keyup.enter)="sendMessage()" />
+        <button class="btn btn-primary" (click)="sendMessage()"
+          [disabled]="!newMessage.trim() || sending">
+          {{ sending ? '...' : langService.t('messages.send') }}
+        </button>
+      </div>
+    }
+  </div>
+</div>

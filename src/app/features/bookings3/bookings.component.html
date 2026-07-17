@@ -1,0 +1,83 @@
+<div class="page">
+  <div class="container">
+    <h1 class="page-title">{{ langService.t('bookings.title') }}</h1>
+
+    @if (loading) {
+      <div class="loading-center"><div class="spinner-lg"></div></div>
+    } @else if (bookings.length === 0) {
+      <div class="empty-state">
+        <span>🎫</span>
+        <h3>{{ langService.t('bookings.empty') }}</h3>
+        <a routerLink="/trips" class="btn btn-primary">{{ langService.t('trips.search.btn') }}</a>
+      </div>
+    } @else {
+      <div class="tabs">
+        <button class="tab" [class.active]="tab === 'upcoming'" (click)="tab='upcoming'">
+          À venir ({{ upcoming.length }})
+        </button>
+        <button class="tab" [class.active]="tab === 'past'" (click)="tab='past'">
+          Passés ({{ past.length }})
+        </button>
+        <button class="tab" [class.active]="tab === 'cancelled'" (click)="tab='cancelled'">
+          Annulés ({{ cancelled.length }})
+        </button>
+      </div>
+
+      <div class="bookings-list">
+        @for (trip of activeList; track trip.id) {
+          <div class="booking-card">
+            <div class="booking-header">
+              <div class="booking-route">
+                <span class="b-city">{{ trip.departureCity }}</span>
+                <span class="b-arrow">→</span>
+                <span class="b-city">{{ trip.arrivalCity }}</span>
+                @if (trip.isRecurring) { <span class="recur-tag">🔁</span> }
+              </div>
+
+              <span class="b-status" [class]="'s-' + myBookingStatus(trip).toLowerCase()">
+                {{
+                  myBookingStatus(trip) === 'CONFIRMED'
+                    ? langService.t('bookings.status.confirmed')
+                    : myBookingStatus(trip) === 'COMPLETED'
+                    ? langService.t('bookings.status.completed')
+                    : myBookingStatus(trip) === 'CANCELLED'
+                    ? langService.t('bookings.status.cancelled')
+                    : myBookingStatus(trip)
+                }}
+              </span>
+            </div>
+
+            <div class="booking-info">
+              <div class="info-item">📅 {{ trip.departureTime | date:'EEEE d MMMM yyyy à HH:mm' }}</div>
+              <div class="info-item">💰 {{ trip.pricePerSeat | number }} {{ trip.currency }}</div>
+              <div class="info-item">
+                🚗
+                <a [routerLink]="['/profile', trip.driver.id]" class="driver-link">
+                  {{ trip.driver.firstName }} {{ trip.driver.lastName }}
+                </a>
+                @if (trip.driver.rating) { <app-rating-stars [rating]="trip.driver.rating" [showValue]="true" /> }
+              </div>
+            </div>
+
+            <div class="booking-actions">
+              <a [routerLink]="['/trips', trip.id]" class="btn btn-outline btn-sm">Voir le trajet</a>
+              <a [routerLink]="['/messages', trip.driver.id]" class="btn btn-outline btn-sm">💬 Conducteur</a>
+              @if (myBookingStatus(trip) === 'CONFIRMED' && tab === 'upcoming') {
+                <button class="btn btn-danger btn-sm" (click)="openCancel(trip)">{{ langService.t('bookings.cancel') }}</button>
+              }
+              @if (tab === 'past' && trip.status === 'COMPLETED') {
+                <button class="btn btn-primary btn-sm" (click)="openReview(trip)">⭐ Avis</button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<!--<app-cancel-modal [open]="showCancel" mode="booking" [loading]="cancelling"
+  (confirmed)="cancelBooking($event)" (cancelled)="showCancel=false" />-->
+
+<app-review-modal [open]="showReview" [tripId]="reviewTrip?.id||''" [targetUserId]="reviewTrip?.driver?.id||''"
+  (submitted)="onReviewed()" (cancelled)="showReview=false" />

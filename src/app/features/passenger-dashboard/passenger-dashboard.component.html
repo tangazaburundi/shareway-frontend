@@ -1,0 +1,93 @@
+<div class="page">
+  <div class="container">
+    <div class="page-header">
+      <h1>{{ langService.t('dashboard.title') }}</h1>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-center"><div class="spinner-lg"></div></div>
+    } @else if (dash()) {
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card primary">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-value">{{ dash()!.totalSpent | number }}</div>
+          <div class="kpi-label">Total dépensé</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">📋</div>
+          <div class="kpi-value">{{ dash()!.totalBookings }}</div>
+          <div class="kpi-label">Total réservations</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">✅</div>
+          <div class="kpi-value">{{ dash()!.completedTrips }}</div>
+          <div class="kpi-label">Terminés</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">🚫</div>
+          <div class="kpi-value">{{ dash()!.cancelledTrips }}</div>
+          <div class="kpi-label">Annulés</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">⏳</div>
+          <div class="kpi-value">{{ dash()!.pendingBookings }}</div>
+          <div class="kpi-label">En attente</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon">🟢</div>
+          <div class="kpi-value">{{ dash()!.activeBookings }}</div>
+          <div class="kpi-label">Actifs</div>
+        </div>
+      </div>
+
+      <!-- Dépenses par devise -->
+      @if (currencyEntries().length > 0) {
+        <div class="card">
+          <h3 class="card-title">Dépenses par devise</h3>
+          <div class="currency-bars">
+            @for (entry of currencyEntries(); track entry.key) {
+              <div class="currency-bar-row">
+                <span class="curr-label">{{ entry.key }}</span>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width.%]="barHeight(entry.value, maxCurrency())"></div>
+                </div>
+                <span class="curr-value">{{ entry.value | number }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Réservations récentes -->
+      <div class="card">
+        <div class="card-top-row">
+          <h3 class="card-title">Réservations récentes</h3>
+          <a routerLink="/my-bookings" class="btn btn-outline btn-sm">Voir tout</a>
+        </div>
+        <div class="trips-table">
+          @for (b of dash()!.recentBookings; track b.id) {
+            <div class="trip-row">
+              <div class="trip-route">
+                <span class="t-city">{{ b.departureCity }}</span>
+                <span class="t-arrow">→</span>
+                <span class="t-city">{{ b.arrivalCity }}</span>
+              </div>
+              <div class="trip-meta-row">
+                <span>{{ b.departureTime | date:'d MMM HH:mm' }}</span>
+                <span class="price-tag">{{ b.amountPaid | number }} {{ b.currency }}</span>
+                <span class="status-dot" [class]="'s-' + b.status.toLowerCase()">{{ b.status }}</span>
+              </div>
+              <div class="trip-actions">
+                <a [routerLink]="['/trips', b.tripId]" class="btn btn-outline btn-sm">Voir</a>
+              </div>
+            </div>
+          }
+          @if (dash()!.recentBookings.length === 0) {
+            <div class="empty-row">Aucune réservation pour le moment.</div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

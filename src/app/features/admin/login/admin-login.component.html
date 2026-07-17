@@ -1,0 +1,28 @@
+
+    <div class="admin-login-page">
+      <div class="login-card">
+        <div class="logo">🛠️ Shareway <span>Admin</span></div>
+        <h1>Connexion administrateur</h1>
+        <p class="sub">Réservé au personnel autorisé (Admin, Modérateur)</p>
+
+        <form (ngSubmit)="submit()">
+          <div class="field">
+            <label>Adresse e-mail</label>
+            <input type="email" name="email" [(ngModel)]="email" required autocomplete="username" />
+          </div>
+          <div class="field">
+            <label>Mot de passe</label>
+            <input type="password" name="password" [(ngModel)]="password" required autocomplete="current-password" />
+          </div>
+
+          <div *ngIf="error" class="error-banner">❌ {{ error }}</div>
+
+          <button type="submit" class="btn-submit" [disabled]="loading">
+            <span *ngIf="loading" class="spinner"></span>
+            {{ loading ? 'Connexion…' : 'Se connecter' }}
+          </button>
+        </form>
+
+        <a routerLink="/" class="back-link">← Retour au site</a>
+      </div>
+    </div>

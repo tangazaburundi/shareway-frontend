@@ -1,0 +1,266 @@
+<div class="page">
+  <div class="container">
+    @if (loading) {
+      <div class="loading-center"><div class="spinner-lg"></div></div>
+    } @else if (trip) {
+      <div class="trip-detail-layout">
+
+        <!-- Main -->
+        <div class="trip-main">
+          <div class="card">
+            <div class="card-top">
+              <span class="status-badge" [class]="'badge-' + trip.status.toLowerCase()">{{ statusLabel }}</span>
+              @if (trip.isRecurring) { <span class="recur-pill">🔁 {{ langService.t('trips.recurring') }}</span> }
+              <button class="share-btn" (click)="shareTrip()">🔗 {{ langService.t('trip.share') }}</button>
+            </div>
+
+            <div class="trip-route-detail">
+              <div class="route-step">
+                <div class="step-time">{{ trip.departureTime | date:'HH:mm' }}</div>
+                <div class="step-dot departure"></div>
+                <div class="step-info">
+                  <div class="step-city">{{ trip.departureCity }}</div>
+                  @if (trip.departureAddress) { <div class="step-addr">{{ trip.departureAddress }}</div> }
+                </div>
+              </div>
+              @if (trip.stopPoints?.length) {
+                @for (stop of trip.stopPoints!; track stop.order) {
+                  <div class="route-connector small"></div>
+                  <div class="route-step stop">
+                    <div class="step-time small">{{ stop.arrivalTime || '•' }}</div>
+                    <div class="step-dot stop-dot"></div>
+                    <div class="step-info">
+                      <div class="step-city small">{{ stop.city }}</div>
+                      @if (stop.address) { <div class="step-addr">{{ stop.address }}</div> }
+                    </div>
+                  </div>
+                }
+              }
+              <div class="route-connector"></div>
+              <div class="route-step">
+                <div class="step-time">{{ trip.arrivalTime ? (trip.arrivalTime | date:'HH:mm') : langService.t('trip.arrival') }}</div>
+                <div class="step-dot arrival"></div>
+                <div class="step-info">
+                  <div class="step-city">{{ trip.arrivalCity }}</div>
+                  @if (trip.arrivalAddress) { <div class="step-addr">{{ trip.arrivalAddress }}</div> }
+                </div>
+              </div>
+            </div>
+
+            <div class="trip-date-pill">📅 {{ trip.departureTime | date:'EEEE d MMMM yyyy' }}</div>
+
+            @if (trip.isRecurring && trip.recurringDays?.length) {
+              <div class="recur-info">
+                🔁 {{ freqLabel }} — {{ trip.recurringDays!.join(', ') }}
+              </div>
+            }
+
+            @if (trip.preferences) {
+              <div class="prefs-row">
+                @if (trip.preferences.music) { <span class="pref-tag">🎵 {{ langService.t('trips.prefs.music') }}</span> }
+                @if (trip.preferences.smoking) { <span class="pref-tag">🚬 {{ langService.t('trips.prefs.smoking') }}</span> }
+                @if (trip.preferences.pets) { <span class="pref-tag">🐾 {{ langService.t('trips.prefs.pets') }}</span> }
+                @if (trip.preferences.talking) { <span class="pref-tag">💬 {{ langService.t('trips.prefs.talking') }}</span> }
+                @if (trip.preferences.airConditioning) { <span class="pref-tag">❄️ {{ langService.t('trips.prefs.ac') }}</span> }
+                @if (trip.preferences.smallLuggage) { <span class="pref-tag">❄️ {{ langService.t('trips.prefs.smallLuggage') }}</span> }
+                @if (trip.preferences.largeLuggage) { <span class="pref-tag">❄️ {{ langService.t('trips.prefs.largeLuggage') }}</span> }
+              </div>
+            }
+
+            @if (trip.description) {
+              <div class="trip-desc"><h3>{{ langService.t('trip.description') }}</h3><p>{{ trip.description }}</p></div>
+            }
+          </div>
+
+          <!-- Vehicle -->
+          @if (trip.driver.vehicle) {
+            <div class="card vehicle-card">
+              <h3>🚗 {{ langService.t('trip.vehicle') }}</h3>
+              <div class="vehicle-info">
+                <span>{{ trip.driver.vehicle.brand }} {{ trip.driver.vehicle.model }}</span>
+                <span class="vehicle-color" [style.background]="trip.driver.vehicle.color"></span>
+                <span class="plate">{{ trip.driver.vehicle.licensePlate }}</span>
+              </div>
+            </div>
+          }
+
+          <!-- Passengers (driver view) -->
+          @if (isDriver) {
+            <div class="card">
+              <h3>{{ langService.t('trip.passengers.list') }} ({{ activePassengers.length }}/{{ trip.totalSeats }})</h3>
+              <div class="passengers-table">
+
+                @for (p of trip.passengers; track p.id) {
+
+                  <div class="passenger-row" [class.cancelled]="p.bookingStatus == 'CANCELLED'">
+
+                    <div class="passenger-info clickable"
+                         (click)="viewPassengerProfile(trip.id, p.id)">
+                      @if (p.avatarUrl) { <img [src]="p.avatarUrl" class="avatar-sm" alt=""> }
+                      @else { <div class="avatar-placeholder-sm">{{ p.firstName.charAt(0) }}</div> }
+                      <div>
+                        <div class="p-name">{{ p.firstName }} {{ p.lastName }}</div>
+                        <div class="p-status">{{ p.bookingStatus === 'CANCELLED' ? '❌ Annulé' : '✅ Confirmé' }}</div>
+                      </div>
+                    </div>
+
+                    @if (p.phone) {
+                      <div class="passenger-contact">
+                        <a [href]="'tel:' + p.phone" class="contact-link">📞 {{ p.phone }}</a>
+                        <a [routerLink]="['/messages', p.id]" class="contact-link">💬</a>
+                      </div>
+                    } @else {
+                      <a [routerLink]="['/messages', p.id]" class="btn btn-outline btn-sm">💬</a>
+                    }
+
+                  </div>
+
+
+                <!-- PROFIL PASSAGER -->
+                <div *ngIf="selectedPassenger && selectedPassenger.id === p.id" class="passenger-profile">
+
+                  <h3>Profil de {{ selectedPassenger.firstName }}</h3>
+
+                  <div>
+                    ⭐ {{ selectedPassenger.rating }}
+                    | Avis : {{ selectedPassenger.reviewCount }}
+                    | {{ selectedPassenger.identityVerified ? 'Vérifié' : 'Non vérifié' }}
+                  </div>
+
+                  <a [routerLink]="['/profile', selectedPassenger.id]">
+                    Voir profil complet →
+                  </a>
+
+                </div>
+
+                }
+                @if (trip.passengers.length === 0) { <p class="empty-text">{{ langService.t('trip.noPassengers') }}</p> }
+
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Sidebar -->
+        <div class="trip-sidebar">
+          <div class="card booking-card">
+            <div class="price-block">
+              <span class="price-big">{{ trip.pricePerSeat | number }}</span>
+              <span class="price-currency">{{ trip.currency }}</span>
+              <span class="price-per">/ {{ langService.t('trip.perPerson') }}</span>
+            </div>
+            <div class="seats-left">{{ langService.t('trip.available') }} : {{ trip.availableSeats }} </div>
+
+            @if (!authService.isAuthenticated()) {
+              <a routerLink="/auth/login" class="btn btn-primary btn-full">{{ langService.t('trip.loginToBook') }}</a>
+            } @else if (isDriver) {
+              <div class="own-tag">{{ langService.t('trip.ownTrip') }}</div>
+              @if (trip.status === 'OPEN') {
+                <button class="btn btn-danger btn-full" (click)="showCancelTrip=true">{{ langService.t('trip.cancel') }}</button>
+              }
+              @if (trip.status === 'OPEN' || trip.status === 'FULL') {
+                <button class="btn btn-outline btn-full" style="margin-top:8px" (click)="completeTrip()">{{ langService.t('trip.complete') }}</button>
+              }
+            } @else if (isPassenger) {
+              <div class="joined-tag">✅ {{ langService.t('trip.joined') }}</div>
+              <button class="btn btn-outline btn-full" (click)="showCancelBooking=true">{{ langService.t('trip.leave') }}</button>
+
+              @if (canPassengerReview) {
+                <button class="btn btn-primary btn-full" style="margin-top:8px" (click)="showReview=true">⭐ {{ langService.t('trip.review') }}</button>
+              }
+            } @else if (trip.status === 'OPEN' && trip.availableSeats > 0) {
+              <div class="form-group" style="margin-bottom:12px">
+                <label>{{ langService.t('trip.currency') }}</label>
+                <app-currency-selector [(value)]="bookCurrency" />
+              </div>
+              @if (errorMsg) { <div class="alert alert-error">{{ errorMsg }}</div> }
+              <button class="btn btn-primary btn-full" (click)="joinTrip()" [disabled]="actionLoading">
+                @if (actionLoading) { <span class="spinner"></span> }
+                {{ langService.t('trip.book') }}
+              </button>
+            } @else {
+              <button class="btn btn-primary btn-full" disabled>{{ langService.t('trip.full') }}</button>
+            }
+          </div>
+
+          <div class="card driver-card">
+            <h3>{{ langService.t('trip.driver') }}</h3>
+            <a [routerLink]="['/profile', trip.driver.id]" class="driver-link">
+              @if (trip.driver.avatarUrl) { <img [src]="trip.driver.avatarUrl" class="avatar-lg" alt=""> }
+              @else { <div class="avatar-placeholder-lg">{{ trip.driver.firstName.charAt(0) }}</div> }
+              <div>
+
+                <div class="driver-name">{{ trip.driver.firstName }}</div>
+                @if (trip.driver.isVerified) { <span class="verified">✅ Vérifié</span> }
+                @if (trip.driver.rating) { <app-rating-stars [rating]="trip.driver.rating" [showValue]="true" /> }
+              </div>
+            </a>
+            @if (authService.isAuthenticated() && !isDriver) {
+              <a [routerLink]="['/messages', trip.driver.id]" class="btn btn-outline btn-full contact-btn">💬 {{ langService.t('trip.contact') }}</a>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modals -->
+
+@if (isOwner && trip?.status !== 'COMPLETED' && trip?.status !== 'CANCELLED') {
+<div class="driver-actions">
+  <a [routerLink]="['/trips', 'edit', trip?.id]" class="btn btn-edit">
+    ✏️ Modifier le trajet
+  </a>
+
+  @if (trip; as t) {
+    @if (t.passengers.length > 0) {
+    <span class="passenger-notice">
+        {{ t.passengers.length }}
+        passager{{ t.passengers.length > 1 ? 's' : '' }}
+        sera{{ t.passengers.length > 1 ? 'ont' : '' }}
+        notifié{{ t.passengers.length > 1 ? 's' : '' }}
+        en cas de modification
+      </span>
+    }
+  }
+</div>
+}
+
+<app-cancel-modal
+        *ngIf="showCancelTrip"
+        [config]="cancelTripConfig"
+        [loading]="actionLoading"
+        [errorMessage]="errorMsg"
+        (confirmed)="cancelTrip($event)"
+        (cancelled)="showCancelTrip = false">
+</app-cancel-modal>
+
+<app-cancel-modal
+        *ngIf="showCancelBooking"
+        [config]="cancelBookingConfig"
+        [loading]="actionLoading"
+        [errorMessage]="errorMsg"
+        (confirmed)="leaveTrip($event)"
+        (cancelled)="showCancelBooking = false">
+</app-cancel-modal>
+
+<app-review-modal
+        [open]="showReview"
+        [tripId]="trip?.id || ''" [targetUserId]="trip?.driver?.id || ''"
+        (submitted)="onReviewSubmitted()"
+        (cancelled)="showReview=false"
+
+/>
+
+<app-modal [open]="showShare" [title]="langService.t('share.title')" O
+        ="sm" (close)="showShare=false">
+  <div class="share-box">
+    <div class="share-url">{{ shareUrl }}</div>
+    <button class="btn btn-primary btn-full" (click)="copyLink()">{{ copied ? langService.t('share.copied') : langService.t('share.copy') }}</button>
+    <div class="share-links">
+      <a [href]="whatsappUrl" target="_blank" class="btn btn-outline">💬 {{ langService.t('share.whatsapp') }}</a>
+      <a [href]="smsUrl" class="btn btn-outline">📱 {{ langService.t('share.sms') }}</a>
+    </div>
+  </div>
+</app-modal>

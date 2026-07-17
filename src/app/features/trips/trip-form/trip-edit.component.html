@@ -1,0 +1,117 @@
+
+    <div class="page">
+      <h1 class="page-title">Modifier le trajet</h1>
+
+      <div *ngIf="loading" class="loading">Chargement…</div>
+
+      <form *ngIf="!loading && trip" (ngSubmit)="save()" class="edit-form">
+
+        <!-- Avertissement passagers -->
+        <div *ngIf="trip.passengers.length > 0" class="warning-banner">
+          ℹ️ {{ trip.passengers.length }} passager{{ trip.passengers.length > 1 ? 's' : '' }} confirmé{{ trip.passengers.length > 1 ? 's' : '' }}
+          recevra{{ trip.passengers.length > 1 ? 'ont' : '' }} une notification si vous modifiez l'horaire, le prix ou les villes.
+        </div>
+
+        <!-- Trajet -->
+        <div class="form-section">
+          <h3>Itinéraire</h3>
+          <div class="form-row">
+            <div class="field">
+              <label>Ville de départ</label>
+              <input type="text" [(ngModel)]="form.departureCity" name="departureCity" required />
+            </div>
+            <div class="field">
+              <label>Ville d'arrivée</label>
+              <input type="text" [(ngModel)]="form.arrivalCity" name="arrivalCity" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <label>Adresse de départ</label>
+              <input type="text" [(ngModel)]="form.departureAddress" name="departureAddress" />
+            </div>
+            <div class="field">
+              <label>Adresse d'arrivée</label>
+              <input type="text" [(ngModel)]="form.arrivalAddress" name="arrivalAddress" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Date / heure -->
+        <div class="form-section">
+          <h3>Date et heure</h3>
+          <div class="form-row">
+            <div class="field">
+              <label>Date et heure de départ</label>
+              <input type="datetime-local" [(ngModel)]="departureTimeLocal" name="departureTime" required />
+              <span class="hint" *ngIf="departureTimeLocal">
+                {{ form.departureTime | frenchDate:'full' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Places et prix -->
+        <div class="form-section">
+          <h3>Places et prix</h3>
+          <div class="form-row">
+            <div class="field">
+              <label>Nombre total de places</label>
+              <input type="number" [(ngModel)]="form.totalSeats" name="totalSeats" min="1" max="8" />
+              <span class="hint" *ngIf="confirmedCount > 0">
+                {{ confirmedCount }} place{{ confirmedCount > 1 ? 's' : '' }} déjà réservée{{ confirmedCount > 1 ? 's' : '' }} — minimum {{ confirmedCount }}
+              </span>
+            </div>
+            <div class="field">
+              <label>Prix par place</label>
+              <div class="price-input">
+                <input type="number" [(ngModel)]="form.pricePerSeat" name="pricePerSeat" min="0" step="100" />
+                <select [(ngModel)]="form.currency" name="currency">
+                  <option value="FBU">FBU</option>
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-section">
+          <h3>Description</h3>
+          <textarea [(ngModel)]="form.description" name="description" rows="3"
+                    placeholder="Informations complémentaires pour les passagers…"></textarea>
+        </div>
+
+        <!-- Préférences (incluant bagages) -->
+        <div class="form-section">
+          <h3>Préférences du trajet</h3>
+          <app-trip-preferences
+            [preferences]="preferences"
+            (preferencesChange)="preferences = $event"
+          ></app-trip-preferences>
+        </div>
+
+        <!-- Message aux passagers -->
+        <div class="form-section" *ngIf="trip.passengers.length > 0">
+          <h3>Message aux passagers (optionnel)</h3>
+          <textarea [(ngModel)]="form.notificationMessage" name="notificationMessage" rows="2"
+                    placeholder="Ex : Le départ est avancé de 15 minutes, merci d'arriver à l'heure."></textarea>
+        </div>
+
+        <!-- Erreur -->
+        <div *ngIf="errorMessage" class="error-banner">
+          ❌ {{ errorMessage }}
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="cancel()">Annuler</button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving">
+            <span *ngIf="saving" class="spinner"></span>
+            {{ saving ? 'Enregistrement…' : 'Enregistrer les modifications' }}
+          </button>
+        </div>
+
+      </form>
+    </div>

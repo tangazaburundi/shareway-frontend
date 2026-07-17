@@ -1,0 +1,173 @@
+<!--
+
+    <div class="admin-layout">
+
+      &lt;!&ndash; Sidebar &ndash;&gt;
+      <aside class="sidebar">
+        <div class="logo">🛠️ Shareway <span>Admin</span></div>
+        <div class="user-box">
+          <div class="user-name">{{ adminService.getUser()?.firstName }} {{ adminService.getUser()?.lastName }}</div>
+          <div class="user-role">{{ adminService.getUser()?.systemRole }}</div>
+          <button class="logout-btn" (click)="logout()">Déconnexion</button>
+        </div>
+      </aside>
+
+    </div>
+
+
+-->
+
+
+    <div class="page">
+      <div class="page-header">
+        <h1>Tableau de bord admnistrateur</h1>
+        <span class="subtitle">Statistiques temps réel — ShareWay</span>
+      </div>
+
+     @if (loading()) {
+      <div class="skeleton-grid">
+        @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="skeleton-card"></div>
+        }
+      </div>
+      }
+      @else if (stats()) {
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card primary">
+          <div class="kpi-icon">👥</div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ stats()!.totalUsers | number }}</span>
+            <span class="kpi-label">Utilisateurs total</span>
+            <span class="kpi-sub">🆕 +{{ stats()!.newUsersToday }} aujourd'hui</span>
+          </div>
+        </div>
+
+
+      <div class="kpi-card success">
+        <div class="kpi-icon">🎫</div>
+        <div class="kpi-body">
+          <div class="kpi-value">{{ stats()?.bookingsToday ?? 0 }}</div>
+          <div class="kpi-label">Réservations aujourd'hui</div>
+        </div>
+
+      </div>
+
+        <div class="kpi-card success">
+          <div class="kpi-icon">✅</div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ stats()?.activeUsers ?? 0 }}</span>
+            <span class="kpi-label">Comptes actifs</span>
+          </div>
+        </div>
+        <div class="kpi-card danger">
+          <div class="kpi-icon">🚫</div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ stats()?.blockedUsers | number }}</span>
+            <span class="kpi-label">Comptes bloqués</span>
+          </div>
+        </div>
+        <div class="kpi-card info">
+          <div class="kpi-icon">🚗</div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ stats()!.ridesThisMonth | number }}</span>
+            <span class="kpi-label">Trajets ce mois</span>
+            <span class="kpi-sub">{{ stats()!.totalRides | number }} au total</span>
+          </div>
+        </div>
+        <div class="kpi-card warning">
+          <div class="kpi-icon">🚨</div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ stats()!.pendingReports }}</span>
+            <span class="kpi-label">Signalements en attente</span>
+          </div>
+          <a routerLink="/admin/reports" class="kpi-action">Traiter →</a>
+        </div>
+        <div class="kpi-card warning">
+          <div class="kpi-icon">⭐</div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ stats()!.flaggedReviews }}</span>
+            <span class="kpi-label">Avis à modérer</span>
+          </div>
+          <a routerLink="/admin/reviews" class="kpi-action">Modérer →</a>
+        </div>
+
+        <div class="kpi-card warning">
+          <div class="kpi-icon">💬</div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ stats()!.flaggedMessages }}</span>
+            <span class="kpi-label">Messages signalés</span>
+          </div>
+          <a routerLink="/admin/reviews" class="kpi-action">Modérer →</a>
+        </div>
+
+
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="section-title">Actions rapides</div>
+      <div class="quick-actions">
+        <a routerLink="/admin/users" class="quick-btn">
+          <span>👥</span> Gérer les utilisateurs
+        </a>
+        <a routerLink="/admin/reports" class="quick-btn">
+          <span>🚨</span> Traiter les signalements
+          <!--            @if (stats()?.pendingReports > 0) {-->
+          @if ((stats()?.pendingReports ?? 0) > 0) {
+          <span class="badge">{{ stats()?.pendingReports }}</span>
+          }
+        </a>
+        <a routerLink="/admin/reviews" class="quick-btn">
+          <span>⭐</span> Modérer les avis
+          <!--            @if (stats()!.flaggedReviews > 0) {-->
+          @if ((stats()?.flaggedReviews ?? 0) > 0) {
+          <span class="badge">{{ stats()?.flaggedReviews }}</span>
+          }
+        </a>
+        <a routerLink="/admin/messages" class="quick-btn">
+          <span>💬</span> Messages signalés
+          <!--            @if (stats()!.flaggedMessages > 0) {-->
+          @if ((stats()?.flaggedMessages ?? 0) > 0) {
+          <span class="badge">{{ stats()?.flaggedMessages }}</span>
+          }
+        </a>
+        <a routerLink="/admin/audit" class="quick-btn">
+          <span>📋</span> Journal d'audit
+        </a>
+        <a routerLink="/admin/advertising" class="quick-btn">
+          <span>📢</span> Publicités
+        </a>
+      </div>
+
+      <!-- Growth Chart (mini sparklines) -->
+      @if (stats()?.userGrowth?.length) {
+      <div class="section-title">Croissance sur 30 jours</div>
+      <div class="charts-row">
+        <div class="chart-card">
+          <span class="chart-label">Nouveaux utilisateurs</span>
+          <div class="sparkline">
+            @for (point of stats()?.userGrowth; track point.date) {
+            <div
+                    class="bar"
+                    [style.height.%]="barHeight(point.count, maxUserGrowth())"
+                    [title]="point.date + ': ' + point.count">
+            </div>
+            }
+          </div>
+        </div>
+        <div class="chart-card">
+          <span class="chart-label">Trajets publiés</span>
+          <div class="sparkline">
+            @for (point of stats()?.ridesGrowth; track point.date) {
+            <div
+                    class="bar rides"
+                    [style.height.%]="barHeight(point.count, maxRidesGrowth())"
+                    [title]="point.date + ': ' + point.count">
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+      }
+      }
+    </div>

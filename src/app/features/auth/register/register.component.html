@@ -1,0 +1,71 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <a routerLink="/" class="auth-logo">
+        <img src="assets/images/shareway.png" alt="ShareWay" style="height:60px;">ShareWay</a>
+      <h1>{{ langService.t('auth.register.title') }}</h1>
+      <p>{{ langService.t('auth.register.subtitle') }}</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+      @if (error) { <div class="alert alert-error">{{ error }}</div> }
+
+      <!-- Role -->
+      <div class="form-group">
+        <label>{{ langService.t('auth.register.role') }}</label>
+        <div class="role-selector">
+          @for (r of roles; track r.value) {
+            <button type="button" class="role-btn" [class.active]="form.get('role')?.value === r.value" (click)="form.patchValue({role: r.value})">
+              <span>{{ r.icon }}</span>
+              <span>{{ langService.t('auth.register.role.' + r.value.toLowerCase()) }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ langService.t('auth.register.firstName') }}</label>
+          <input type="text" formControlName="firstName" class="input" [class.input-error]="isInvalid('firstName')" placeholder="Jean" />
+          @if (isInvalid('firstName')) { <span class="field-error">{{ langService.t('auth.required') }}</span> }
+        </div>
+        <div class="form-group">
+          <label>{{ langService.t('auth.register.lastName') }}</label>
+          <input type="text" formControlName="lastName" class="input" [class.input-error]="isInvalid('lastName')" placeholder="Dupont" />
+          @if (isInvalid('lastName')) { <span class="field-error">{{ langService.t('auth.required') }}</span> }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>{{ langService.t('auth.login.email') }}</label>
+        <input type="email" formControlName="email" class="input" [class.input-error]="isInvalid('email')" placeholder="vous@exemple.fr" />
+        @if (form.get('email')?.errors?.['required'] && form.get('email')?.touched) { <span class="field-error">{{ langService.t('auth.emailRequired') }}</span> }
+        @if (form.get('email')?.errors?.['email'] && form.get('email')?.touched) { <span class="field-error">{{ langService.t('auth.emailInvalid') }}</span> }
+      </div>
+
+      <div class="form-group">
+        <label>{{ langService.t('auth.register.phone') }}</label>
+        <input type="tel" formControlName="phone" class="input" placeholder="+257 79 000 000" />
+      </div>
+
+      <div class="form-group">
+        <label>{{ langService.t('auth.register.password') }}</label>
+        <div class="input-wrapper">
+          <input [type]="showPwd ? 'text' : 'password'" formControlName="password" class="input" [class.input-error]="isInvalid('password')" placeholder="••••••••" />
+          <button type="button" class="input-toggle" (click)="showPwd=!showPwd">{{ showPwd ? '🙈' : '👁️' }}</button>
+        </div>
+        @if (form.get('password')?.errors?.['minlength'] && form.get('password')?.touched) { <span class="field-error">{{ langService.t('auth.passwordMin') }}</span> }
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" [disabled]="loading">
+        @if (loading) { <span class="spinner"></span> }
+        {{ loading ? langService.t('auth.register.loading') : langService.t('auth.register.submit') }}
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      {{ langService.t('auth.register.hasAccount') }}
+      <a routerLink="/auth/login">{{ langService.t('auth.register.login') }}</a>
+    </p>
+  </div>
+</div>

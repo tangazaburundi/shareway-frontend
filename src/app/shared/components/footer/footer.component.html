@@ -1,0 +1,47 @@
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-brand">
+      <a routerLink="/" class="footer-logo">
+        <img src="assets/images/shareway.png" alt="ShareWay" style="height:50px;">
+
+        ShareWay</a>
+
+      <p class="footer-tagline">{{ langService.t('home.hero.subtitle') }}</p>
+    </div>
+
+    <nav class="footer-nav">
+      <a href="#" class="footer-link">{{ langService.t('footer.about') }}</a>
+      <a href="#" class="footer-link">{{ langService.t('footer.contact') }}</a>
+      <a href="#" class="footer-link">{{ langService.t('footer.terms') }}</a>
+      <a href="#" class="footer-link">{{ langService.t('footer.privacy') }}</a>
+    </nav>
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <div class="social-section">
+      <h3>Suivez-nous</h3>
+
+      <div class="social-links">
+        <a href="https://facebook.com/votrepage" target="_blank" class="social facebook" aria-label="Facebook">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+
+        <a href="https://x.com/votrecompte" target="_blank" class="social x" aria-label="X">
+          <i class="fab fa-x-twitter"></i>
+        </a>
+
+        <a href="https://wa.me/33123456789" target="_blank" class="social whatsapp" aria-label="WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+
+        <a href="https://instagram.com/votrecompte" target="_blank" class="social instagram" aria-label="Instagram">
+          <i class="fab fa-instagram"></i>
+        </a>
+      </div>
+    </div>
+    <p class="footer-copyright">{{ langService.t('footer.copyright') }}</p>
+  </div>
+
+
+</footer>

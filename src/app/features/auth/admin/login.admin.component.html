@@ -1,0 +1,36 @@
+
+<div class="login-page">
+    <div class="login-card">
+        <div class="login-brand">
+            <span class="brand-icon">🚗</span>
+            <h1>ShareWay</h1>
+            <a routerLink="/" class="auth-logo">
+                <img src="assets/images/shareway.png" alt="ShareWay" style="height:60px;">ShareWay</a>
+            <p>Administration</p>
+        </div>
+
+        <form class="login-form" (ngSubmit)="submit()">
+            <div class="field">
+                <label>Email</label>
+                <input type="email" [(ngModel)]="email" name="email" placeholder="admin@shareway.fr" required />
+            </div>
+            <div class="field">
+                <label>Mot de passe</label>
+                <input [type]="showPwd() ? 'text' : 'password'" [(ngModel)]="password" name="password" placeholder="••••••••" required />
+                <button type="button" class="pwd-toggle" (click)="showPwd.set(!showPwd())">
+                    {{ showPwd() ? '🙈' : '👁' }}
+                </button>
+            </div>
+
+            @if (error()) {
+            <div class="error-msg">{{ error() }}</div>
+            }
+
+            <button type="submit" class="login-btn" [disabled]="loading()">
+                {{ loading() ? 'Connexion…' : 'Se connecter' }}
+            </button>
+        </form>
+    </div>
+</div>
+
+

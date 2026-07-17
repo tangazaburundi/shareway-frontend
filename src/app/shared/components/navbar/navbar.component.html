@@ -1,0 +1,120 @@
+<nav class="navbar">
+  <div class="navbar-container">
+<!--
+   <a routerLink="/" class="navbar-brand">
+      <span class="brand-icon">🚗</span>
+      <span class="brand-name">ShareWay</span>
+    </a>
+-->
+
+    <a routerLink="/" class="navbar-brand">
+      <img src="assets/images/shareway.png" alt="ShareWay" style="height:60px;">
+      <span class="brand-name">ShareWay</span>
+    </a>
+
+    <div class="navbar-links">
+      <a routerLink="/trips" routerLinkActive="active" class="nav-link">
+        {{ langService.t('nav.trips') }}
+      </a>
+      @if (auth.isAuthenticated()) {
+        @if (isDriver && !isAdmin) {
+          <a routerLink="/trips/new" class="btn btn-primary btn-sm">
+            {{ langService.t('nav.propose') }}
+          </a>
+          <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+            {{ langService.t('nav.dashboard') }}
+          </a>
+
+          <a routerLink="/bookings" routerLinkActive="active" class="nav-link">
+            {{ langService.t('nav.bookings') }}
+          </a>
+        }
+
+      @if (isAdmin) {
+        <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
+          {{ langService.t('nav.dashboard') }}
+        </a>
+      }
+
+      @if (isPassenger) {
+        <a routerLink="/passenger/dashboard" routerLinkActive="active" class="nav-link">
+          Tableau de bord
+        </a>
+        <a routerLink="/my-bookings" routerLinkActive="active" class="nav-link">
+          {{ langService.t('nav.my-bookings') }}
+        </a>
+      }
+
+
+
+        <a routerLink="/messages" routerLinkActive="active" class="nav-link">
+          {{ langService.t('nav.messages') }}
+        </a>
+        <app-notification-bell />
+        <div class="nav-user" (click)="toggleMenu()" [class.open]="menuOpen">
+          @if (auth.currentUser()?.avatarUrl) {
+            <img [src]="auth.currentUser()!.avatarUrl" class="avatar-sm" alt="avatar">
+          } @else {
+            <div class="avatar-placeholder-sm">{{ auth.currentUser()?.firstName?.charAt(0) }}</div>
+          }
+          <span class="user-name">{{ auth.currentUser()?.firstName }}</span>
+          <span class="chevron">▾</span>
+          @if (menuOpen) {
+            <div class="dropdown-menu">
+              <a routerLink="/profile" class="dropdown-item" (click)="menuOpen=false">
+                👤 {{ langService.t('nav.profile') }}
+              </a>
+              @if (isDriver || isPassenger) {
+                <a [routerLink]="isDriver ? '/dashboard' : '/passenger/dashboard'" class="dropdown-item" (click)="menuOpen=false">
+                  📊 {{ langService.t('nav.dashboard') }}
+                </a>
+              }
+              <a routerLink="/bookings" class="dropdown-item" (click)="menuOpen=false">
+                🎫 {{ langService.t('nav.bookings') }}
+              </a>
+              <a routerLink="/notifications" class="dropdown-item" (click)="menuOpen=false">
+                🔔 {{ langService.t('nav.notifications') }}
+              </a>
+              <hr class="dropdown-divider">
+              <button class="dropdown-item danger" (click)="auth.logout()">
+                🚪 {{ langService.t('nav.logout') }}
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <a routerLink="/auth/login" class="nav-link">{{ langService.t('nav.login') }}</a>
+        <a routerLink="/auth/register" class="btn btn-primary btn-sm">{{ langService.t('nav.register') }}</a>
+      }
+      <app-language-switcher />
+    </div>
+
+    <button class="hamburger" (click)="toggleMobile()" [class.open]="mobileOpen" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  @if (mobileOpen) {
+    <div class="mobile-menu">
+      <a routerLink="/trips" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.trips') }}</a>
+      @if (auth.isAuthenticated()) {
+        @if (isDriver) {
+          <a routerLink="/trips/new" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.propose') }}</a>
+          <a routerLink="/dashboard" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.dashboard') }}</a>
+        }
+        @if (isPassenger) {
+          <a routerLink="/passenger/dashboard" (click)="mobileOpen=false" class="mobile-link">Tableau de bord</a>
+        }
+        <a routerLink="/bookings" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.bookings') }} </a>
+        <a routerLink="/messages" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.messages') }}</a>
+        <a routerLink="/notifications" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.notifications') }}</a>
+        <a routerLink="/profile" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.profile') }}</a>
+        <button class="mobile-link danger" (click)="auth.logout(); mobileOpen=false">{{ langService.t('nav.logout') }}</button>
+      } @else {
+        <a routerLink="/auth/login" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.login') }}</a>
+        <a routerLink="/auth/register" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.register') }}</a>
+      }
+      <div class="mobile-lang"><app-language-switcher /></div>
+    </div>
+  }
+</nav>

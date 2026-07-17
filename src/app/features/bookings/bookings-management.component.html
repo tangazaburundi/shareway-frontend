@@ -1,0 +1,246 @@
+<!--
+
+    <div class="page">
+      <h1 class="page-title">Demandes de réservation</h1>
+      <p class="page-sub">Trajet du {{ tripDate | frenchDate:'full' }}</p>
+
+      &lt;!&ndash; Chargement &ndash;&gt;
+      <div *ngIf="loading" class="loading">Chargement…</div>
+
+      &lt;!&ndash; Liste &ndash;&gt;
+      <div *ngIf="!loading" class="bookings-list">
+
+        <div *ngIf="bookings.length === 0" class="empty">
+          Aucune demande de réservation pour ce trajet.
+        </div>
+
+        <div *ngFor="let b of bookings" class="booking-card" [class]="'status-' + b.status.toLowerCase()">
+
+          &lt;!&ndash; En-tête passager &ndash;&gt;
+          <div class="card-header">
+            <img [src]="b.passenger?.avatarUrl || '/assets/avatar-placeholder.png'"
+                 [alt]="b.passenger?.firstName" class="avatar" />
+            <div class="passenger-info">
+              <strong>{{ b.passenger?.firstName }} {{ b.passenger?.lastName }}</strong>
+              <div class="rating" *ngIf="b.passenger?.rating">
+                ⭐ {{ b.passenger?.rating | number:'1.1-1' }}
+                <span class="review-count">({{ b.passenger?.reviewCount }} avis)</span>
+              </div>
+              <span class="verified" *ngIf="b.passenger?.identityVerified">✅ Identité vérifiée</span>
+            </div>
+            <div class="card-meta">
+              <span class="seats">{{ b.seatsBooked }} place{{ b.seatsBooked > 1 ? 's' : '' }}</span>
+              <span class="date">{{ b.createdAt | frenchDate:'relative' }}</span>
+            </div>
+
+          </div>
+
+          &lt;!&ndash; Badge statut &ndash;&gt;
+          <div class="status-row">
+            <span class="status-badge" [class]="'badge-' + b.status.toLowerCase()">
+              {{ statusLabel(b.status) }}
+            </span>
+            <span *ngIf="b.driverRejectReason" class="reject-reason">
+              Raison : {{ b.driverRejectReason }}
+            </span>
+          </div>
+
+          &lt;!&ndash; Actions (PENDING uniquement) &ndash;&gt;
+          <div *ngIf="b.status === 'PENDING'" class="card-actions">
+            <button class="btn btn-outline" (click)="viewProfile(b)">
+              👤 Voir le profil
+            </button>
+            <button class="btn btn-danger-outline" (click)="openRejectModal(b)">
+              ❌ Refuser
+            </button>
+            <button class="btn btn-success" (click)="accept(b)" [disabled]="responding === b.id">
+              <span *ngIf="responding === b.id" class="spinner"></span>
+              ✅ Accepter
+            </button>
+          </div>
+
+          &lt;!&ndash;           @if (checkCanDriverReview) {- &ndash;&gt;
+
+          <span *ngIf="b.tripStatus ==='COMPLETED'">
+             <button class="btn btn-primary btn-full" style="margin-top:8px; width:auto;" (click)="checkCanDriverReview(b)">⭐ {{ langService.t('trip.review') }}</button>
+          </span>
+
+          &lt;!&ndash;            }&ndash;&gt;
+          &lt;!&ndash; Profil passager inline &ndash;&gt;
+          <div *ngIf="selectedPassenger && selectedBookingId === b.id" class="passenger-profile">
+            <h3>Profil de {{ selectedPassenger.firstName }}</h3>
+            <div class="profile-stats">
+              <div class="stat"><span class="stat-val">⭐ {{ selectedPassenger.rating | number:'1.1-1' }}</span><span class="stat-lbl">Note</span></div>
+              <div class="stat"><span class="stat-val">{{ selectedPassenger.reviewCount }}</span><span class="stat-lbl">Avis reçus</span></div>
+              <div class="stat"><span class="stat-val">{{ selectedPassenger.identityVerified ? '✅' : '❌' }}</span><span class="stat-lbl">Vérifié</span></div>
+            </div>
+            <a [routerLink]="['/profile', selectedPassenger.id]" class="profile-link">
+              Voir le profil complet →
+            </a>
+
+          </div>
+
+          <app-review-modal [open]="showReview" [tripId]="b.tripId ||''" [targetUserId]="b?.passenger?.id||''"
+                            (submitted)="onReviewed()" (cancelled)="showReview=false" />
+
+
+        </div>
+      </div>
+
+      &lt;!&ndash; Modal refus &ndash;&gt;
+      <app-cancel-modal
+        *ngIf="showRejectModal && rejectConfig"
+        [config]="rejectConfig"
+        [loading]="responding !== null"
+        [errorMessage]="rejectError"
+        (confirmed)="reject($event)"
+        (cancelled)="closeRejectModal()"
+      ></app-cancel-modal>
+    </div>
+
+-->
+
+<div class="page">
+  <h1 class="page-title">Demandes de réservation</h1>
+  <p class="page-sub">Trajet du {{ tripDate | frenchDate:'full' }}</p>
+
+  <!-- Chargement -->
+  <div *ngIf="loading" class="loading">Chargement…</div>
+
+  <!-- Liste -->
+  <div *ngIf="!loading" class="bookings-list">
+
+    <div *ngIf="bookings.length === 0" class="empty">
+      Aucune demande de réservation pour ce trajet.
+    </div>
+
+    <div *ngFor="let b of bookings" class="booking-card"
+         [class]="'status-' + (b.status || '').toLowerCase()">
+
+      <!-- HEADER -->
+      <div class="card-header clickable" (click)="viewProfile(b)">
+        <img
+                [src]="b.passenger?.avatarUrl || '/assets/avatar-placeholder.png'"
+                [alt]="b.passenger?.firstName"
+                class="avatar"
+        />
+
+        <div class="passenger-info">
+          <strong>
+            {{ b.passenger?.firstName }} {{ b.passenger?.lastName }}
+          </strong>
+
+          <div class="rating" *ngIf="b.passenger?.rating">
+            ⭐ {{ b.passenger?.rating | number:'1.1-1' }}
+            <span>({{ b.passenger?.reviewCount }} avis)</span>
+          </div>
+
+          <span *ngIf="b.passenger?.identityVerified">
+            ✅ Identité vérifiée
+          </span>
+        </div>
+
+        <div class="card-meta">
+          <span>
+            {{ b.seatsBooked }} place{{ b.seatsBooked > 1 ? 's' : '' }}
+          </span>
+
+          <span>
+            {{ b.createdAt | frenchDate:'relative' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- STATUS -->
+      <div class="status-row">
+        <span class="status-badge"
+              [class]="'badge-' + (b.status || '').toLowerCase()">
+          {{ statusLabel(b.status) }}
+        </span>
+
+        <span *ngIf="b.driverRejectReason">
+          Raison : {{ b.driverRejectReason }}
+        </span>
+      </div>
+
+      <!-- ACTIONS -->
+
+
+      <div *ngIf="canShowActions(b)" class="card-actions">
+
+        <button class="btn btn-danger-outline" (click)="openRejectModal(b); $event.stopPropagation()">
+          ❌ Refuser
+        </button>
+
+        <button class="btn btn-success"
+                (click)="accept(b) ; $event.stopPropagation()"
+                [disabled]="responding === b.id">
+          <span *ngIf="responding === b.id" class="spinner"></span>
+          ✅ Accepter
+        </button>
+        <button class="btn btn-outline" (click)="viewProfile(b); $event.stopPropagation()">
+          👤 Voir le profil
+        </button>
+
+      </div>
+
+      <!-- COMPLETED -->
+      <div *ngIf="b.tripStatus === 'COMPLETED'" class="completed-section">
+
+        <span class="status-badge badge-completed">
+          Trajet terminé
+        </span>
+
+        <button
+                *ngIf="b.canReview"
+                class="btn btn-primary"
+                (click)="openReview(b)">
+          ⭐ Laisser un avis
+        </button>
+
+      </div>
+
+      <!-- PROFIL PASSAGER -->
+      <div *ngIf="selectedBookingId === b.id && selectedPassenger"
+           class="passenger-profile">
+
+        <h3>
+          Profil de {{ selectedPassenger.firstName }}
+        </h3>
+
+        <div>
+          ⭐ {{ selectedPassenger.rating }}
+          | Avis : {{ selectedPassenger.reviewCount }}
+          | {{ selectedPassenger.identityVerified ? 'Vérifié' : 'Non vérifié' }}
+        </div>
+
+        <a [routerLink]="['/profile', selectedPassenger.id]">
+          Voir profil complet →
+        </a>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL REFUS -->
+  <app-cancel-modal
+          *ngIf="showRejectModal && rejectConfig"
+          [config]="rejectConfig"
+          [loading]="responding !== null"
+          [errorMessage]="rejectError"
+          (confirmed)="reject($event)"
+          (cancelled)="closeRejectModal()">
+  </app-cancel-modal>
+
+  <!-- MODAL REVIEW (UN SEUL) -->
+  <app-review-modal
+          *ngIf="selectedBookingForReview"
+          [open]="true"
+          [tripId]="selectedBookingForReview?.tripId ?? ''"
+          [targetUserId]="selectedBookingForReview?.passenger?.id ?? ''"
+          (submitted)="onReviewed()"
+          (cancelled)="closeReview()">
+  </app-review-modal>
+
+</div>

@@ -1,0 +1,47 @@
+.search-page { min-height: calc(100vh - 64px); background: var(--gray-50); }
+.search-header { background: white; border-bottom: 1px solid var(--gray-200); padding: 20px 24px; }
+.container { max-width: 900px; margin: 0 auto; }
+.search-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.search-bar .input { flex: 1; min-width: 100px; }
+.date-input { max-width: 160px; } .seats-input { max-width: 80px; }
+.filter-btn { white-space: nowrap; }
+.filters-panel { margin-top: 16px; padding: 20px; background: var(--gray-50); border-radius: 14px; border: 1px solid var(--gray-200); }
+.filters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.price-row { display: flex; gap: 8px; align-items: center; }
+.filter-prefs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.pref-chip { padding: 6px 14px; border-radius: 20px; border: 2px solid var(--gray-200); cursor: pointer; font-size: .8rem; font-weight: 600; color: var(--gray-600); transition: all .2s; user-select: none; }
+.pref-chip.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+.filter-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.arrow { color: var(--gray-400); font-size: 1.25rem; flex-shrink: 0; }
+.results-container { padding: 28px 24px; }
+.results-count { color: var(--gray-500); margin-bottom: 16px; font-size: .875rem; }
+.trips-list { display: flex; flex-direction: column; gap: 12px; }
+.trip-card { background: white; border-radius: 16px; padding: 20px 24px; display: flex; align-items: center; gap: 20px; text-decoration: none; color: inherit; border: 1px solid var(--gray-200); transition: all .2s; }
+.trip-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); transform: translateY(-1px); border-color: var(--primary-light); }
+.trip-time { min-width: 56px; text-align: center; }
+.time { font-size: 1.25rem; font-weight: 700; color: var(--gray-900); display: block; }
+.date-small { font-size: .7rem; color: var(--gray-400); display: block; }
+.recur-badge { font-size: .75rem; display: block; }
+.trip-route { flex: 1; }
+.route-point { display: flex; align-items: center; gap: 8px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.dot-dep { background: var(--primary); } .dot-arr { background: var(--gray-400); }
+.route-line { width: 2px; height: 14px; background: var(--gray-200); margin-left: 4px; }
+.city { font-weight: 500; color: var(--gray-800); }
+.stops-hint { font-size: .7rem; color: var(--gray-400); margin-left: 18px; }
+.trip-prefs { display: flex; gap: 4px; font-size: .875rem; min-width: 60px; }
+.trip-driver { display: flex; align-items: center; gap: 10px; min-width: 130px; }
+.avatar-sm, .avatar-placeholder-sm { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+.avatar-placeholder-sm { background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+.driver-name { font-weight: 500; font-size: .85rem; }
+.verified-badge { font-size: .7rem; }
+.trip-meta { text-align: right; }
+.price { font-size: 1.25rem; font-weight: 700; color: var(--primary); display: block; }
+.price small { font-size: .65rem; }
+.seats { font-size: .75rem; color: var(--gray-500); display: block; margin-bottom: 2px; }
+.loading-state, .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 24px; text-align: center; gap: 12px; }
+.empty-icon { font-size: 3rem; }
+.empty-state h3 { font-size: 1.25rem; font-weight: 600; } .empty-state p { color: var(--gray-500); margin-bottom: 8px; }
+.spinner-lg { width: 48px; height: 48px; border: 4px solid var(--gray-200); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 640px) { .search-bar { flex-direction: column; } .search-bar .input, .date-input, .seats-input { min-width: 100%; max-width: 100%; } .arrow { display: none; } .trip-card { flex-wrap: wrap; gap: 12px; padding: 16px; } .trip-prefs { display: none; } .trip-meta { text-align: left; } .results-container { padding: 16px; } }

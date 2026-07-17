@@ -1,0 +1,255 @@
+<div class="page">
+  <div class="container">
+    <div class="page-header">
+      <h1>{{ langService.t('trips.create.title') }}</h1>
+      <p>{{ langService.t('trips.create.subtitle') }}</p>
+    </div>
+
+    <div class="card">
+      <form [formGroup]="form" (ngSubmit)="submit()">
+
+        @if (error) {
+        <div class="alert alert-error">{{ error }}</div>
+        }
+
+        <!-- ROUTE -->
+        <div class="form-section">
+          <h3 class="section-label">{{ langService.t('trips.create.section.route') }}</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ langService.t('trips.create.depCity') }}</label>
+              <input type="text"
+                     formControlName="departureCity"
+                     class="input"
+                     [class.input-error]="isInvalid('departureCity')"
+                     placeholder="Bujumbura" />
+
+              @if (isInvalid('departureCity')) {
+              <span class="field-error">{{ langService.t('auth.required') }}</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label>{{ langService.t('trips.create.arrCity') }}</label>
+              <input type="text"
+                     formControlName="arrivalCity"
+                     class="input"
+                     [class.input-error]="isInvalid('arrivalCity')"
+                     placeholder="Gitega" />
+
+              @if (isInvalid('arrivalCity')) {
+              <span class="field-error">{{ langService.t('auth.required') }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ langService.t('trips.create.depAddr') }}</label>
+              <input type="text" formControlName="departureAddress" class="input" />
+            </div>
+
+            <div class="form-group">
+              <label>{{ langService.t('trips.create.arrAddr') }}</label>
+              <input type="text" formControlName="arrivalAddress" class="input" />
+            </div>
+          </div>
+        </div>
+
+        <!-- DESCRIPTION (AJOUTÉ ICI) -->
+        <div class="form-section">
+          <h3 class="section-label">{{ langService.t('trip.description') || 'Description' }}</h3>
+
+          <div class="form-group">
+            <label>{{ langService.t('trips.create.description') || 'Description du trajet' }}</label>
+
+            <textarea formControlName="description"
+                      class="input"
+                      rows="4"
+                      placeholder="Décris ton trajet (confort, conditions, remarques...)">
+            </textarea>
+          </div>
+        </div>
+
+        <!-- STOPS -->
+        <div class="form-section">
+          <div class="section-header">
+            <h3 class="section-label">{{ langService.t('trips.create.section.stops') }}</h3>
+            <button type="button"
+                    class="btn btn-outline btn-sm"
+                    (click)="addStop()">
+              {{ langService.t('trips.create.addStop') }}
+            </button>
+          </div>
+
+          @for (stop of stops; track $index) {
+          <div class="stop-row">
+            <span class="stop-num">{{ $index + 1 }}</span>
+
+            <input type="text"
+                   [(ngModel)]="stop.city"
+                   [ngModelOptions]="{standalone:true}"
+                   class="input"
+                   placeholder="Ville" />
+
+            <input type="text"
+                   [(ngModel)]="stop.address"
+                   [ngModelOptions]="{standalone:true}"
+                   class="input"
+                   placeholder="Adresse (optionnel)" />
+
+            <button type="button"
+                    class="btn-remove"
+                    (click)="removeStop($index)">
+              ✕
+            </button>
+          </div>
+          }
+        </div>
+
+        <!-- TIME -->
+        <div class="form-section">
+          <h3 class="section-label">{{ langService.t('trips.create.section.time') }}</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ langService.t('trips.create.depTime') }}</label>
+              <input type="datetime-local"
+                     formControlName="departureTime"
+                     class="input"
+                     [class.input-error]="isInvalid('departureTime')" />
+
+              @if (isInvalid('departureTime')) {
+              <span class="field-error">{{ langService.t('auth.required') }}</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label>{{ langService.t('trips.create.arrTime') }}</label>
+              <input type="datetime-local"
+                     formControlName="arrivalTime"
+                     class="input" />
+            </div>
+          </div>
+        </div>
+
+        <!-- RECURRENCE -->
+        <div class="form-section">
+          <h3 class="section-label">{{ langService.t('trips.create.section.recurrence') }}</h3>
+
+          <label class="toggle-row">
+            <div class="toggle-switch">
+              <input type="checkbox" formControlName="isRecurring">
+              <span class="toggle-slider"></span>
+            </div>
+            <span>{{ langService.t('trips.create.isRecurring') }}</span>
+          </label>
+
+          @if (form.get('isRecurring')?.value) {
+          <div class="recurrence-options">
+
+            <div class="form-group">
+              <label>{{ langService.t('trips.create.frequency') }}</label>
+              <select formControlName="frequency" class="input">
+                <option value="WEEKLY">{{ langService.t('trips.create.frequency.weekly') }}</option>
+                <option value="BIWEEKLY">{{ langService.t('trips.create.frequency.biweekly') }}</option>
+                <option value="MONTHLY">{{ langService.t('trips.create.frequency.monthly') }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>{{ langService.t('trips.create.recurringDays') }}</label>
+              <div class="days-grid">
+                @for (day of weekDays; track day) {
+                <button type="button"
+                        class="day-btn"
+                        [class.active]="isDaySelected(day)"
+                        (click)="toggleDay(day)">
+                  {{ langService.t('days.' + day) }}
+                </button>
+                }
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>{{ langService.t('trips.create.recurringEnd') }}</label>
+              <input type="date"
+                     formControlName="recurringEndDate"
+                     class="input" />
+            </div>
+
+          </div>
+          }
+        </div>
+
+        <!-- SEATS & PRICE -->
+        <div class="form-section">
+          <h3 class="section-label">{{ langService.t('trips.create.section.seats') }}</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ langService.t('trips.create.seats') }}</label>
+              <input type="number"
+                     formControlName="totalSeats"
+                     class="input"
+                     min="1"
+                     max="8"
+                     [class.input-error]="isInvalid('totalSeats')" />
+            </div>
+
+            <div class="form-group">
+              <label>{{ langService.t('trips.create.price') }}</label>
+              <input type="number"
+                     formControlName="pricePerSeat"
+                     class="input"
+                     min="0"
+                     [class.input-error]="isInvalid('pricePerSeat')" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>{{ langService.t('trips.create.currency') }}</label>
+            <app-currency-selector [(value)]="selectedCurrency" />
+          </div>
+        </div>
+
+        <!-- PREFS -->
+        <div class="form-section">
+          <h3 class="section-label">{{ langService.t('trips.create.section.prefs') }}</h3>
+
+          <div class="prefs-grid">
+            @for (pref of prefKeys; track pref) {
+            <label class="pref-toggle">
+              <input type="checkbox"
+                     [formControlName]="'pref_' + pref">
+              <span>{{ langService.t('trips.prefs.' + pref) }}</span>
+            </label>
+            }
+          </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="form-actions">
+          <a routerLink="/trips" class="btn btn-outline">
+            {{ langService.t('trips.create.cancel') }}
+          </a>
+
+          <button type="submit"
+                  class="btn btn-primary"
+                  [disabled]="loading">
+
+            @if (loading) {
+            <span class="spinner"></span>
+            }
+
+            {{ loading
+            ? langService.t('trips.create.publishing')
+            : langService.t('trips.create.submit') }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

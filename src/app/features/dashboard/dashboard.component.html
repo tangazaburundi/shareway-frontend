@@ -1,0 +1,109 @@
+
+<div class="page">
+    <div class="container">
+        <div class="page-header">
+            <h1>{{ langService.t('dashboard.title') }}</h1>
+        </div>
+
+        @if (loading()) {
+        <div class="loading-center"><div class="spinner-lg"></div></div>
+        } @else if (stats()) {
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card primary">
+                <div class="kpi-icon">💰</div>
+                <div class="kpi-value">{{ stats()?.totalEarnings | number }} <small>FBU</small></div>
+                <div class="kpi-label">{{ langService.t('dashboard.earnings') }}</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">🚗</div>
+                <div class="kpi-value">{{ stats()?.totalTrips }}</div>
+                <div class="kpi-label">{{ langService.t('dashboard.trips') }}</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">👥</div>
+                <div class="kpi-value">{{ stats()?.totalPassengers }}</div>
+                <div class="kpi-label">{{ langService.t('dashboard.passengers') }}</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">⭐</div>
+                <div class="kpi-value">{{ stats()?.rating | number:'1.1-1' }}</div>
+                <div class="kpi-label">{{ langService.t('dashboard.rating') }}</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">✅</div>
+                <div class="kpi-value">{{ stats()?.completionRate | number:'1.0-0' }}%</div>
+                <div class="kpi-label">{{ langService.t('dashboard.completion') }}</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">📅</div>
+                <div class="kpi-value">{{ stats()?.upcomingTrips }}</div>
+                <div class="kpi-label">{{ langService.t('dashboard.upcoming') }}</div>
+            </div>
+        </div>
+
+        <!-- Revenus par devise -->
+        <div class="card">
+            <h3 class="card-title">{{ langService.t('dashboard.earnings') }}</h3>
+            <div class="currency-bars">
+                @for (entry of currencyEntries; track entry.key) {
+                <div class="currency-bar-row">
+                    <span class="curr-label">{{ entry.key }}</span>
+                    <div class="bar-track">
+                        <div class="bar-fill" [style.width.%]="entry.pct"></div>
+                    </div>
+                    <span class="curr-value">{{ entry.value | number }}</span>
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Monthly chart -->
+        <div class="card">
+            <h3 class="card-title">{{ langService.t('dashboard.chart') }}</h3>
+            <div class="monthly-chart">
+                @for (m of stats()?.monthlyEarnings; track m.month) {
+                <div class="chart-col">
+                    <div class="chart-bar-wrap">
+                        <div class="chart-bar" [style.height.%]="barHeight1(m.amount)" [title]="m.amount + ' FBU'"></div>
+                    </div>
+                    <div class="chart-label">{{ m.month }}</div>
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- My trips -->
+        <div class="card">
+            <div class="card-top-row">
+                <h3 class="card-title">{{ langService.t('dashboard.myTrips') }}</h3>
+                <a routerLink="/trips/new" class="btn btn-primary btn-sm">+ {{ langService.t('nav.propose') }}</a>
+            </div>
+            <div class="trips-table">
+                @for (trip of myTrips; track trip.id) {
+                <div class="trip-row">
+                    <div class="trip-route">
+                        <span class="t-city">{{ trip.departureCity }}</span>
+                        <span class="t-arrow">→</span>
+                        <span class="t-city">{{ trip.arrivalCity }}</span>
+                        @if (trip.isRecurring) { <span class="recur-tag">🔁</span> }
+                    </div>
+                    <div class="trip-meta-row">
+                        <span>{{ trip.departureTime | date:'d MMM HH:mm' }}</span>
+                        <span class="pass-count">👥 {{ trip.passengers.length }}/{{ trip.totalSeats }}</span>
+                        <span class="price-tag">{{ trip.pricePerSeat | number }} {{ trip.currency }}</span>
+                        <span class="status-dot" [class]="'s-' + trip.status.toLowerCase()">{{ trip.status }}</span>
+                    </div>
+                    <div class="trip-actions">
+                        <a [routerLink]="['/trips', trip.id]" class="btn btn-outline btn-sm">Voir</a>
+                    </div>
+                </div>
+                }
+                @if (myTrips.length === 0) {
+                <div class="empty-row">{{ langService.t('trips.empty.title') }}</div>
+                }
+            </div>
+        </div>
+        }
+    </div>
+</div>

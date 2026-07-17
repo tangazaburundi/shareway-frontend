@@ -1,0 +1,66 @@
+
+    <div class="page">
+      <div class="page-header">
+        <h1>📋 Journal d'audit</h1>
+        <p class="sub">Toutes les actions effectuées sur la plateforme</p>
+      </div>
+
+      <!-- Filtres -->
+      <div class="filters">
+        <input type="text" [(ngModel)]="searchUserId"
+               placeholder="Filtrer par ID utilisateur…"
+               (keyup.enter)="load()" />
+        <button class="btn-search" (click)="load()">🔍 Filtrer</button>
+        <button class="btn-reset" (click)="searchUserId = ''; load()">✕ Reset</button>
+      </div>
+
+      <div *ngIf="loading" class="loading">Chargement…</div>
+
+      <div class="table-wrap" *ngIf="!loading">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Action</th>
+              <th>Entité</th>
+              <th>Acteur</th>
+              <th>IP</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let log of logs" [class.failed-row]="!log.success">
+              <td class="date">{{ log.createdAt | date:'dd/MM/yy HH:mm:ss' }}</td>
+              <td>
+                <span class="action-badge" [class]="actionClass(log.action)">
+                  {{ log.action }}
+                </span>
+              </td>
+              <td>
+                <span class="entity-type">{{ log.entityType }}</span>
+                <span *ngIf="log.entityId" class="entity-id">{{ log.entityId | slice:0:8 }}…</span>
+              </td>
+              <td>
+                <div class="actor-email">{{ log.actorEmail || '—' }}</div>
+                <div class="actor-role" *ngIf="log.actorRole">{{ log.actorRole }}</div>
+              </td>
+              <td class="ip">{{ log.ipAddress || '—' }}</td>
+              <td>
+                <span *ngIf="log.success"  class="status-ok">✅ OK</span>
+                <span *ngIf="!log.success" class="status-err" [title]="log.errorMessage || ''">❌ Erreur</span>
+              </td>
+            </tr>
+            <tr *ngIf="logs.length === 0">
+              <td colspan="6" class="empty-row">Aucun log trouvé</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button [disabled]="page === 0" (click)="prev()">← Précédent</button>
+        <span>Page {{ page + 1 }} / {{ totalPages }}</span>
+        <button [disabled]="page >= totalPages - 1" (click)="next()">Suivant →</button>
+      </div>
+    </div>

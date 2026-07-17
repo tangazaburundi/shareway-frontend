@@ -1,0 +1,53 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <a routerLink="/" class="auth-logo">
+        <img src="assets/images/shareway.png" alt="ShareWay" style="height:60px;">ShareWay</a>
+
+      <h1>{{ langService.t('auth.login.title') }}</h1>
+      <p>{{ langService.t('auth.login.subtitle') }}</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+      @if (error) {
+        <div class="alert alert-error">{{ error }}</div>
+      }
+
+      <div class="form-group">
+        <label for="email">{{ langService.t('auth.login.email') }}</label>
+        <input id="email" type="email" formControlName="email" class="input"
+          [class.input-error]="form.get('email')?.invalid && form.get('email')?.touched"
+          placeholder="vous@exemple.fr" />
+        @if (form.get('email')?.errors?.['required'] && form.get('email')?.touched) {
+          <span class="field-error">{{ langService.t('auth.emailRequired') }}</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">{{ langService.t('auth.login.password') }}</label>
+        <div class="input-wrapper">
+          <input id="password" [type]="showPassword ? 'text' : 'password'"
+            formControlName="password" class="input"
+            [class.input-error]="form.get('password')?.invalid && form.get('password')?.touched"
+            placeholder="••••••••" />
+          <button type="button" class="input-toggle" (click)="showPassword = !showPassword">
+            {{ showPassword ? '🙈' : '👁️' }}
+          </button>
+        </div>
+        @if (form.get('password')?.errors?.['required'] && form.get('password')?.touched) {
+          <span class="field-error">{{ langService.t('auth.required') }}</span>
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" [disabled]="loading">
+        @if (loading) { <span class="spinner"></span> }
+        {{ loading ? langService.t('auth.login.loading') : langService.t('auth.login.submit') }}
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      {{ langService.t('auth.login.noAccount') }}
+      <a routerLink="/auth/register">{{ langService.t('auth.login.register') }}</a>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,7 @@
+<div class="currency-group">
+  @for (c of currencies; track c) {
+    <button class="currency-btn" [class.active]="value === c" (click)="select(c)">
+      {{ symbols[c] }} {{ c }}
+    </button>
+  }
+</div>

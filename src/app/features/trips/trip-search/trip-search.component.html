@@ -1,0 +1,105 @@
+<div class="search-page">
+  <div class="search-header">
+    <div class="container">
+      <form [formGroup]="searchForm" (ngSubmit)="search()" class="search-bar">
+        <input type="text" formControlName="departureCity" class="input" [placeholder]="langService.t('trips.search.placeholder.from')" />
+        <span class="arrow">→</span>
+        <input type="text" formControlName="arrivalCity" class="input" [placeholder]="langService.t('trips.search.placeholder.to')" />
+        <input type="date" formControlName="date" class="input date-input" />
+        <input type="number" formControlName="seats" class="input seats-input" [placeholder]="langService.t('trips.search.seats')" min="1" max="8" />
+        <button type="submit" class="btn btn-primary">{{ langService.t('trips.search.btn') }}</button>
+        <button type="button" class="btn btn-outline filter-btn" (click)="showFilters=!showFilters">🔍 {{ langService.t('trips.filters') }}</button>
+      </form>
+
+      @if (showFilters) {
+        <div class="filters-panel">
+          <div class="filters-grid">
+            <div class="form-group">
+              <label>{{ langService.t('trips.filters.maxPrice') }}</label>
+              <div class="price-row">
+                <input type="number" formControlName="maxPrice" [formGroup]="searchForm" class="input" min="0" />
+                <app-currency-selector [(value)]="filterCurrency" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>{{ langService.t('trips.filters.minRating') }}</label>
+              <app-rating-stars [rating]="minRating" [interactive]="true" (ratingChange)="minRating=$event" />
+            </div>
+            <div class="form-group">
+              <label>{{ langService.t('trips.filters.timeFrom') }}</label>
+              <input type="time" [(ngModel)]="timeFrom" [ngModelOptions]="{standalone:true}" class="input" />
+            </div>
+            <div class="form-group">
+              <label>{{ langService.t('trips.filters.timeTo') }}</label>
+              <input type="time" [(ngModel)]="timeTo" [ngModelOptions]="{standalone:true}" class="input" />
+            </div>
+          </div>
+          <div class="filter-prefs">
+            @for (p of ['music','smoking','pets']; track p) {
+              <label class="pref-chip" [class.active]="prefFilters[p]" (click)="prefFilters[p]=!prefFilters[p]">
+                {{ langService.t('trips.prefs.' + p) }}
+              </label>
+            }
+          </div>
+          <div class="filter-actions">
+            <button type="button" class="btn btn-outline btn-sm" (click)="resetFilters()">{{ langService.t('trips.filters.reset') }}</button>
+            <button type="button" class="btn btn-primary btn-sm" (click)="search()">{{ langService.t('trips.filters.apply') }}</button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="container results-container">
+    @if (loading) {
+      <div class="loading-state"><div class="spinner-lg"></div><p>{{ langService.t('trips.loading') }}</p></div>
+    } @else if (trips.length === 0 && searched) {
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>{{ langService.t('trips.empty.title') }}</h3>
+        <p>{{ langService.t('trips.empty.desc') }}</p>
+        <a routerLink="/trips/new" class="btn btn-primary">{{ langService.t('trips.empty.propose') }}</a>
+      </div>
+    } @else {
+      @if (searched) { <p class="results-count">{{ trips.length }} {{ trips.length > 1 ? langService.t('trips.count.plural') : langService.t('trips.count.singular') }}</p> }
+      <div class="trips-list">
+        @for (trip of trips; track trip.id) {
+          <a [routerLink]="['/trips', trip.id]" class="trip-card">
+            <div class="trip-time">
+              <span class="time">{{ trip.departureTime | date:'HH:mm' }}</span>
+              <span class="date-small">{{ trip.departureTime | date:'d MMM' }}</span>
+              @if (trip.isRecurring) { <span class="recur-badge">🔁</span> }
+            </div>
+            <div class="trip-route">
+              <div class="route-point"><span class="dot dot-dep"></span><span class="city">{{ trip.departureCity }}</span></div>
+              @if (trip.stopPoints?.length) { <div class="stops-hint">+{{ trip.stopPoints!.length }} arrêt(s)</div> }
+              <div class="route-line"></div>
+              <div class="route-point"><span class="dot dot-arr"></span><span class="city">{{ trip.arrivalCity }}</span></div>
+            </div>
+            <div class="trip-prefs">
+              @if (trip.preferences?.music) { <span title="Musique">🎵</span> }
+              @if (trip.preferences?.pets) { <span title="Animaux">🐾</span> }
+              @if (trip.preferences?.smoking) { <span title="Fumeur">🚬</span> }
+            </div>
+            <div class="trip-driver">
+              @if (trip.driver.avatarUrl) {
+                <img [src]="trip.driver.avatarUrl" class="avatar-sm" alt="">
+              } @else {
+                <div class="avatar-placeholder-sm">{{ trip.driver.firstName.charAt(0) }}</div>
+              }
+              <div>
+                <div class="driver-name">{{ trip.driver.firstName }}</div>
+                @if (trip.driver.isVerified) { <span class="verified-badge">✅</span> }
+                @if (trip.driver.rating) { <app-rating-stars [rating]="trip.driver.rating" [showValue]="true" /> }
+              </div>
+            </div>
+            <div class="trip-meta">
+              <span class="seats">{{ trip.availableSeats }} {{ trip.availableSeats > 1 ? langService.t('trips.seat.plural') : langService.t('trips.seat.singular') }}</span>
+              <span class="price">{{ trip.pricePerSeat | number }} <small>{{ trip.currency }}</small></span>
+            </div>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</div>

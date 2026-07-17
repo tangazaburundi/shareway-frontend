@@ -1,0 +1,190 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Gestion des publicités</h1>
+      <span class="subtitle">Créez, gérez et programmez vos campagnes publicitaires</span>
+    </div>
+    <button class="btn btn-primary" (click)="openCreate()">+ Nouvelle publicité</button>
+  </div>
+
+  @if (stats()) {
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-value">{{ stats()!['totalAds'] }}</span>
+      <span class="stat-label">Total</span>
+    </div>
+    <div class="stat-card success">
+      <span class="stat-value">{{ stats()!['activeAds'] }}</span>
+      <span class="stat-label">Actives</span>
+    </div>
+    <div class="stat-card info">
+      <span class="stat-value">{{ stats()!['paidAds'] }}</span>
+      <span class="stat-label">Payées</span>
+    </div>
+    <div class="stat-card warning">
+      <span class="stat-value">{{ stats()!['pendingPaymentAds'] }}</span>
+      <span class="stat-label">En attente</span>
+    </div>
+  </div>
+  }
+
+  @if (showForm()) {
+  <div class="form-card">
+    <h2>{{ editingId() ? 'Modifier' : 'Nouvelle' }} publicité</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Titre *</label>
+        <input [(ngModel)]="form.title" placeholder="Titre de la publicité" required />
+      </div>
+      <div class="form-group">
+        <label>Position</label>
+        <select [(ngModel)]="form.position">
+          @for (p of positions; track p) {
+          <option [value]="p">{{ p }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-group full-width">
+        <label>Description</label>
+        <textarea [(ngModel)]="form.description" placeholder="Description de la publicité" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Image</label>
+        <div class="upload-toggle">
+          <button type="button" class="toggle-btn" [class.active]="uploadMode() === 'url'" (click)="uploadMode.set('url')">URL</button>
+          <button type="button" class="toggle-btn" [class.active]="uploadMode() === 'file'" (click)="uploadMode.set('file')">Fichier</button>
+        </div>
+        @if (uploadMode() === 'url') {
+        <div class="input-with-preview">
+          <input [(ngModel)]="form.imageUrl" placeholder="https://example.com/image.jpg" />
+          @if (form.imageUrl) {
+          <button type="button" class="btn-icon" (click)="removeImage()" title="Supprimer">✕</button>
+          }
+        </div>
+        } @else {
+        <div class="file-upload">
+          <input type="file" accept="image/*" (change)="onFileSelected($event)" [disabled]="uploading()" />
+          @if (uploading()) {
+          <span class="upload-status">Upload en cours...</span>
+          }
+        </div>
+        }
+        @if (form.imageUrl) {
+        <div class="image-preview">
+          <img [src]="form.imageUrl" alt="Aperçu" />
+        </div>
+        }
+      </div>
+      <div class="form-group">
+        <label>URL de destination</label>
+        <input [(ngModel)]="form.linkUrl" placeholder="https://..." />
+      </div>
+      <div class="form-group">
+        <label>Début d'affichage</label>
+        <input [(ngModel)]="form.displayStart" type="datetime-local" />
+      </div>
+      <div class="form-group">
+        <label>Fin d'affichage</label>
+        <input [(ngModel)]="form.displayEnd" type="datetime-local" />
+      </div>
+      <div class="form-group">
+        <label>Ordre d'affichage</label>
+        <input [(ngModel)]="form.sortOrder" type="number" min="0" />
+      </div>
+      <div class="form-group">
+        <label>Public cible</label>
+        <select [(ngModel)]="form.targetAudience">
+          @for (a of audiences; track a) {
+          <option [value]="a">{{ a }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Statut paiement</label>
+        <select [(ngModel)]="form.paymentStatus">
+          @for (ps of paymentStatuses; track ps) {
+          <option [value]="ps">{{ ps }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Montant</label>
+        <input [(ngModel)]="form.paymentAmount" type="number" min="0" step="0.01" />
+      </div>
+      <div class="form-group">
+        <label>Devise</label>
+        <input [(ngModel)]="form.paymentCurrency" placeholder="FBU" maxlength="10" />
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" (click)="save()">{{ editingId() ? 'Mettre à jour' : 'Créer' }}</button>
+      <button class="btn btn-secondary" (click)="cancelForm()">Annuler</button>
+    </div>
+  </div>
+  }
+
+  @if (loading()) {
+  <div class="skeleton-grid">
+    @for (i of [1,2,3]; track i) {
+    <div class="skeleton-card"></div>
+    }
+  </div>
+  } @else {
+  <div class="ad-grid">
+    @for (ad of ads(); track ad.id) {
+    <div class="ad-card" [class.active]="ad.active">
+      <div class="ad-card-header">
+        <span class="ad-position" [class]="'pos-' + ad.position">{{ ad.position }}</span>
+        <div class="ad-status">
+          <span class="badge" [class.badge-success]="ad.active" [class.badge-muted]="!ad.active">
+            {{ ad.active ? 'Active' : 'Inactive' }}
+          </span>
+          <span class="badge" [class.badge-info]="ad.paymentStatus === 'PAID'"
+                           [class.badge-warning]="ad.paymentStatus === 'PENDING'"
+                           [class.badge-muted]="ad.paymentStatus === 'FREE'">
+            {{ ad.paymentStatus }}
+          </span>
+        </div>
+      </div>
+
+      @if (ad.imageUrl) {
+      <div class="ad-preview">
+        <img [src]="ad.imageUrl" [alt]="ad.title" />
+      </div>
+      }
+
+      <div class="ad-card-body">
+        <h3>{{ ad.title }}</h3>
+        @if (ad.description) {
+        <p>{{ ad.description }}</p>
+        }
+        <div class="ad-meta">
+          <span>👁️ {{ ad.impressions }} aff.</span>
+          <span>🖱️ {{ ad.clicks }} clics</span>
+          @if (ad.displayStart) {
+          <span>📅 {{ ad.displayStart | date:'short' }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="ad-card-actions">
+        <button class="btn btn-sm" [class.btn-success]="!ad.active" [class.btn-muted]="ad.active"
+                (click)="toggleActive(ad)">
+          {{ ad.active ? 'Désactiver' : 'Activer' }}
+        </button>
+        <button class="btn btn-sm btn-secondary" (click)="openEdit(ad)">Modifier</button>
+        <button class="btn btn-sm btn-danger" (click)="deleteAd(ad.id)">Supprimer</button>
+      </div>
+    </div>
+    }
+  </div>
+
+  @if (totalPages() > 1) {
+  <div class="pagination">
+    <button [disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)">← Précédent</button>
+    <span>Page {{ currentPage() + 1 }} / {{ totalPages() }}</span>
+    <button [disabled]="currentPage() >= totalPages() - 1" (click)="goToPage(currentPage() + 1)">Suivant →</button>
+  </div>
+  }
+  }
+</div>

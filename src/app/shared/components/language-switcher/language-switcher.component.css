@@ -1,0 +1,41 @@
+.lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--gray-100);
+  border-radius: 20px;
+  padding: 4px 8px;
+}
+
+.lang-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  padding: 2px 6px;
+  border-radius: 12px;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.lang-btn:hover {
+  color: var(--gray-700);
+}
+
+.lang-btn.active {
+  background: white;
+  color: var(--primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.lang-sep {
+  color: var(--gray-300);
+  font-size: 0.75rem;
+}
+.flag {
+  width: 22px;
+  height: 18px;
+  border-radius: 2px;
+}

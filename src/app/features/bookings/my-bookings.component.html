@@ -1,0 +1,173 @@
+<!--
+
+    <div class="page">
+      <h1 class="page-title">Mes réservations</h1>
+
+      <div *ngIf="loading" class="loading">Chargement…</div>
+
+      <div *ngIf="!loading && bookings.length === 0" class="empty">
+        Vous n'avez aucune réservation pour le moment.
+        <a routerLink="/trips" class="link">Rechercher un trajet</a>
+      </div>
+
+      <div class="bookings-list">
+        <div *ngFor="let b of bookings" class="booking-card" [class]="'status-' + b.status.toLowerCase()">
+
+          <div class="card-top">
+            <div class="trip-info">
+              <strong>{{ b.departureCity }} → {{ b.arrivalCity }}</strong>
+              <div class="trip-date">{{ b.departureTime | frenchDate:'full' }}</div>
+            </div>
+            <span class="status-badge" [class]="'badge-' + b.status.toLowerCase()">
+              {{ statusLabel(b.status) }}
+            </span>
+          </div>
+
+          <div class="card-details">
+            <span>{{ b.seatsBooked }} place{{ b.seatsBooked > 1 ? 's' : '' }}</span>
+            <span>{{ b.amountPaid }} {{ b.currency }}</span>
+          </div>
+
+          &lt;!&ndash; Message d'attente &ndash;&gt;
+          <div *ngIf="b.status === 'PENDING'" class="info-banner pending">
+            ⏳ En attente de validation par le conducteur
+          </div>
+
+          &lt;!&ndash; Raison de refus &ndash;&gt;
+          <div *ngIf="b.status === 'REJECTED'" class="info-banner rejected">
+            ❌ Réservation refusée — {{ b.driverRejectReason }}
+          </div>
+
+          &lt;!&ndash; Raison d'annulation &ndash;&gt;
+          <div *ngIf="b.status === 'CANCELLED' && b.cancelReason" class="info-banner cancelled">
+            🚫 {{ b.cancelReason }}
+          </div>
+
+          &lt;!&ndash; Actions : annuler possible si PENDING ou CONFIRMED &ndash;&gt;
+          <div *ngIf="(b.status === 'PENDING' || b.status === 'CONFIRMED') && b.tripStatus !== 'COMPLETED'" class="card-actions">
+            <button class="btn btn-danger-outline" (click)="openCancelModal(b)">
+              Annuler ma réservation
+            </button>
+          </div>
+
+          <div *ngIf="b.tripStatus === 'COMPLETED'" class="info-banner cancelled">
+
+             <span class="status-badge" [class]="'badge-' + b.tripStatus.toLowerCase()">
+                Trajet terminé
+             </span>
+
+            <div *ngIf="checkCanPassengerReview(b)">
+               <button class="btn btn-primary btn-full" style="margin-top:8px; width:auto;" (click)="showReview=true">⭐ {{ langService.t('trip.review') }}</button>
+            </div>
+
+
+            <app-review-modal [open]="showReview" [tripId]="b.tripId ||''" [targetUserId]="b?.driverId||''"
+                              (submitted)="onReviewed()" (cancelled)="showReview=false" />
+
+
+          </div>
+
+        </div>
+      </div>
+
+      &lt;!&ndash; Modal annulation avec erreur affichée &ndash;&gt;
+      <app-cancel-modal
+        *ngIf="showCancelModal && cancelConfig"
+        [config]="cancelConfig"
+        [loading]="cancelling !== null"
+        [errorMessage]="cancelError"
+        (confirmed)="confirmCancel($event)"
+        (cancelled)="closeCancelModal()"
+      ></app-cancel-modal>
+    </div>
+-->
+
+
+<div class="page">
+  <h1 class="page-title">Mes réservations</h1>
+
+  <div *ngIf="loading" class="loading">Chargement…</div>
+
+  <div *ngIf="!loading && bookings.length === 0" class="empty">
+    Vous n'avez aucune réservation pour le moment.
+  </div>
+
+  <div class="bookings-list">
+
+    <div *ngFor="let b of bookings"
+         class="booking-card"
+         [class]="'status-' + (b.status || '').toLowerCase()">
+
+      <!-- TOP -->
+      <div class="card-top">
+        <div class="trip-info">
+          <strong>{{ b.departureCity }} → {{ b.arrivalCity }}</strong>
+          <div class="trip-date">
+            {{ b.departureTime | frenchDate:'full' }}
+          </div>
+        </div>
+
+        <span class="status-badge"
+              [class]="'badge-' + (b.status || '').toLowerCase()">
+          {{ statusLabel(b.status) }}
+        </span>
+      </div>
+
+      <!-- DETAILS -->
+      <div class="card-details">
+        <span>{{ b.seatsBooked }} place(s)</span>
+        <span>{{ b.amountPaid }} {{ b.currency }}</span>
+      </div>
+
+      <!-- ACTION CANCEL -->
+      <div *ngIf="(b.status === 'PENDING' || b.status === 'CONFIRMED')
+                  && b.tripStatus !== 'COMPLETED'"
+           class="card-actions">
+
+        <button class="btn btn-danger-outline"
+                (click)="openCancelModal(b)">
+          Annuler
+        </button>
+      </div>
+
+      <!-- COMPLETED -->
+      <div *ngIf="b.tripStatus === 'COMPLETED'" class="info-banner">
+
+        <span class="status-badge badge-completed">
+          Trajet terminé
+        </span>
+
+        <button
+                *ngIf="b.canReview"
+                class="btn btn-primary btn-full"
+                style="margin-top:8px; width:auto;"
+                (click)="openReview(b)">
+          ⭐ Évaluer
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL CANCEL (1 SEUL) -->
+  <app-cancel-modal
+          *ngIf="showCancelModal && cancelConfig"
+          [config]="cancelConfig"
+          [loading]="cancelling !== null"
+          [errorMessage]="cancelError"
+          (confirmed)="confirmCancel($event)"
+          (cancelled)="closeCancelModal()">
+  </app-cancel-modal>
+
+  <!-- MODAL REVIEW (1 SEUL) -->
+  <app-review-modal
+          *ngIf="selectedBookingForReview"
+          [open]="true"
+          [tripId]="selectedBookingForReview?.tripId?? ''"
+          [targetUserId]="selectedBookingForReview?.driverId ?? ''"
+          (submitted)="onReviewed()"
+          (cancelled)="selectedBookingForReview = null">
+  </app-review-modal>
+
+</div>

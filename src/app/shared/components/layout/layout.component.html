@@ -1,0 +1,50 @@
+
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" [class.collapsed]="collapsed()">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">🚗</span>
+                <span class="logo-text">ShareWay</span>
+            </div>
+            <button class="collapse-btn" (click)="collapsed.set(!collapsed())">
+                {{ collapsed() ? '›' : '‹' }}
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            @for (item of navItems; track item.path) {
+            <a
+                    [routerLink]="['/admin', item.path]"
+                    routerLinkActive="active"
+                    class="nav-item"
+                    [title]="item.label">
+                <span class="nav-icon">{{ item.icon }}</span>
+                <span class="nav-label">{{ item.label }}</span>
+            </a>
+            }
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ initials() }}
+                </div>
+                @if (!collapsed()) {
+                <div class="user-details">
+                    <span class="user-name">{{ user()?.firstName }} {{ user()?.lastName }}</span>
+                    <span class="user-role">{{ user()?.role }}</span>
+                </div>
+                }
+            </div>
+            <button class="logout-btn" (click)="logout()" title="Déconnexion">⏻</button>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content">
+        <router-outlet />
+    </main>
+</div>
+
+
