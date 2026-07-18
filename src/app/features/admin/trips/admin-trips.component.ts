@@ -32,6 +32,8 @@ export class AdminTripsComponent implements OnInit {
   filters = [
     { key: 'ALL',       labelKey: 'admin.trips.filter.all' },
     { key: 'OPEN',      labelKey: 'admin.trips.filter.open' },
+    { key: 'PENDING',   labelKey: 'admin.trips.filter.pending' },
+    { key: 'FULL',      labelKey: 'admin.trips.filter.full' },
     { key: 'SUSPENDED', labelKey: 'admin.trips.filter.suspended' },
     { key: 'REJECTED',  labelKey: 'admin.trips.filter.rejected' },
     { key: 'COMPLETED', labelKey: 'admin.trips.filter.completed' },
@@ -96,6 +98,9 @@ export class AdminTripsComponent implements OnInit {
     switch (action) {
       case 'APPROVE':
         obs = this.svc.approveTrip(id);
+        break;
+      case 'CANCEL':
+        obs = this.svc.rejectTrip(id, reason || 'Annulé par l\'administrateur');
         break;
       case 'REJECT':
         obs = this.svc.rejectTrip(id, reason);

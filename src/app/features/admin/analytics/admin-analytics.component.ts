@@ -70,7 +70,7 @@ import { LucideIconsDirective } from '../../../shared/directives/lucide-icons.di
 
           <div class="kpi-card">
             <div class="kpi-icon bg-red">
-              <i data-lucide="cookie-off"></i>
+              <i data-lucide="shield-x"></i>
             </div>
             <div class="kpi-info">
               <span class="kpi-value">{{ stats()?.cookiesRejected ?? 0 }}</span>

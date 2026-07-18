@@ -120,9 +120,9 @@
   justify-content: center;
   text-decoration: none;
   color: #fff;
-  font-size: 16px;
   transition: all 0.2s;
 }
+.social svg { width: 18px; height: 18px; }
 .social:hover { transform: translateY(-2px); }
 .facebook { background: #1877F2; }
 .x { background: #000; }

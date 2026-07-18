@@ -14,7 +14,11 @@
     <div class="cta-inner">
       <h2 class="cta-title">Prêt à voyager ?</h2>
       <p class="cta-text">Rejoignez des milliers de voyageurs qui font confiance à ShareWay pour leurs trajets quotidiens.</p>
-      <a routerLink="/auth/register" class="btn btn-primary btn-lg">Créer un compte gratuit</a>
+      @if (isLoggedIn) {
+        <a routerLink="/dashboard" class="btn btn-primary btn-lg">Mon tableau de bord</a>
+      } @else {
+        <a routerLink="/auth/register" class="btn btn-primary btn-lg">Créer un compte gratuit</a>
+      }
     </div>
   </section>
 }

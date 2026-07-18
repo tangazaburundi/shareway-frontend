@@ -50,6 +50,10 @@
   text-decoration: none;
 }
 
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
 /* Mobile */
 @media (max-width: 480px) {
   .auth-card {

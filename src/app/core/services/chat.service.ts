@@ -11,19 +11,23 @@ export class ChatService implements OnDestroy {
   private subscriptions = new Subscription();
   private _typingUsers = signal<Map<string, boolean>>(new Map());
   typingUsers = this._typingUsers.asReadonly();
+  private wsConnected = false;
 
   constructor(
     private messageService: MessageService,
     private ws: WebSocketService,
     private auth: AuthService
-  ) {
-    this.connectWebSocket();
-  }
+  ) {}
 
-  private connectWebSocket(): void {
+  private ensureConnected(): void {
+    if (this.wsConnected) return;
     const token = this.auth.getToken();
     if (!token) return;
+    this.wsConnected = true;
+    this.connectWebSocket(token);
+  }
 
+  private connectWebSocket(token: string): void {
     this.ws.connect(token);
 
     this.subscriptions.add(
@@ -64,6 +68,7 @@ export class ChatService implements OnDestroy {
   }
 
   sendTypingIndicator(receiverId: string, typing: boolean): void {
+    this.ensureConnected();
     const user = this.auth.currentUser();
     if (!user) return;
     this.ws.send('/app/typing', {
@@ -95,12 +100,14 @@ export class ChatService implements OnDestroy {
   }
 
   sendMessage(receiverId: string, content: string): Observable<any> {
+    this.ensureConnected();
     this.stopTyping(receiverId);
     this.ws.send('/app/chat.send', { receiverId, content });
     return this.messageService.sendMessage({ receiverId, content });
   }
 
   markAsRead(conversationUserId: string): void {
+    this.ensureConnected();
     this.messageService.markAsRead(conversationUserId).subscribe();
     this.ws.send('/app/chat.read', { conversationWith: conversationUserId });
   }

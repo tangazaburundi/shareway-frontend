@@ -23,11 +23,18 @@
 }
 
 .contact-layout {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 340px;
   gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .contact-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 .card {
@@ -158,6 +165,12 @@
   background: #e6f9f7;
   border-radius: 12px;
   flex-shrink: 0;
+  color: #25D366;
+}
+
+.info-icon.wa-icon {
+  background: #e6fbe9;
+  color: #25D366;
 }
 
 .info-label {

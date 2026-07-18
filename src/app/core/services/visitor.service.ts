@@ -4,7 +4,7 @@ import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class VisitorService {
-  private apiUrl = `${environment.apiUrl}/visits`;
+  private apiUrl = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient) {}
 
@@ -15,18 +15,18 @@ export class VisitorService {
     userAgent?: string;
     acceptedCookies?: boolean;
   }) {
-    return this.http.post(this.apiUrl, data);
+    return this.http.post(`${this.apiUrl}/visits`, data);
   }
 
   updateCookies(anonymousId: string, accepted: boolean) {
-    return this.http.patch(`${this.apiUrl}/cookies`, { anonymousId, acceptedCookies: accepted });
+    return this.http.patch(`${this.apiUrl}/visits/cookies`, { anonymousId, acceptedCookies: accepted });
   }
 
   getStats() {
-    return this.http.get<any>(`${this.apiUrl}/stats`);
+    return this.http.get<any>(`${this.apiUrl}/admin/visitors/stats`);
   }
 
   getVisitors(page = 0, size = 20, search = '') {
-    return this.http.get<any>(`${this.apiUrl}`, { params: { page, size, search } as any });
+    return this.http.get<any>(`${this.apiUrl}/admin/visitors`, { params: { page, size, search } as any });
   }
 }

@@ -87,8 +87,8 @@
           </td>
           <td>
             <div class="action-btns">
-              <!-- OPEN: approve, suspend, reject -->
-              <ng-container *ngIf="t.status === 'OPEN'">
+              <!-- OPEN / PENDING: approve, suspend, cancel -->
+              <ng-container *ngIf="t.status === 'OPEN' || t.status === 'PENDING'">
                 <button class="btn-action green" [title]="langService.t('admin.trips.action.approve')"
                   (click)="openModal(t.id, 'APPROVE')" [disabled]="acting === t.id">
                   <i *ngIf="acting !== t.id" data-lucide="check-circle"></i>
@@ -99,9 +99,23 @@
                   <i *ngIf="acting !== t.id" data-lucide="pause-circle"></i>
                   <span *ngIf="acting === t.id" class="spin"></span>
                 </button>
-                <button class="btn-action red" [title]="langService.t('admin.trips.action.reject')"
-                  (click)="openModal(t.id, 'REJECT')" [disabled]="acting === t.id">
-                  <i *ngIf="acting !== t.id" data-lucide="slash"></i>
+                <button class="btn-action red" [title]="langService.t('admin.trips.action.cancel')"
+                  (click)="openModal(t.id, 'CANCEL')" [disabled]="acting === t.id">
+                  <i *ngIf="acting !== t.id" data-lucide="x-circle"></i>
+                  <span *ngIf="acting === t.id" class="spin"></span>
+                </button>
+              </ng-container>
+
+              <!-- FULL: suspend, cancel -->
+              <ng-container *ngIf="t.status === 'FULL'">
+                <button class="btn-action orange" [title]="langService.t('admin.trips.action.suspend')"
+                  (click)="openModal(t.id, 'SUSPEND')" [disabled]="acting === t.id">
+                  <i *ngIf="acting !== t.id" data-lucide="pause-circle"></i>
+                  <span *ngIf="acting === t.id" class="spin"></span>
+                </button>
+                <button class="btn-action red" [title]="langService.t('admin.trips.action.cancel')"
+                  (click)="openModal(t.id, 'CANCEL')" [disabled]="acting === t.id">
+                  <i *ngIf="acting !== t.id" data-lucide="x-circle"></i>
                   <span *ngIf="acting === t.id" class="spin"></span>
                 </button>
               </ng-container>
@@ -120,8 +134,13 @@
                 </button>
               </ng-container>
 
-              <!-- REJECTED: delete -->
-              <ng-container *ngIf="t.status === 'REJECTED'">
+              <!-- COMPLETED: reopen, delete -->
+              <ng-container *ngIf="t.status === 'COMPLETED'">
+                <button class="btn-action green" [title]="langService.t('admin.trips.action.reopen')"
+                  (click)="openModal(t.id, 'REACTIVATE')" [disabled]="acting === t.id">
+                  <i *ngIf="acting !== t.id" data-lucide="rotate-ccw"></i>
+                  <span *ngIf="acting === t.id" class="spin"></span>
+                </button>
                 <button class="btn-action red" [title]="langService.t('admin.trips.action.delete')"
                   (click)="openModal(t.id, 'DELETE')" [disabled]="acting === t.id">
                   <i *ngIf="acting !== t.id" data-lucide="trash-2"></i>
@@ -129,8 +148,33 @@
                 </button>
               </ng-container>
 
-              <!-- COMPLETED / CANCELLED: no action -->
-              <span *ngIf="t.status === 'COMPLETED' || t.status === 'CANCELLED'" class="muted">—</span>
+              <!-- CANCELLED: reactivate, delete -->
+              <ng-container *ngIf="t.status === 'CANCELLED'">
+                <button class="btn-action green" [title]="langService.t('admin.trips.action.reactivate')"
+                  (click)="openModal(t.id, 'REACTIVATE')" [disabled]="acting === t.id">
+                  <i *ngIf="acting !== t.id" data-lucide="rotate-ccw"></i>
+                  <span *ngIf="acting === t.id" class="spin"></span>
+                </button>
+                <button class="btn-action red" [title]="langService.t('admin.trips.action.delete')"
+                  (click)="openModal(t.id, 'DELETE')" [disabled]="acting === t.id">
+                  <i *ngIf="acting !== t.id" data-lucide="trash-2"></i>
+                  <span *ngIf="acting === t.id" class="spin"></span>
+                </button>
+              </ng-container>
+
+              <!-- REJECTED: reactivate, delete -->
+              <ng-container *ngIf="t.status === 'REJECTED'">
+                <button class="btn-action green" [title]="langService.t('admin.trips.action.reactivate')"
+                  (click)="openModal(t.id, 'REACTIVATE')" [disabled]="acting === t.id">
+                  <i *ngIf="acting !== t.id" data-lucide="rotate-ccw"></i>
+                  <span *ngIf="acting === t.id" class="spin"></span>
+                </button>
+                <button class="btn-action red" [title]="langService.t('admin.trips.action.delete')"
+                  (click)="openModal(t.id, 'DELETE')" [disabled]="acting === t.id">
+                  <i *ngIf="acting !== t.id" data-lucide="trash-2"></i>
+                  <span *ngIf="acting === t.id" class="spin"></span>
+                </button>
+              </ng-container>
             </div>
           </td>
         </tr>

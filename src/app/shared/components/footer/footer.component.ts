@@ -16,6 +16,7 @@ export class FooterComponent {
   langService = inject(LanguageService);
   private http = inject(HttpClient);
 
+  currentYear = new Date().getFullYear();
   newsletterEmail = '';
   newsletterSending = false;
   newsletterSent = false;

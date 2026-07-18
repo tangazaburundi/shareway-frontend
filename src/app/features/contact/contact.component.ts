@@ -30,9 +30,9 @@ export class ContactComponent {
     this.error = false;
 
     this.http.post(`${environment.apiUrl}/contact`, {
-      name: this.name,
+      nom: this.name,
       email: this.email,
-      subject: this.subject,
+      sujet: this.subject,
       message: this.message
     }).subscribe({
       next: () => {
