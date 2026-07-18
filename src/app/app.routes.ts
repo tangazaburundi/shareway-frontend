@@ -5,10 +5,12 @@ import { adminRoutes } from './admin.routes';
 export const routes: Routes = [
    ...adminRoutes,
   { path: '', loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent) },
-  {
+   {
     path: 'auth', canActivate: [guestGuard], children: [
       { path: 'login', loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent) },
-      { path: 'register', loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent) }
+      { path: 'register', loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent) },
+      { path: 'forgot-password', loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
+      { path: 'reset-password', loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent) }
     ]
   },
   {
@@ -40,8 +42,7 @@ export const routes: Routes = [
   { path: 'mentions-legales', loadComponent: () => import('./features/legal/mentions-legales/mentions-legales.component').then(m => m.MentionsLegalesComponent) },
   { path: 'cgu', loadComponent: () => import('./features/legal/cgu/cgu.component').then(m => m.CguComponent) },
   { path: 'confidentialite', loadComponent: () => import('./features/legal/confidentialite/confidentialite.component').then(m => m.ConfidentialiteComponent) },
-  { path: 'auth/forgot-password', loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
-  { path: '**', redirectTo: '' },
+  { path: '**', loadComponent: () => import('./features/not-found/not-found.component').then(m => m.NotFoundComponent) },
 
   /* { path: 'loginAdmin', loadComponent: () => import('./features/auth/admin/login.admin.component').then(m => m.LoginAdminComponent) },
   {

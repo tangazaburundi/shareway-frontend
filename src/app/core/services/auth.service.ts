@@ -11,6 +11,7 @@ import { environment } from '../../../environments/environment';
 export class AuthService {
   private readonly API = `${environment.apiUrl}/auth`;
   private readonly TOKEN_KEY = 'shareway_token';
+  private readonly REFRESH_TOKEN_KEY = 'shareway_refresh_token';
   private readonly USER_KEY = 'shareway_user';
 
   private _currentUser = signal<User | null>(this.loadUser());
@@ -41,6 +42,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_user");
@@ -57,6 +59,29 @@ export class AuthService {
     return token;
   }
 
+  getRefreshToken(): string | null {
+    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+  }
+
+  refreshToken(): Observable<ApiResponse<AuthResponse>> {
+    const refreshToken = this.getRefreshToken();
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.API}/refresh-token`, { refreshToken }).pipe(
+      tap(res => {
+        if (res.success && res.data) {
+          this.saveSession(res.data);
+        }
+      })
+    );
+  }
+
+  forgotPassword(email: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.API}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.API}/reset-password`, { token, newPassword });
+  }
+
   updateCurrentUser(user: User): void {
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     this._currentUser.set(user);
@@ -71,6 +96,10 @@ export class AuthService {
 
         localStorage.setItem(this.TOKEN_KEY, data.token);
         localStorage.setItem(this.USER_KEY, JSON.stringify(data.user));
+     }
+
+     if (data.refreshToken) {
+       localStorage.setItem(this.REFRESH_TOKEN_KEY, data.refreshToken);
      }
 
      this._currentUser.set(data.user);

@@ -99,7 +99,7 @@ export class WebSocketService implements OnDestroy {
     const frame = this.parseStompFrame(data);
     if (!frame || frame.command === 'RECEIPT') return;
 
-    const destination = frame.headers?.destination || frame.headers?.subscription;
+    const destination = frame.headers?.['destination'] || frame.headers?.['subscription'];
     if (!destination) return;
 
     const subject = this.subscriptions.get(destination);

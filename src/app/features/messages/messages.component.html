@@ -87,7 +87,8 @@
       <div class="chat-input-bar">
         <input type="text" [(ngModel)]="newMessage" class="input chat-input"
           [placeholder]="langService.t('messages.inputPlaceholder')"
-          (keyup.enter)="sendMessage()" />
+          (keyup.enter)="sendMessage()"
+          (input)="onTyping()" />
         <button class="btn btn-primary" (click)="sendMessage()"
           [disabled]="!newMessage.trim() || sending">
           {{ sending ? '...' : langService.t('messages.send') }}

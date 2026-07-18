@@ -1,8 +1,10 @@
 import { HttpInterceptorFn, HttpErrorResponse, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, throwError } from 'rxjs';
+import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
+
+let isRefreshing = false;
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -19,6 +21,25 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
+      if (error.status === 401 && !isRefreshing && authService.getRefreshToken()) {
+        isRefreshing = true;
+        return authService.refreshToken().pipe(
+          switchMap(() => {
+            isRefreshing = false;
+            const newToken = authService.getToken();
+            const retryReq = newToken
+              ? req.clone({ setHeaders: { Authorization: `Bearer ${newToken}` } })
+              : req;
+            return next(retryReq);
+          }),
+          catchError((refreshError) => {
+            isRefreshing = false;
+            authService.logout();
+            router.navigate(['/auth/login']);
+            return throwError(() => refreshError);
+          })
+        );
+      }
       if (error.status === 401) {
         authService.logout();
         router.navigate(['/auth/login']);

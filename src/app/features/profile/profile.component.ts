@@ -193,7 +193,7 @@ export class ProfileComponent implements OnInit {
 
   reopenCookieBanner() {
     localStorage.removeItem('sw_cookie_consent');
-    this.cookieCategories.forEach(c => c.checked = !c.required);
+    this.cookieCategories.forEach(c => c.checked = c.required);
     this.activeSection = 'cookies';
   }
 

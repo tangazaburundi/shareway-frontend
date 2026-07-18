@@ -29,7 +29,7 @@ export class ContactComponent {
     this.sending = true;
     this.error = false;
 
-    this.http.post(`${environment.apiUrl}/api/v1/contact`, {
+    this.http.post(`${environment.apiUrl}/contact`, {
       name: this.name,
       email: this.email,
       subject: this.subject,

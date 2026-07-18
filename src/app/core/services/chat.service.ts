@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy, signal } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { Message, TypingIndicator, MessageReadReceipt } from '../models/message.model';
 import { MessageService } from './message.service';
 import { WebSocketService } from './websocket.service';
@@ -51,21 +51,9 @@ export class ChatService implements OnDestroy {
     );
   }
 
-  private onNewMessage$ = new Observable<Message>(subscriber => {
-    return this.ws.subscribe<Message>('/user/queue/messages').subscribe({
-      next: msg => {
-        subscriber.next(msg);
-      },
-      error: err => subscriber.error(err)
-    });
-  });
+  private onNewMessage$ = new Subject<Message>();
 
-  private onReadReceipt$ = new Observable<MessageReadReceipt>(subscriber => {
-    return this.ws.subscribe<MessageReadReceipt>('/user/queue/read-receipts').subscribe({
-      next: receipt => subscriber.next(receipt),
-      error: err => subscriber.error(err)
-    });
-  });
+  private onReadReceipt$ = new Subject<MessageReadReceipt>();
 
   onNewMessage(): Observable<Message> {
     return this.onNewMessage$;

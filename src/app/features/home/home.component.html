@@ -37,6 +37,7 @@
   </div>
 </div>
 
+<!-- Features -->
 <section class="features">
   <div class="container">
     <h2 class="section-title">{{ langService.t('home.why.title') }}</h2>
@@ -61,6 +62,59 @@
         <h3>{{ langService.t('home.feature.safe') }}</h3>
         <p>{{ langService.t('home.feature.safe.desc') }}</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats (admin always, others if toggle on) -->
+@if (showStats && stats) {
+<section class="stats-section">
+  <div class="container">
+    <h2 class="section-title">{{ langService.t('home.stats.title') }}</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.totalUsers ?? 0 }}</div>
+        <div class="stat-label">{{ langService.t('home.stats.users') }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.totalTrips ?? stats.totalRides ?? 0 }}</div>
+        <div class="stat-label">{{ langService.t('home.stats.trips') }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.activeUsers ?? 0 }}</div>
+        <div class="stat-label">{{ langService.t('home.stats.activeUsers') }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.completedTrips ?? 0 }}</div>
+        <div class="stat-label">{{ langService.t('home.stats.completed') }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+}
+
+<!-- Testimonials -->
+<section class="testimonials">
+  <div class="container">
+    <h2 class="section-title">{{ langService.t('home.testimonials.title') }}</h2>
+    <div class="testimonials-grid">
+      @for (t of testimonials; track t.index) {
+      <div class="testimonial-card">
+        <div class="testimonial-stars">
+          @for (s of [1,2,3,4,5]; track s) {
+            <span class="star" [class.filled]="s <= t.rating">★</span>
+          }
+        </div>
+        <p class="testimonial-text">"{{ langService.t('home.testimonials.' + t.index + '.text') }}"</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">{{ t.avatar }}</div>
+          <div>
+            <div class="author-name">{{ langService.t('home.testimonials.' + t.index + '.name') }}</div>
+            <div class="author-role">{{ langService.t('home.testimonials.' + t.index + '.role') }}</div>
+          </div>
+        </div>
+      </div>
+      }
     </div>
   </div>
 </section>

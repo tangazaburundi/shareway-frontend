@@ -16,7 +16,6 @@ export class AdSidebarComponent implements OnInit {
   private adService = inject(AdvertisingService);
 
   sidebarAds = signal<Advertising[]>([]);
-  bannerAd = signal<Advertising | null>(null);
 
   ngOnInit() {
     this.loadAds();
@@ -28,10 +27,6 @@ export class AdSidebarComponent implements OnInit {
         this.sidebarAds.set(ads.filter(a =>
           a.position === 'SIDEBAR_TOP' || a.position === 'SIDEBAR_MIDDLE' || a.position === 'SIDEBAR_BOTTOM'
         ));
-        const banners = ads.filter(a =>
-          a.position === 'TOP_BANNER' || a.position === 'BOTTOM_BANNER'
-        );
-        this.bannerAd.set(banners.length > 0 ? banners[0] : null);
       },
       error: () => {}
     });

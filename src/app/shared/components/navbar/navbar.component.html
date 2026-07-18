@@ -38,7 +38,7 @@
 
       @if (isPassenger) {
         <a routerLink="/passenger/dashboard" routerLinkActive="active" class="nav-link">
-          Tableau de bord
+          {{ langService.t('nav.dashboard') }}
         </a>
         <a routerLink="/my-bookings" routerLinkActive="active" class="nav-link">
           {{ langService.t('nav.my-bookings') }}
@@ -103,7 +103,7 @@
           <a routerLink="/dashboard" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.dashboard') }}</a>
         }
         @if (isPassenger) {
-          <a routerLink="/passenger/dashboard" (click)="mobileOpen=false" class="mobile-link">Tableau de bord</a>
+          <a routerLink="/passenger/dashboard" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.dashboard') }}</a>
         }
         <a routerLink="/bookings" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.bookings') }} </a>
         <a routerLink="/messages" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.messages') }}</a>

@@ -1,105 +1,3 @@
-/*
-
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import {
-  ApiResponse, PageResponse, UserResponse, ReviewResponse,
-  MessageResponse, ReportResponse, AuditLogResponse, DashboardStats,
-  AdminBlockUserRequest, AdminReviewReportRequest, ReportStatus
-} from '../models/index.model';
-import { environment } from '../../../environments/environment';
-
-@Injectable({ providedIn: 'root' })
-export class AdminService {
-
-  private base = `${environment.apiUrl}/admin`;
-
-  constructor(private http: HttpClient) {}
-
-  private unwrap<T>(obs: Observable<ApiResponse<T>>): Observable<T> {
-    return obs.pipe(map(r => r.data));
-  }
-
-  // ── Dashboard ──────────────────────────────────────────────────────────────
-  getDashboard(): Observable<DashboardStats> {
-    return this.unwrap(this.http.get<ApiResponse<DashboardStats>>(`${this.base}/dashboard`));
-  }
-
-  // ── Users ──────────────────────────────────────────────────────────────────
-  getUsers(page = 0, size = 20, search?: string): Observable<PageResponse<UserResponse>> {
-    let params = new HttpParams().set('page', page).set('size', size);
-    if (search) params = params.set('search', search);
-    return this.unwrap(this.http.get<ApiResponse<PageResponse<UserResponse>>>(`${this.base}/users`, { params }));
-  }
-
-  blockUser(id: string, req: AdminBlockUserRequest): Observable<UserResponse> {
-    return this.unwrap(this.http.post<ApiResponse<UserResponse>>(`${this.base}/users/${id}/block`, req));
-  }
-
-  unblockUser(id: string): Observable<UserResponse> {
-    return this.unwrap(this.http.post<ApiResponse<UserResponse>>(`${this.base}/users/${id}/unblock`, {}));
-  }
-
-  verifyIdentity(id: string): Observable<UserResponse> {
-    return this.unwrap(this.http.post<ApiResponse<UserResponse>>(`${this.base}/users/${id}/verify-identity`, {}));
-  }
-
-  deleteUser(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.base}/users/${id}`);
-  }
-
-  // ── Reviews ────────────────────────────────────────────────────────────────
-  getFlaggedReviews(page = 0, size = 20): Observable<PageResponse<ReviewResponse>> {
-    const params = new HttpParams().set('page', page).set('size', size);
-    return this.unwrap(this.http.get<ApiResponse<PageResponse<ReviewResponse>>>(`${this.base}/reviews/flagged`, { params }));
-  }
-
-  approveReview(id: string): Observable<ReviewResponse> {
-    return this.unwrap(this.http.post<ApiResponse<ReviewResponse>>(`${this.base}/reviews/${id}/approve`, {}));
-  }
-
-  rejectReview(id: string): Observable<ReviewResponse> {
-    return this.unwrap(this.http.post<ApiResponse<ReviewResponse>>(`${this.base}/reviews/${id}/reject`, {}));
-  }
-
-  // ── Messages ───────────────────────────────────────────────────────────────
-  getFlaggedMessages(page = 0, size = 20): Observable<PageResponse<MessageResponse>> {
-    const params = new HttpParams().set('page', page).set('size', size);
-    return this.unwrap(this.http.get<ApiResponse<PageResponse<MessageResponse>>>(`${this.base}/messages/flagged`, { params }));
-  }
-
-  // ── Reports ────────────────────────────────────────────────────────────────
-  getReports(status?: ReportStatus | null, page = 0, size = 20): Observable<PageResponse<ReportResponse>> {
-    let params = new HttpParams().set('page', page).set('size', size);
-    if (status) params = params.set('status', status);
-    return this.unwrap(this.http.get<ApiResponse<PageResponse<ReportResponse>>>(`${this.base}/reports`, { params }));
-  }
-
-  reviewReport(id: string, req: AdminReviewReportRequest): Observable<ReportResponse> {
-    return this.unwrap(this.http.post<ApiResponse<ReportResponse>>(`${this.base}/reports/${id}/review`, req));
-  }
-
-  // ── Exports ────────────────────────────────────────────────────────────────
-  exportUsersCsv(): Observable<Blob> {
-    return this.http.get(`${this.base}/export/users/csv`, { responseType: 'blob' });
-  }
-
-  exportUsersExcel(): Observable<Blob> {
-    return this.http.get(`${this.base}/export/users/excel`, { responseType: 'blob' });
-  }
-
-  // ── Audit ──────────────────────────────────────────────────────────────────
-  getAuditLogs(userId?: string, page = 0, size = 50): Observable<PageResponse<AuditLogResponse>> {
-    let params = new HttpParams().set('page', page).set('size', size);
-    if (userId) params = params.set('userId', userId);
-    return this.unwrap(this.http.get<ApiResponse<PageResponse<AuditLogResponse>>>(`${this.base}/audit`, { params }));
-  }
-} */
-
-
-
 import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -211,7 +109,7 @@ export class AdminService {
   }
 
   getToken(): string | null {
-  return localStorage.getItem('admin_user'); }
+  return localStorage.getItem('admin_token'); }
 
   getUser(): AdminUser | null {
   //  const raw = localStorage.getItem('admin_user');
@@ -308,7 +206,7 @@ export class AdminService {
 
 
   reviewReport(id: string, status: string, actionTaken?: string): Observable<ApiResponse<ReportRow>> {
-    return this.http.post<ApiResponse<ReportRow>>(`${this.API}/reports/${id}/review`, { status, actionTaken });
+    return this.http.post<ApiResponse<ReportRow>>(`${this.API}/admin/reports/${id}/review`, { status, actionTaken });
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -323,7 +221,31 @@ export class AdminService {
   }
 
   changeTripStatus(id: string, status: string): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.API}/admin/trips/${id}/status`, { status });
+    if (status === 'CANCELLED') {
+      return this.http.post<ApiResponse<any>>(`${this.API}/admin/trips/${id}/reject`, { reason: 'Annulé par l\'administrateur' });
+    }
+    const action = status === 'COMPLETED' || status === 'OPEN' ? 'approve' : 'reject';
+    return this.http.post<ApiResponse<any>>(`${this.API}/admin/trips/${id}/${action}`, {});
+  }
+
+  approveTrip(id: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.API}/admin/trips/${id}/approve`, {});
+  }
+
+  rejectTrip(id: string, reason?: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.API}/admin/trips/${id}/reject`, { reason });
+  }
+
+  suspendTrip(id: string, reason?: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.API}/admin/trips/${id}/suspend`, { reason });
+  }
+
+  reactivateTrip(id: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.API}/admin/trips/${id}/reactivate`, {});
+  }
+
+  deleteTrip(id: string, reason?: string): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.API}/admin/trips/${id}`, { body: { reason } });
   }
 
     // ═══════════════════════════════════════════════════════════
@@ -332,7 +254,7 @@ export class AdminService {
 
     getFlaggedMessages(page = 0, size = 20): Observable<ApiResponse<PageResponse<MessageRow>>> {
       const p = new HttpParams().set('page', page).set('size', size);
-      return this.http.get<ApiResponse<PageResponse<MessageRow>>>(`${this.API}/messages/flagged`, { params: p });
+      return this.http.get<ApiResponse<PageResponse<MessageRow>>>(`${this.API}/admin/messages/flagged`, { params: p });
     }
 
 

@@ -178,6 +178,10 @@ td {
   background: #f3f4f6;
   color: #4b5563;
 }
+.status-badge.suspended {
+  background: #fef3c7;
+  color: #92400e;
+}
 
 .muted { color: #9ca3af; font-size: .85rem; }
 
@@ -201,6 +205,10 @@ td {
 .btn-action.red:hover:not(:disabled) { background: #fecaca; }
 .btn-action.gray { background: #f3f4f6; color: #4b5563; }
 .btn-action.gray:hover:not(:disabled) { background: #e5e7eb; }
+.btn-action.green { background: #d1fae5; color: #065f46; }
+.btn-action.green:hover:not(:disabled) { background: #a7f3d0; }
+.btn-action.orange { background: #fef3c7; color: #92400e; }
+.btn-action.orange:hover:not(:disabled) { background: #fde68a; }
 .btn-action i { width: 16px; height: 16px; }
 
 .error-inline {
@@ -248,6 +256,60 @@ td {
   animation: spin .7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+.modal h3 { margin: 0 0 .5rem; font-size: 1.1rem; color: #111; }
+.modal p { margin: 0 0 1rem; font-size: .875rem; color: #64748b; }
+.modal textarea {
+  width: 100%;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: .6rem .75rem;
+  font-size: .875rem;
+  resize: vertical;
+  margin-bottom: 1rem;
+  font-family: inherit;
+}
+.modal textarea:focus { outline: none; border-color: #1a8b82; }
+.modal-actions { display: flex; justify-content: flex-end; gap: .5rem; }
+.btn-cancel {
+  padding: .5rem 1rem;
+  border-radius: 8px;
+  border: 1.5px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  font-size: .875rem;
+}
+.btn-confirm {
+  padding: .5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: .875rem;
+  font-weight: 600;
+}
+.btn-confirm.green { background: #10b981; }
+.btn-confirm.green:hover { background: #059669; }
+.btn-confirm.red { background: #ef4444; }
+.btn-confirm.red:hover { background: #dc2626; }
 
 /* Responsive */
 @media (max-width: 768px) {

@@ -40,6 +40,15 @@
 .s-cancelled { background: #fee2e2; color: #991b1b; } .s-completed { background: var(--gray-100); color: var(--gray-600); }
 .trip-actions { margin-left: auto; }
 .empty-row { text-align: center; padding: 24px; color: var(--gray-400); }
+.pagination-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+  border-top: 1px solid var(--gray-100);
+}
+.page-info { font-size: .85rem; color: var(--gray-500); }
 .loading-center { display: flex; justify-content: center; padding: 80px; }
 .spinner-lg { width: 48px; height: 48px; border: 4px solid var(--gray-200); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }

@@ -21,21 +21,4 @@
     </div>
   </div>
   }
-
-  @let banner = bannerAd();
-  @if (banner) {
-  <div class="ad-banner" (click)="trackClick(banner)" role="button" tabindex="0">
-    <div class="ad-banner-inner">
-      @if (banner.imageUrl) {
-      <img [src]="banner.imageUrl" [alt]="banner.title" class="ad-banner-img" />
-      } @else {
-      <span class="ad-banner-icon">📢</span>
-      }
-      <p class="ad-banner-text">{{ banner.title }}</p>
-      @if (banner.description) {
-      <p class="ad-banner-sub">{{ banner.description }}</p>
-      }
-    </div>
-  </div>
-  }
 </aside>

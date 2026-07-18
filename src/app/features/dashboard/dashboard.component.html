@@ -103,6 +103,17 @@
                 <div class="empty-row">{{ langService.t('trips.empty.title') }}</div>
                 }
             </div>
+            @if (tripsTotalPages > 1) {
+            <div class="pagination-row">
+              <button [disabled]="tripsPage === 0" (click)="tripsPrev()" class="btn btn-outline btn-sm">
+                ← {{ langService.t('common.back') }}
+              </button>
+              <span class="page-info">{{ tripsPage + 1 }} / {{ tripsTotalPages }}</span>
+              <button [disabled]="tripsPage >= tripsTotalPages - 1" (click)="tripsNext()" class="btn btn-outline btn-sm">
+                {{ langService.t('admin.trips.next') }} →
+              </button>
+            </div>
+            }
         </div>
         }
     </div>

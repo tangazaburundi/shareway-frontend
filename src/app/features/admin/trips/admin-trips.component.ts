@@ -13,23 +13,29 @@ import { LucideIconsDirective } from '../../../shared/directives/lucide-icons.di
   styleUrl: './admin-trips.component.css'
 })
 export class AdminTripsComponent implements OnInit {
-  trips:      any[] = [];
-  loading     = false;
+  trips: any[] = [];
+  loading = false;
   activeFilter = 'ALL';
   searchQuery = '';
-  page        = 0;
-  size        = 20;
-  totalPages  = 1;
-  total       = 0;
-  acting:     string | null = null;
-  errors:     Record<string, string> = {};
+  page = 0;
+  size = 20;
+  totalPages = 1;
+  total = 0;
+  acting: string | null = null;
+  errors: Record<string, string> = {};
+
+  showModal = false;
+  modalAction = '';
+  modalTripId = '';
+  modalReason = '';
 
   filters = [
     { key: 'ALL',       labelKey: 'admin.trips.filter.all' },
     { key: 'OPEN',      labelKey: 'admin.trips.filter.open' },
+    { key: 'SUSPENDED', labelKey: 'admin.trips.filter.suspended' },
+    { key: 'REJECTED',  labelKey: 'admin.trips.filter.rejected' },
     { key: 'COMPLETED', labelKey: 'admin.trips.filter.completed' },
-    { key: 'CANCELLED', labelKey: 'admin.trips.filter.cancelled' },
-    { key: 'REJECTED',  labelKey: 'admin.trips.filter.rejected' }
+    { key: 'CANCELLED', labelKey: 'admin.trips.filter.cancelled' }
   ];
 
   constructor(
@@ -45,10 +51,10 @@ export class AdminTripsComponent implements OnInit {
     const search = this.searchQuery.trim() || undefined;
     this.svc.getTrips(status, this.page, this.size, search).subscribe({
       next: r => {
-        this.trips      = r.data?.content ?? [];
-        this.total      = r.data?.totalElements ?? 0;
+        this.trips = r.data?.content ?? [];
+        this.total = r.data?.totalElements ?? 0;
         this.totalPages = r.data?.totalPages ?? 1;
-        this.loading    = false;
+        this.loading = false;
       },
       error: () => { this.loading = false; }
     });
@@ -65,16 +71,56 @@ export class AdminTripsComponent implements OnInit {
     this.loadTrips();
   }
 
-  changeStatus(tripId: string, newStatus: string) {
-    this.acting = tripId;
-    this.svc.changeTripStatus(tripId, newStatus).subscribe({
-      next: () => {
-        const trip = this.trips.find(t => t.id === tripId);
-        if (trip) trip.status = newStatus;
+  openModal(tripId: string, action: string) {
+    this.modalTripId = tripId;
+    this.modalAction = action;
+    this.modalReason = '';
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.modalTripId = '';
+    this.modalAction = '';
+    this.modalReason = '';
+  }
+
+  confirmAction() {
+    const id = this.modalTripId;
+    const action = this.modalAction;
+    const reason = this.modalReason || undefined;
+    this.closeModal();
+    this.acting = id;
+
+    let obs;
+    switch (action) {
+      case 'APPROVE':
+        obs = this.svc.approveTrip(id);
+        break;
+      case 'REJECT':
+        obs = this.svc.rejectTrip(id, reason);
+        break;
+      case 'SUSPEND':
+        obs = this.svc.suspendTrip(id, reason);
+        break;
+      case 'REACTIVATE':
+        obs = this.svc.reactivateTrip(id);
+        break;
+      case 'DELETE':
+        obs = this.svc.deleteTrip(id, reason);
+        break;
+      default:
         this.acting = null;
+        return;
+    }
+
+    obs.subscribe({
+      next: () => {
+        this.acting = null;
+        this.loadTrips();
       },
       error: err => {
-        this.errors[tripId] = err.error?.message || 'Erreur';
+        this.errors[id] = err.error?.message || 'Erreur';
         this.acting = null;
       }
     });
@@ -84,17 +130,11 @@ export class AdminTripsComponent implements OnInit {
   next() { if (this.page < this.totalPages - 1) { this.page++; this.loadTrips(); } }
 
   statusClass(status: string): string {
-    switch (status) {
-      case 'OPEN':      return 'open';
-      case 'COMPLETED': return 'completed';
-      case 'CANCELLED': return 'cancelled';
-      case 'REJECTED':  return 'rejected';
-      default:          return '';
-    }
+    return status?.toLowerCase() || '';
   }
 
   statusLabel(status: string): string {
-    return this.langService.t('admin.trips.status.' + status.toLowerCase());
+    return this.langService.t('admin.trips.status.' + status?.toLowerCase());
   }
 
   driverName(trip: any): string {

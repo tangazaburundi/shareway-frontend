@@ -1,162 +1,105 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { LanguageService } from '../../../core/services/language.service';
 import { VisitorService } from '../../../core/services/visitor.service';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
-import { LucideIconsDirective } from '../../../shared/directives/lucide-icons.directive';
-
-interface CookieCategory {
-  key: string;
-  label: string;
-  description: string;
-  checked: boolean;
-  required: boolean;
-}
 
 @Component({
   selector: 'app-cookie-consent',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideIconsDirective],
+  imports: [CommonModule, RouterLink, FormsModule],
   template: `
     @if (showBanner) {
-    <div class="banner-overlay" lucideIcons>
-      <div class="cookie-content">
-
-        <div class="header-row">
-          <i data-lucide="cookie" class="header-icon"></i>
-          <h3>{{ langService.t('cookies.title') }}</h3>
+    <div class="cookie-bar">
+      <div class="cookie-bar-inner">
+        <div class="cookie-bar-text">
+          <span class="cookie-icon">🍪</span>
+          <span>{{ langService.t('cookies.message_short') }}</span>
+          <a routerLink="/confidentialite" class="cookie-link">{{ langService.t('cookies.learn_more') }}</a>
         </div>
 
-        <p class="description">
-          {{ langService.t('cookies.message') }}
-          <a routerLink="/confidentialite">{{ langService.t('cookies.learn_more') }}</a>
-        </p>
-
-        <p class="change-anytime">
-          <i data-lucide="info" class="info-icon"></i>
-          {{ langService.t('cookies.change_anytime') }}
-        </p>
-
-        <div class="categories">
+        @if (expanded) {
+        <div class="cookie-options">
           @for (cat of categories; track cat.key) {
-          <div class="category-item" [class.always-on]="cat.required">
-            <label class="toggle-wrap" [class.disabled]="cat.required">
-              <input type="checkbox"
-                     [checked]="cat.checked"
-                     [disabled]="cat.required"
-                     (change)="toggle(cat.key, $any($event.target).checked)">
-              <span class="toggle-slider"></span>
-            </label>
-            <div>
-              <span class="category-label">{{ cat.label }}</span>
-              <span class="category-desc">{{ cat.description }}</span>
-            </div>
-          </div>
+          <label class="cookie-opt" [class.opt-disabled]="cat.required">
+            <input type="checkbox" [checked]="cat.checked" [disabled]="cat.required"
+                   (change)="toggle(cat.key, $any($event.target).checked)">
+            <span class="opt-label">{{ cat.label }}</span>
+          </label>
           }
         </div>
+        }
 
-        <div class="actions">
-          <button class="btn-action reject" (click)="rejectAll()">{{ langService.t('cookies.reject_all') }}</button>
-          <button class="btn-action selection" (click)="acceptSelection()">{{ langService.t('cookies.accept_selection') }}</button>
-          <button class="btn-action accept" (click)="acceptAll()">{{ langService.t('cookies.accept_all') }}</button>
+        <div class="cookie-actions">
+          @if (!expanded) {
+          <button class="cb-btn cb-expand" (click)="expanded = true">{{ langService.t('cookies.customize') }}</button>
+          }
+          <button class="cb-btn cb-reject" (click)="rejectAll()">{{ langService.t('cookies.reject_all') }}</button>
+          <button class="cb-btn cb-accept" (click)="acceptAll()">{{ langService.t('cookies.accept_all') }}</button>
         </div>
       </div>
     </div>
     }
   `,
   styles: [`
-    .banner-overlay {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: rgba(15, 23, 42, 0.92);
-      backdrop-filter: blur(10px);
-      z-index: 9999;
-      padding: 20px 24px;
-      animation: slideUp 0.3s ease-out;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+    .cookie-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #1e293b; z-index: 9999;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
+      animation: slideUp 0.25s ease-out;
     }
-    @keyframes slideUp {
-      from { transform: translateY(100%); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .cookie-content { max-width: 1100px; margin: 0 auto; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-    .header-row {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+    .cookie-bar-inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: 10px 20px;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
     }
-    .header-icon { width: 24px; height: 24px; color: #fbbf24; }
-    h3 { margin: 0; color: #fff; font-size: 1.05rem; font-weight: 600; }
 
-    .description {
-      color: rgba(255,255,255,0.8); font-size: 0.85rem; line-height: 1.5; margin-bottom: 14px;
+    .cookie-bar-text {
+      display: flex; align-items: center; gap: 8px;
+      color: #cbd5e1; font-size: 0.82rem; flex: 1; min-width: 200px;
     }
-    .description a { color: #90cdf4; text-decoration: underline; cursor: pointer; }
+    .cookie-icon { font-size: 1.1rem; }
+    .cookie-link { color: #7dd3fc; text-decoration: underline; font-size: 0.78rem; white-space: nowrap; }
 
-    .change-anytime {
-      display: flex; align-items: center; gap: 6px;
-      color: rgba(255,255,255,0.55); font-size: 0.78rem; margin-bottom: 14px;
+    .cookie-options {
+      display: flex; gap: 14px; flex-wrap: wrap; width: 100%;
+      padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.08);
     }
-    .info-icon { width: 14px; height: 14px; }
+    .cookie-opt {
+      display: flex; align-items: center; gap: 5px; cursor: pointer;
+      color: #94a3b8; font-size: 0.78rem;
+    }
+    .cookie-opt input[type="checkbox"] {
+      width: 14px; height: 14px; accent-color: #1a8b82; cursor: pointer;
+    }
+    .opt-disabled { opacity: 0.5; cursor: not-allowed; }
+    .opt-disabled input { cursor: not-allowed; }
+    .opt-label { white-space: nowrap; }
 
-    .categories {
-      display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;
+    .cookie-actions {
+      display: flex; gap: 6px; flex-shrink: 0;
     }
-    .category-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; background: rgba(255,255,255,0.07);
-      border-radius: 10px; min-width: 180px;
+    .cb-btn {
+      padding: 6px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; border: none; white-space: nowrap; transition: all 0.15s;
     }
-    .category-item.always-on { opacity: 0.6; }
-    .category-label { color: #fff; font-size: 0.85rem; font-weight: 500; display: block; }
-    .category-desc { color: rgba(255,255,255,0.55); font-size: 0.72rem; display: block; }
-
-    .toggle-wrap {
-      position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0;
-    }
-    .toggle-wrap.disabled { cursor: not-allowed; }
-    .toggle-wrap input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider {
-      position: absolute; inset: 0; background: #475569; border-radius: 22px;
-      transition: background 0.2s; cursor: pointer;
-    }
-    .toggle-slider::before {
-      content: ''; position: absolute; width: 16px; height: 16px;
-      left: 3px; bottom: 3px; background: white; border-radius: 50%;
-      transition: transform 0.2s;
-    }
-    .toggle-wrap input:checked + .toggle-slider { background: #1a8b82; }
-    .toggle-wrap input:checked + .toggle-slider::before { transform: translateX(18px); }
-    .toggle-wrap input:disabled + .toggle-slider { opacity: 0.5; cursor: not-allowed; }
-
-    .actions {
-      display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end;
-    }
-    .btn-action {
-      padding: 10px 22px; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
-      cursor: pointer; border: none; text-transform: uppercase; letter-spacing: 0.5px;
-      transition: all 0.2s;
-    }
-    .btn-action.reject {
-      background: transparent; color: #94a3b8; border: 1px solid #475569;
-    }
-    .btn-action.reject:hover { color: #e2e8f0; border-color: #94a3b8; }
-    .btn-action.selection {
-      background: transparent; color: #fbbf24; border: 1px solid #fbbf24;
-    }
-    .btn-action.selection:hover { background: rgba(251,191,36,0.1); }
-    .btn-action.accept {
-      background: #1a8b82; color: white;
-    }
-    .btn-action.accept:hover { background: #147068; }
+    .cb-expand { background: transparent; color: #94a3b8; border: 1px solid #475569; }
+    .cb-expand:hover { color: #e2e8f0; border-color: #94a3b8; }
+    .cb-reject { background: transparent; color: #94a3b8; border: 1px solid #475569; }
+    .cb-reject:hover { color: #e2e8f0; border-color: #94a3b8; }
+    .cb-accept { background: #1a8b82; color: white; }
+    .cb-accept:hover { background: #15706a; }
 
     @media (max-width: 768px) {
-      .banner-overlay { padding: 14px 16px; }
-      .categories { flex-direction: column; gap: 8px; }
-      .category-item { min-width: 0; width: 100%; }
-      .actions { flex-direction: column; }
-      .btn-action { width: 100%; text-align: center; }
+      .cookie-bar-inner { padding: 8px 14px; gap: 8px; }
+      .cookie-bar-text { font-size: 0.78rem; min-width: 0; }
+      .cookie-actions { width: 100%; }
+      .cb-btn { flex: 1; text-align: center; padding: 8px 10px; }
     }
   `]
 })
@@ -166,13 +109,14 @@ export class CookieConsentComponent implements OnInit {
   private router = inject(Router);
 
   showBanner = false;
+  expanded = false;
   anonymousId = '';
 
-  categories: CookieCategory[] = [
-    { key: 'necessary',  label: 'Nécessaires',     description: 'Fonctionnement du site',        checked: true,  required: true },
-    { key: 'analytics',  label: 'Analytiques',      description: 'Audience et statistiques',      checked: true,  required: false },
-    { key: 'marketing',  label: 'Marketing',        description: 'Publicité ciblée',              checked: true,  required: false },
-    { key: 'functional', label: 'Fonctionnelles',   description: 'Préférences utilisateur',       checked: true,  required: false },
+  categories = [
+    { key: 'necessary',  label: '🔒 Nécessaires',     checked: true,  required: true },
+    { key: 'analytics',  label: '📊 Analytiques',     checked: true,  required: false },
+    { key: 'marketing',  label: '📢 Marketing',       checked: true,  required: false },
+    { key: 'functional', label: '⚙️ Fonctionnelles',  checked: true,  required: false },
   ];
 
   ngOnInit() {
@@ -203,14 +147,6 @@ export class CookieConsentComponent implements OnInit {
     this.showBanner = false;
     this.trackVisit();
     this.visitorService.updateCookies(this.anonymousId, true).subscribe();
-  }
-
-  acceptSelection() {
-    this.save('selection');
-    this.showBanner = false;
-    this.trackVisit();
-    const anyAccepted = this.categories.some(c => c.key !== 'necessary' && c.checked);
-    this.visitorService.updateCookies(this.anonymousId, anyAccepted).subscribe();
   }
 
   rejectAll() {

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { User, Vehicle, Notification } from '../models/user.model';
+import { User, Vehicle, Notification, DashboardStats } from '../models/user.model';
 import { ApiResponse } from '../models/api-response.model';
 import { environment } from '../../../environments/environment';
 
@@ -83,29 +83,3 @@ export interface RecentBooking {
   createdAt: string;
 }
 
-export interface DashboardStats {
-  totalTrips?: number;
-  totalPassengers?: number;
-  totalEarnings?: number;
-  earningsByCurrency?: Record<string, number>;
-  totalUsers?: number;
-  activeUsers?: number;
-  blockedUsers?: number;
-  newUsersToday?: number;
-  totalRides?: number;
-  ridesThisMonth?: number;
-  pendingReports?: number;
-  flaggedReviews?: number;
-  flaggedMessages?: number;
-  revenueThisMonth?: number;
-  userGrowth?: any;//GrowthPoint[];
-  ridesGrowth?: any;//GrowthPoint[];
-  [key: string]: any;
-  rating: number;
-
-    reviewCount: number;
-    completionRate: number;
-    upcomingTrips: number;
-    cancelledTrips: number;
-    monthlyEarnings: { month: string; amount: number }[];
-}

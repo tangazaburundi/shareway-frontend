@@ -33,22 +33,18 @@ export class LoginComponent {
     this.error = '';
 
     this.authService.login(this.form.value as any).subscribe({
-     // next: () => this.router.navigate(['/']),
       next: (response: any) => {
-
-      const role = response?.data?.user?.systemeRole;
-
-      if (role && ['ADMIN', 'SUPER_ADMIN', 'MODERATOR'].includes(role)) {
-           this.router.navigate(['/admin/dashboard']);
-      }
-
-        this.router.navigate(['/'])
+        const role = response?.data?.user?.systemRole;
+        if (role && ['ADMIN', 'SUPER_ADMIN', 'MODERATOR'].includes(role)) {
+          this.router.navigate(['/admin/dashboard']);
+        } else {
+          this.router.navigate(['/']);
+        }
       },
       error: (err) => {
         this.error = err.error?.message || this.langService.t('auth.login.error');
         this.loading = false;
       }
-
     });
   }
 }

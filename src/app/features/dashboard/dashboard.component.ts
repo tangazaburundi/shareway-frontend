@@ -28,6 +28,10 @@ export class DashboardComponent implements OnInit {
   stats = signal<DashboardStats | null>(null);
   private tripService = inject(TripService);
   myTrips: Trip[] = [];
+  allMyTrips: Trip[] = [];
+  tripsPage = 0;
+  tripsPageSize = 5;
+  tripsTotalPages = 1;
   maxUserGrowth = signal(1);
   maxRidesGrowth = signal(1);
 
@@ -44,8 +48,20 @@ export class DashboardComponent implements OnInit {
          error: () => { this.loading.set(false) }
       });
 
-       this.tripService.getMyTrips().subscribe({ next: (res) => { this.myTrips = res.data || []; } });
+       this.tripService.getMyTrips().subscribe({ next: (res) => {
+         this.allMyTrips = res.data || [];
+         this.tripsTotalPages = Math.max(1, Math.ceil(this.allMyTrips.length / this.tripsPageSize));
+         this.updateTripsPage();
+       }});
    }
+
+   updateTripsPage() {
+     const start = this.tripsPage * this.tripsPageSize;
+     this.myTrips = this.allMyTrips.slice(start, start + this.tripsPageSize);
+   }
+
+   tripsPrev() { if (this.tripsPage > 0) { this.tripsPage--; this.updateTripsPage(); } }
+   tripsNext() { if (this.tripsPage < this.tripsTotalPages - 1) { this.tripsPage++; this.updateTripsPage(); } }
 
      barHeight1(amount: number): number {
         //if (!this.stats()?.monthlyEarnings.length) return 0;
