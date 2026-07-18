@@ -76,6 +76,9 @@
               <button class="action-btn" (click)="activeSection = activeSection === 'identity' ? '' : 'identity'">
                 🪪 {{ langService.t('profile.identity') }}
               </button>
+              <button class="action-btn" (click)="activeSection = activeSection === 'cookies' ? '' : 'cookies'; loadCookiePrefs()">
+                🍪 {{ langService.t('cookies.title') }}
+              </button>
               <button class="action-btn" (click)="switchRole()">
                 🔄 {{ langService.t('profile.role.switch') }}
               </button>
@@ -202,6 +205,33 @@
                   @if (identityUploaded) { <div class="alert alert-success" style="margin-top:12px">✅ {{ langService.t('profile.identity.pending') }}</div> }
                 </div>
               }
+            </div>
+          }
+
+          <!-- Cookie Preferences -->
+          @if (isOwnProfile && activeSection === 'cookies') {
+            <div class="card">
+              <h3 class="card-title">🍪 {{ langService.t('cookies.title') }}</h3>
+              <p class="cookie-info">{{ langService.t('cookies.message') }}</p>
+              @if (cookieSaved) { <div class="alert alert-success">✅ Préférences cookies enregistrées !</div> }
+              <div class="cookie-categories">
+                @for (cat of cookieCategories; track cat.key) {
+                  <div class="cookie-row" [class.always-on]="cat.required">
+                    <div class="cookie-info-col">
+                      <span class="cookie-label">{{ cat.label }}</span>
+                      <span class="cookie-desc">{{ cat.description }}</span>
+                    </div>
+                    <label class="toggle-wrap" [class.disabled]="cat.required">
+                      <input type="checkbox" [checked]="cat.checked" [disabled]="cat.required" (change)="toggleCookie(cat.key, $any($event.target).checked)">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                }
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn btn-outline" (click)="reopenCookieBanner()">{{ langService.t('cookies.change_anytime') }}</button>
+                <button type="button" class="btn btn-primary" (click)="saveCookiePrefs()">{{ langService.t('profile.save') }}</button>
+              </div>
             </div>
           }
 

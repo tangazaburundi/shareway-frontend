@@ -1,0 +1,143 @@
+<div class="page" lucideIcons>
+  <div class="page-header">
+    <div>
+      <h1>
+        <i data-lucide="route"></i>
+        {{ langService.t('admin.trips.title') }}
+      </h1>
+      <p class="sub">{{ total }} {{ langService.t('admin.trips.subtitle') }}</p>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <i data-lucide="search"></i>
+    <input
+      type="text"
+      [placeholder]="langService.t('admin.trips.search')"
+      [(ngModel)]="searchQuery"
+      (keyup.enter)="search()" />
+    <button class="search-btn" (click)="search()">
+      <i data-lucide="search"></i>
+    </button>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="filter-tabs">
+    <button
+      *ngFor="let f of filters"
+      class="tab"
+      [class.active]="activeFilter === f.key"
+      (click)="setFilter(f.key)">
+      <i [attr.data-lucide]="f.key === 'ALL' ? 'list' : f.key === 'OPEN' ? 'circle-dot' : f.key === 'COMPLETED' ? 'check-circle' : f.key === 'CANCELLED' ? 'x-circle' : 'slash'"></i>
+      {{ langService.t(f.labelKey) }}
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">{{ langService.t('common.loading') }}</div>
+
+  <div *ngIf="!loading && trips.length === 0" class="empty">
+    <i data-lucide="inbox"></i>
+    <p>{{ langService.t('admin.trips.empty') }}</p>
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading && trips.length > 0" class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ langService.t('admin.trips.col.departure') }}</th>
+          <th>{{ langService.t('admin.trips.col.arrival') }}</th>
+          <th>{{ langService.t('admin.trips.col.driver') }}</th>
+          <th>{{ langService.t('admin.trips.col.date') }}</th>
+          <th>{{ langService.t('admin.trips.col.price') }}</th>
+          <th>{{ langService.t('admin.trips.col.seats') }}</th>
+          <th>{{ langService.t('admin.trips.col.status') }}</th>
+          <th>{{ langService.t('admin.trips.col.actions') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of trips">
+          <td>
+            <div class="city-cell">
+              <i data-lucide="map-pin"></i>
+              {{ t.departureCity }}
+            </div>
+          </td>
+          <td>
+            <div class="city-cell">
+              <i data-lucide="flag"></i>
+              {{ t.arrivalCity }}
+            </div>
+          </td>
+          <td>
+            <div class="user-cell">
+              <div class="avatar">{{ t.driver?.firstName?.[0] }}{{ t.driver?.lastName?.[0] }}</div>
+              <span class="user-name">{{ driverName(t) }}</span>
+            </div>
+          </td>
+          <td class="muted">{{ t.departureTime | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td class="price">{{ t.pricePerSeat }} {{ t.currency }}</td>
+          <td class="muted">{{ t.availableSeats }} / {{ t.totalSeats }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="statusClass(t.status)">
+              <i [attr.data-lucide]="t.status === 'OPEN' ? 'circle-dot' : t.status === 'COMPLETED' ? 'check' : t.status === 'CANCELLED' ? 'x' : 'slash'"></i>
+              {{ statusLabel(t.status) }}
+            </span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button
+                *ngIf="t.status === 'OPEN'"
+                class="btn-action blue"
+                [title]="langService.t('admin.trips.action.complete')"
+                (click)="changeStatus(t.id, 'COMPLETED')"
+                [disabled]="acting === t.id">
+                <i *ngIf="acting !== t.id" data-lucide="check-circle"></i>
+                <span *ngIf="acting === t.id" class="spin"></span>
+              </button>
+              <button
+                *ngIf="t.status === 'OPEN'"
+                class="btn-action red"
+                [title]="langService.t('admin.trips.action.cancel')"
+                (click)="changeStatus(t.id, 'CANCELLED')"
+                [disabled]="acting === t.id">
+                <i *ngIf="acting !== t.id" data-lucide="x-circle"></i>
+                <span *ngIf="acting === t.id" class="spin"></span>
+              </button>
+              <button
+                *ngIf="t.status === 'OPEN'"
+                class="btn-action gray"
+                [title]="langService.t('admin.trips.action.reject')"
+                (click)="changeStatus(t.id, 'REJECTED')"
+                [disabled]="acting === t.id">
+                <i *ngIf="acting !== t.id" data-lucide="slash"></i>
+                <span *ngIf="acting === t.id" class="spin"></span>
+              </button>
+              <span *ngIf="t.status !== 'OPEN'" class="muted">—</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngFor="let t of trips">
+      <div *ngIf="errors[t.id]" class="error-inline">
+        <i data-lucide="alert-circle"></i> {{ errors[t.id] }}
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button [disabled]="page === 0" (click)="prev()">
+        <i data-lucide="chevron-left"></i>
+        {{ langService.t('common.back') }}
+      </button>
+      <span>{{ page + 1 }} / {{ totalPages }}</span>
+      <button [disabled]="page >= totalPages - 1" (click)="next()">
+        {{ langService.t('admin.trips.next') }}
+        <i data-lucide="chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>

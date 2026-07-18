@@ -35,6 +35,12 @@ export const routes: Routes = [
   { path: 'notifications', canActivate: [authGuard], loadComponent: () => import('./features/notifications/notifications.component').then(m => m.NotificationsComponent) },
   { path: 'profile', canActivate: [authGuard], loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent) },
   { path: 'profile/:id', loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent) },
+  { path: 'contact', loadComponent: () => import('./features/contact/contact.component').then(m => m.ContactComponent) },
+  { path: 'faq', loadComponent: () => import('./features/legal/faq/faq.component').then(m => m.FaqComponent) },
+  { path: 'mentions-legales', loadComponent: () => import('./features/legal/mentions-legales/mentions-legales.component').then(m => m.MentionsLegalesComponent) },
+  { path: 'cgu', loadComponent: () => import('./features/legal/cgu/cgu.component').then(m => m.CguComponent) },
+  { path: 'confidentialite', loadComponent: () => import('./features/legal/confidentialite/confidentialite.component').then(m => m.ConfidentialiteComponent) },
+  { path: 'auth/forgot-password', loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
   { path: '**', redirectTo: '' },
 
   /* { path: 'loginAdmin', loadComponent: () => import('./features/auth/admin/login.admin.component').then(m => m.LoginAdminComponent) },

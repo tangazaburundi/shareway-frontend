@@ -72,6 +72,27 @@ export const adminRoutes: Routes = [
           import('./features/admin/advertising/admin-advertising.component')
             .then(m => m.AdminAdvertisingComponent),
       },
+      {
+        path: 'admin/analytics',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/admin/analytics/admin-analytics.component')
+            .then(m => m.AdminAnalyticsComponent),
+      },
+      {
+        path: 'admin/role-requests',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/admin/role-requests/admin-role-requests.component')
+            .then(m => m.AdminRoleRequestsComponent),
+      },
+      {
+        path: 'admin/trips',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/admin/trips/admin-trips.component')
+            .then(m => m.AdminTripsComponent),
+      },
 ];
 
 

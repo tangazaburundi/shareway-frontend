@@ -1,0 +1,67 @@
+<div class="page">
+  <div class="page-header">
+    <h1>{{ langService.t('contact.title') }}</h1>
+    <p>{{ langService.t('contact.subtitle') }}</p>
+  </div>
+
+  <div class="contact-layout">
+    <div class="card form-card">
+      <div *ngIf="submitted" class="success-message">
+        <span class="success-icon">&#10003;</span>
+        <p>{{ langService.t('contact.success') }}</p>
+      </div>
+
+      <form *ngIf="!submitted" (ngSubmit)="submit()">
+        <div class="form-group">
+          <label>{{ langService.t('contact.name') }}</label>
+          <input type="text" [(ngModel)]="name" name="name"
+            [placeholder]="langService.t('contact.name.placeholder')" required />
+        </div>
+
+        <div class="form-group">
+          <label>{{ langService.t('contact.email') }}</label>
+          <input type="email" [(ngModel)]="email" name="email"
+            [placeholder]="langService.t('contact.email.placeholder')" required />
+        </div>
+
+        <div class="form-group">
+          <label>{{ langService.t('contact.subject') }}</label>
+          <input type="text" [(ngModel)]="subject" name="subject"
+            [placeholder]="langService.t('contact.subject.placeholder')" required />
+        </div>
+
+        <div class="form-group">
+          <label>{{ langService.t('contact.message') }}</label>
+          <textarea [(ngModel)]="message" name="message" rows="5"
+            [placeholder]="langService.t('contact.message.placeholder')" required></textarea>
+        </div>
+
+        <div *ngIf="error" class="error-message">{{ langService.t('common.error') }}</div>
+
+        <button type="submit" class="btn-primary" [disabled]="sending">
+          {{ sending ? langService.t('contact.sending') : langService.t('contact.submit') }}
+        </button>
+      </form>
+    </div>
+
+    <div class="info-card card">
+      <h3>{{ langService.t('contact.info.title') }}</h3>
+
+      <div class="info-item">
+        <span class="info-icon">&#9993;</span>
+        <div>
+          <span class="info-label">{{ langService.t('contact.info.email') }}</span>
+          <a href="mailto:contact&#64;shareway.app">contact&#64;shareway.app</a>
+        </div>
+      </div>
+
+      <div class="info-item">
+        <span class="info-icon">&#9743;</span>
+        <div>
+          <span class="info-label">{{ langService.t('contact.info.phone') }}</span>
+          <span>+257 XX XX XX XX</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

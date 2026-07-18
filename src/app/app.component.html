@@ -1,5 +1,7 @@
 <app-navbar />
 
+<app-ad-banner />
+
 <div class="app-body">
   <main class="main-content">
     <router-outlet />
@@ -7,4 +9,18 @@
   <app-ad-sidebar />
 </div>
 
+@if (isHome) {
+  <section class="cta-section">
+    <div class="cta-inner">
+      <h2 class="cta-title">Prêt à voyager ?</h2>
+      <p class="cta-text">Rejoignez des milliers de voyageurs qui font confiance à ShareWay pour leurs trajets quotidiens.</p>
+      <a routerLink="/auth/register" class="btn btn-primary btn-lg">Créer un compte gratuit</a>
+    </div>
+  </section>
+}
+
 <app-footer />
+
+<app-ad-bottom-banner />
+
+<app-cookie-consent />

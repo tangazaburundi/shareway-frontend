@@ -1,0 +1,18 @@
+<div class="page">
+  <div class="page-header">
+    <h1>{{ langService.t('faq.title') }}</h1>
+    <p>{{ langService.t('faq.subtitle') }}</p>
+  </div>
+
+  <div class="faq-container">
+    <div class="card" *ngFor="let faq of faqs; let i = index">
+      <button class="faq-question" (click)="toggle(i)">
+        <span>{{ langService.t(faq.qKey) }}</span>
+        <span class="faq-chevron" [class.open]="openIndex === i">&#9662;</span>
+      </button>
+      <div class="faq-answer" *ngIf="openIndex === i">
+        <p>{{ langService.t(faq.aKey) }}</p>
+      </div>
+    </div>
+  </div>
+</div>

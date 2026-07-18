@@ -142,6 +142,20 @@ export interface DocumentRow {
   user?: { id: string; firstName: string; lastName: string };
 }
 
+export interface RoleRequestRow {
+  id: string;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  currentRole: string;
+  requestedRole: string;
+  status: string; // PENDING, APPROVED, REJECTED
+  reason?: string;
+  createdAt: string;
+  reviewedAt?: string;
+}
+
 export interface AuditRow {
   id: string;
   action: string;
@@ -297,6 +311,21 @@ export class AdminService {
     return this.http.post<ApiResponse<ReportRow>>(`${this.API}/reports/${id}/review`, { status, actionTaken });
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // TRIPS
+  // ═══════════════════════════════════════════════════════════
+
+  getTrips(status?: string, page = 0, size = 20, search?: string): Observable<ApiResponse<PageResponse<any>>> {
+    let url = `${this.API}/admin/trips?page=${page}&size=${size}`;
+    if (status) url += `&status=${status}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    return this.http.get<ApiResponse<PageResponse<any>>>(url);
+  }
+
+  changeTripStatus(id: string, status: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.API}/admin/trips/${id}/status`, { status });
+  }
+
     // ═══════════════════════════════════════════════════════════
     // MESSAGES SIGNALÉS
     // ═══════════════════════════════════════════════════════════
@@ -322,4 +351,22 @@ export class AdminService {
       rejectDocument(id: string, reason: string): Observable<ApiResponse<DocumentRow>> {
         return this.http.post<ApiResponse<DocumentRow>>(`${this.API}/admin/documents/${id}/reject`, { reason });
       }
+
+  // ═══════════════════════════════════════════════════════════
+  // DEMANDES DE RÔLE
+  // ═══════════════════════════════════════════════════════════
+
+  getRoleRequests(status?: string, page = 0, size = 20): Observable<ApiResponse<PageResponse<RoleRequestRow>>> {
+    let url = `${this.API}/admin/role-requests?page=${page}&size=${size}`;
+    if (status) url += `&status=${status}`;
+    return this.http.get<ApiResponse<PageResponse<RoleRequestRow>>>(url);
+  }
+
+  approveRoleRequest(id: string): Observable<ApiResponse<RoleRequestRow>> {
+    return this.http.post<ApiResponse<RoleRequestRow>>(`${this.API}/admin/role-requests/${id}/approve`, {});
+  }
+
+  rejectRoleRequest(id: string, reason?: string): Observable<ApiResponse<RoleRequestRow>> {
+    return this.http.post<ApiResponse<RoleRequestRow>>(`${this.API}/admin/role-requests/${id}/reject`, { reason });
+  }
 }

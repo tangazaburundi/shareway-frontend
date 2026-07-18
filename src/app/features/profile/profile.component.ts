@@ -36,6 +36,14 @@ export class ProfileComponent implements OnInit {
   reportReason = '';
   selectedReviewId: string | null = null;
 
+  cookieCategories = [
+    { key: 'necessary',  label: 'Nécessaires',     description: 'Fonctionnement du site',        checked: true,  required: true },
+    { key: 'analytics',  label: 'Analytiques',      description: 'Audience et statistiques',      checked: true,  required: false },
+    { key: 'marketing',  label: 'Marketing',        description: 'Publicité ciblée',              checked: true,  required: false },
+    { key: 'functional', label: 'Fonctionnelles',   description: 'Préférences utilisateur',       checked: true,  required: false },
+  ];
+  cookieSaved = false;
+
   editForm = this.fb.group({
     firstName: ['', Validators.required], lastName: ['', Validators.required],
     bio: [''], phone: [''], phoneVisible: [false], preferredLang: ['fr'],
@@ -151,6 +159,42 @@ export class ProfileComponent implements OnInit {
     this.userService.switchRole(next).subscribe({
       next: (res) => { this.user = res.data!; this.authService.updateCurrentUser(res.data!); }
     });
+  }
+
+  loadCookiePrefs() {
+    const stored = localStorage.getItem('sw_cookie_consent');
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        if (data.prefs) {
+          this.cookieCategories.forEach(c => {
+            if (data.prefs[c.key] !== undefined) c.checked = data.prefs[c.key];
+          });
+        }
+      } catch {}
+    }
+  }
+
+  toggleCookie(key: string, checked: boolean) {
+    const cat = this.cookieCategories.find(c => c.key === key);
+    if (cat && !cat.required) cat.checked = checked;
+  }
+
+  saveCookiePrefs() {
+    const prefs: Record<string, boolean> = {};
+    this.cookieCategories.forEach(c => prefs[c.key] = c.checked);
+    const mode = this.cookieCategories.every(c => c.checked) ? 'all'
+      : this.cookieCategories.filter(c => !c.required).every(c => !c.checked) ? 'rejected'
+      : 'selection';
+    localStorage.setItem('sw_cookie_consent', JSON.stringify({ mode, prefs }));
+    this.cookieSaved = true;
+    setTimeout(() => { this.cookieSaved = false; this.activeSection = ''; }, 2000);
+  }
+
+  reopenCookieBanner() {
+    localStorage.removeItem('sw_cookie_consent');
+    this.cookieCategories.forEach(c => c.checked = !c.required);
+    this.activeSection = 'cookies';
   }
 
 
