@@ -244,6 +244,11 @@ export class ResetPasswordComponent implements OnInit {
       return;
     }
 
+    if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/.test(this.newPassword)) {
+      this.errorMessage = this.langService.t('auth.passwordStrong') || 'Min 8 caractères, 1 majuscule, 1 chiffre, 1 symbole.';
+      return;
+    }
+
     this.loading = true;
     this.errorMessage = '';
 
