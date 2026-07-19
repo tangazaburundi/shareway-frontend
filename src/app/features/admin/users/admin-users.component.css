@@ -112,3 +112,29 @@
       border-radius: 50%; animation: spin .7s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    .role-badge.sys {
+      background: #7c3aed; color: #fff; margin-left: 4px;
+    }
+
+    .role-select {
+      display: block; margin-top: 4px;
+      padding: 3px 6px; border: 1px solid #d1d5db; border-radius: 4px;
+      font-size: 12px; background: #fff; cursor: pointer; max-width: 140px;
+    }
+    .role-select:focus {
+      border-color: #1a8b82; outline: none;
+    }
+
+    .role-actions {
+      display: flex; gap: 4px; margin-top: 4px;
+    }
+    .btn-role-ok, .btn-role-cancel {
+      padding: 2px 8px; border: none; border-radius: 4px;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+    }
+    .btn-role-ok { background: #1a8b82; color: #fff; }
+    .btn-role-ok:hover { background: #15736a; }
+    .btn-role-ok:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-role-cancel { background: #e5e7eb; color: #374151; }
+    .btn-role-cancel:hover { background: #d1d5db; }

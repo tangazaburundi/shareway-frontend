@@ -46,7 +46,8 @@ export class ProfileComponent implements OnInit {
 
   editForm = this.fb.group({
     firstName: ['', Validators.required], lastName: ['', Validators.required],
-    bio: [''], phone: [''], phoneVisible: [false], preferredLang: ['fr'],
+    email: [{ value: '', disabled: true }],
+    bio: ['', Validators.required], phone: ['', Validators.required], phoneVisible: [false], preferredLang: ['fr'],
     pref_music: [false], pref_smoking: [false], pref_pets: [false], pref_talking: [true], pref_ac: [false],
   });
 
@@ -247,6 +248,7 @@ export class ProfileComponent implements OnInit {
           this.editForm.patchValue({
             firstName: this.user.firstName,
             lastName: this.user.lastName,
+            email: this.user.email,
             bio: this.user.bio || '',
             phone: this.user.phone || '',
             phoneVisible: this.user.phoneVisible || false,

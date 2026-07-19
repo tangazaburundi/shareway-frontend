@@ -3,10 +3,22 @@
     <div class="auth-header">
       <a routerLink="/" class="auth-logo">
         <img src="assets/images/shareway.png" alt="ShareWay" style="height:60px;">ShareWay</a>
-      <h1>{{ langService.t('auth.register.title') }}</h1>
-      <p>{{ langService.t('auth.register.subtitle') }}</p>
+      @if (!registered) {
+        <h1>{{ langService.t('auth.register.title') }}</h1>
+        <p>{{ langService.t('auth.register.subtitle') }}</p>
+      }
     </div>
 
+    @if (registered) {
+      <div class="auth-success">
+        <div style="font-size:48px;text-align:center;">✅</div>
+        <h2 style="text-align:center;">{{ langService.t('auth.register.successTitle') }}</h2>
+        <p style="text-align:center;color:#666;">{{ langService.t('auth.register.successMessage') }}</p>
+        <a routerLink="/auth/login" class="btn btn-primary btn-full" style="margin-top:16px;">
+          {{ langService.t('auth.register.login') }}
+        </a>
+      </div>
+    } @else {
     <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
       @if (error) { <div class="alert alert-error">{{ error }}</div> }
 
@@ -55,6 +67,7 @@
           <button type="button" class="input-toggle" (click)="showPwd=!showPwd">{{ showPwd ? '🙈' : '👁️' }}</button>
         </div>
         @if (form.get('password')?.errors?.['minlength'] && form.get('password')?.touched) { <span class="field-error">{{ langService.t('auth.passwordMin') }}</span> }
+        @if (form.get('password')?.errors?.['pattern'] && form.get('password')?.touched) { <span class="field-error">{{ langService.t('auth.passwordStrong') }}</span> }
       </div>
 
       <button type="submit" class="btn btn-primary btn-full" [disabled]="loading">
@@ -67,5 +80,6 @@
       {{ langService.t('auth.register.hasAccount') }}
       <a routerLink="/auth/login">{{ langService.t('auth.register.login') }}</a>
     </p>
+    }
   </div>
 </div>

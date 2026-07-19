@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Observable, switchMap } from 'rxjs';
 import { AdminService, UserRow } from '../../../core/services/admin.service';
 
 @Component({
@@ -25,6 +26,9 @@ export class AdminUsersComponent implements OnInit {
   showDeleteModal = false;
   targetUser:     UserRow | null = null;
   blockReason     = '';
+
+  pendingRole: Record<string, string> = {};
+  pendingSysRole: Record<string, string> = {};
 
   constructor(private svc: AdminService) {}
 
@@ -102,6 +106,85 @@ export class AdminUsersComponent implements OnInit {
       },
       error: err => { this.actionError = err.error?.message || 'Erreur'; this.acting = null; }
     });
+  }
+
+  approve(u: UserRow) {
+    this.acting = u.id;
+    this.svc.approveUser(u.id).subscribe({
+      next: r => {
+        const idx = this.users.findIndex(x => x.id === u.id);
+        if (idx >= 0 && r.data) this.users[idx] = r.data;
+        this.acting = null;
+      },
+      error: () => { this.acting = null; }
+    });
+  }
+
+  reject(u: UserRow) {
+    if (!confirm(`Refuser le compte de ${u.firstName} ${u.lastName} ?`)) return;
+    this.acting = u.id;
+    this.svc.rejectUser(u.id).subscribe({
+      next: r => {
+        const idx = this.users.findIndex(x => x.id === u.id);
+        if (idx >= 0 && r.data) this.users[idx] = r.data;
+        this.acting = null;
+      },
+      error: () => { this.acting = null; }
+    });
+  }
+
+  onRoleChange(u: UserRow, role: string) {
+    this.pendingRole[u.id] = role;
+  }
+
+  onSysRoleChange(u: UserRow, systemRole: string) {
+    this.pendingSysRole[u.id] = systemRole;
+  }
+
+  hasPendingChange(u: UserRow): boolean {
+    return (u.id in this.pendingRole) || (u.id in this.pendingSysRole);
+  }
+
+  confirmRoles(u: UserRow) {
+    this.acting = u.id;
+    const newRole = this.pendingRole[u.id];
+    const newSysRole = this.pendingSysRole[u.id];
+
+    const calls: Observable<any>[] = [];
+    if (newRole) calls.push(this.svc.changeUserRole(u.id, newRole));
+    if (newSysRole) calls.push(this.svc.assignSystemRole(u.id, newSysRole));
+
+    if (!calls.length) { this.acting = null; return; }
+
+    // Execute sequentially: functional role first, then system role
+    let last: Observable<any> = calls[0];
+    for (let i = 1; i < calls.length; i++) {
+      last = last.pipe(switchMap(() => calls[i]));
+    }
+    last.subscribe({
+      next: () => {
+        // Re-fetch user data to get both updates
+        this.svc.getUsers(this.page, this.size, this.search || undefined).subscribe({
+          next: r => {
+            this.users = r.data?.content ?? [];
+            delete this.pendingRole[u.id];
+            delete this.pendingSysRole[u.id];
+            this.acting = null;
+          },
+          error: () => {
+            delete this.pendingRole[u.id];
+            delete this.pendingSysRole[u.id];
+            this.acting = null;
+          }
+        });
+      },
+      error: () => { this.acting = null; }
+    });
+  }
+
+  cancelPending(u: UserRow) {
+    delete this.pendingRole[u.id];
+    delete this.pendingSysRole[u.id];
   }
 
   exportCsv()   { this.svc.exportUsersCsv().subscribe(b => this.svc.downloadBlob(b, 'users.csv')); }

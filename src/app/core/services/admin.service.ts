@@ -12,7 +12,8 @@ import { map } from 'rxjs/operators';
 export interface UserRow {
   id: string; firstName: string; lastName: string; email: string; phone?: string;
   role: string; active: boolean; blocked: boolean; blockReason?: string;
-  emailVerified: boolean; identityVerified: boolean; rating?: number; reviewCount: number;
+  emailVerified: boolean; identityVerified: boolean; adminApproved: boolean;
+  systemRole?: string; rating?: number; reviewCount: number;
   createdAt: string; lastLoginAt?: string;
 }
 
@@ -179,6 +180,22 @@ export class AdminService {
 
   deleteUser(id: string): Observable<void> {
     return this.http.delete<void>(`${this.API}/admin/users/${id}`);
+  }
+
+  approveUser(id: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.API}/admin/users/${id}/approve`, {});
+  }
+
+  rejectUser(id: string, reason?: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.API}/admin/users/${id}/reject`, { reason });
+  }
+
+  changeUserRole(id: string, role: string): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.API}/admin/users/${id}/role`, { role });
+  }
+
+  assignSystemRole(id: string, systemRole: string): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.API}/admin/users/${id}/system-role`, { systemRole });
   }
   //TODO A VERIFIER
       // ── Audit ──────────────────────────────────────────────────────────────────

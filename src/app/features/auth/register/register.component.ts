@@ -20,10 +20,10 @@ export class RegisterComponent {
     role: ['PASSENGER', Validators.required],
     firstName: ['', Validators.required], lastName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
-    phone: [''], password: ['', [Validators.required, Validators.minLength(8)]]
+    phone: [''],     password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/)]]
   });
 
-  loading = false; error = ''; showPwd = false;
+  loading = false; error = ''; showPwd = false; registered = false;
 
   isInvalid(f: string): boolean { const c = this.form.get(f); return !!(c?.invalid && c?.touched); }
 
@@ -31,7 +31,7 @@ export class RegisterComponent {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.loading = true; this.error = '';
     this.authService.register(this.form.value as any).subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => { this.registered = true; this.loading = false; },
       error: (err) => { this.error = err.error?.message || 'Erreur'; this.loading = false; }
     });
   }

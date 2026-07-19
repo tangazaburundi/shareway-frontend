@@ -82,6 +82,10 @@ export class AuthService {
     return this.http.post<ApiResponse<void>>(`${this.API}/reset-password`, { token, newPassword });
   }
 
+  verifyEmail(token: string): Observable<ApiResponse<void>> {
+    return this.http.get<ApiResponse<void>>(`${this.API}/verify-email/${token}`);
+  }
+
   updateCurrentUser(user: User): void {
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     this._currentUser.set(user);
@@ -93,7 +97,8 @@ export class AuthService {
          localStorage.setItem('admin_token', data.token);
          localStorage.setItem('admin_user', JSON.stringify(data.user));
      }else{
-
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
         localStorage.setItem(this.TOKEN_KEY, data.token);
         localStorage.setItem(this.USER_KEY, JSON.stringify(data.user));
      }

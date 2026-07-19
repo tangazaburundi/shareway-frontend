@@ -45,7 +45,29 @@
                   </div>
                 </div>
               </td>
-              <td><span class="role-badge">{{ u.role }}</span></td>
+              <td>
+                <span class="role-badge">{{ u.role }}</span>
+                <select class="role-select" [ngModel]="pendingRole[u.id] ?? u.role"
+                        (ngModelChange)="onRoleChange(u, $event)" [disabled]="acting === u.id">
+                  <option value="PASSENGER">Passager</option>
+                  <option value="DRIVER">Conducteur</option>
+                  <option value="BOTH">Les deux</option>
+                </select>
+                <span *ngIf="u.systemRole" class="role-badge sys">{{ u.systemRole }}</span>
+                <select class="role-select" [ngModel]="pendingSysRole[u.id] ?? u.systemRole ?? ''"
+                        (ngModelChange)="onSysRoleChange(u, $event)" [disabled]="acting === u.id">
+                  <option value="">—</option>
+                  <option value="SUPER_ADMIN">Super Admin</option>
+                  <option value="ADMIN">Admin</option>
+                  <option value="MODERATOR">Modérateur</option>
+                  <option value="SUPPORT">Support</option>
+                  <option value="NONE">Retirer rôle</option>
+                </select>
+                <div *ngIf="hasPendingChange(u)" class="role-actions">
+                  <button class="btn-role-ok" (click)="confirmRoles(u)" [disabled]="acting === u.id">Valider</button>
+                  <button class="btn-role-cancel" (click)="cancelPending(u)">Annuler</button>
+                </div>
+              </td>
               <td>
                 <span *ngIf="u.blocked"  class="status blocked">🚫 Bloqué</span>
                 <span *ngIf="!u.blocked && u.active"  class="status active">✅ Actif</span>
@@ -58,6 +80,9 @@
                 <span class="check" [class.ok]="u.identityVerified">
                   {{ u.identityVerified ? '✅' : '❌' }} Identité
                 </span>
+                <span class="check" [class.ok]="u.adminApproved">
+                  {{ u.adminApproved ? '✅' : '⏳' }} Compte
+                </span>
               </td>
               <td>
                 <span *ngIf="u.rating">⭐ {{ u.rating | number:'1.1-1' }} ({{ u.reviewCount }})</span>
@@ -66,6 +91,18 @@
               <td class="muted">{{ u.createdAt | date:'dd/MM/yyyy' }}</td>
               <td>
                 <div class="action-btns">
+                  <!-- Approuver -->
+                  <button *ngIf="!u.adminApproved"
+                          class="btn-action green" title="Approuver le compte"
+                          (click)="approve(u)" [disabled]="acting === u.id">
+                    ✔️
+                  </button>
+                  <!-- Refuser -->
+                  <button *ngIf="!u.adminApproved"
+                          class="btn-action orange" title="Refuser le compte"
+                          (click)="reject(u)" [disabled]="acting === u.id">
+                    ❌
+                  </button>
                   <!-- Vérifier identité -->
                   <button *ngIf="!u.identityVerified"
                           class="btn-action green" title="Vérifier l'identité"

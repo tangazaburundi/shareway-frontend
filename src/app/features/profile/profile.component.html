@@ -95,24 +95,32 @@
               <h3 class="card-title">✏️ {{ langService.t('profile.edit') }}</h3>
               <form [formGroup]="editForm" (ngSubmit)="saveProfile()">
                 @if (saveSuccess) { <div class="alert alert-success">✅ Profil mis à jour !</div> }
+                <div class="form-group">
+                  <label>{{ langService.t('auth.login.email') }}</label>
+                  <input type="email" formControlName="email" class="input" readonly style="background:#f0f0f0;cursor:not-allowed;" />
+                </div>
                 <div class="form-row">
                   <div class="form-group">
-                    <label>{{ langService.t('auth.register.firstName') }}</label>
-                    <input type="text" formControlName="firstName" class="input" />
+                    <label>{{ langService.t('auth.register.firstName') }} *</label>
+                    <input type="text" formControlName="firstName" class="input" [class.input-error]="editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched" />
+                    @if (editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched) { <span class="field-error">{{ langService.t('auth.required') }}</span> }
                   </div>
                   <div class="form-group">
-                    <label>{{ langService.t('auth.register.lastName') }}</label>
-                    <input type="text" formControlName="lastName" class="input" />
+                    <label>{{ langService.t('auth.register.lastName') }} *</label>
+                    <input type="text" formControlName="lastName" class="input" [class.input-error]="editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched" />
+                    @if (editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched) { <span class="field-error">{{ langService.t('auth.required') }}</span> }
                   </div>
                 </div>
                 <div class="form-group">
-                  <label>{{ langService.t('profile.bio') }}</label>
-                  <textarea formControlName="bio" class="input textarea" [placeholder]="langService.t('profile.bioPlaceholder')"></textarea>
+                  <label>{{ langService.t('profile.bio') }} *</label>
+                  <textarea formControlName="bio" class="input textarea" [placeholder]="langService.t('profile.bioPlaceholder')" [class.input-error]="editForm.get('bio')?.invalid && editForm.get('bio')?.touched"></textarea>
+                  @if (editForm.get('bio')?.invalid && editForm.get('bio')?.touched) { <span class="field-error">{{ langService.t('auth.required') }}</span> }
                 </div>
                 <div class="form-row">
                   <div class="form-group">
-                    <label>{{ langService.t('profile.phone') }}</label>
-                    <input type="tel" formControlName="phone" class="input" />
+                    <label>{{ langService.t('profile.phone') }} *</label>
+                    <input type="tel" formControlName="phone" class="input" [class.input-error]="editForm.get('phone')?.invalid && editForm.get('phone')?.touched" placeholder="+257 79 000 000" />
+                    @if (editForm.get('phone')?.invalid && editForm.get('phone')?.touched) { <span class="field-error">{{ langService.t('auth.required') }}</span> }
                   </div>
                   <div class="form-group center-label">
                     <label class="checkbox-row">

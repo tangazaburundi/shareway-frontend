@@ -5,7 +5,8 @@ import { adminRoutes } from './admin.routes';
 export const routes: Routes = [
    ...adminRoutes,
   { path: '', loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent) },
-   {
+   { path: 'auth/verify-email', loadComponent: () => import('./features/auth/verify-email/verify-email.component').then(m => m.VerifyEmailComponent) },
+  {
     path: 'auth', canActivate: [guestGuard], children: [
       { path: 'login', loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent) },
       { path: 'register', loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent) },
