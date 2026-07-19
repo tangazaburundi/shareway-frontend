@@ -1,8 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { LanguageService } from '../../../core/services/language.service';
+import { PartenaireService } from '../../../core/services/partenaire.service';
+import { Partenaire } from '../../../core/models/partenaire.model';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -12,14 +14,27 @@ import { environment } from '../../../../environments/environment';
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.css']
 })
-export class FooterComponent {
+export class FooterComponent implements OnInit {
   langService = inject(LanguageService);
   private http = inject(HttpClient);
+  private partenaireService = inject(PartenaireService);
 
   currentYear = new Date().getFullYear();
   newsletterEmail = '';
   newsletterSending = false;
   newsletterSent = false;
+  partenaires = signal<Partenaire[]>([]);
+
+  ngOnInit() {
+    this.loadPartenaires();
+  }
+
+  loadPartenaires() {
+    this.partenaireService.getAllActive().subscribe({
+      next: (data) => this.partenaires.set(data),
+      error: () => {}
+    });
+  }
 
   subscribeNewsletter(event: Event) {
     event.preventDefault();

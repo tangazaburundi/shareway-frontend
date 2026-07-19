@@ -153,6 +153,20 @@ export class AdminAdvertisingComponent implements OnInit {
       alert('L\'image ne doit pas dépasser 10 Mo');
       return;
     }
+    const img = new Image();
+    img.onload = () => {
+      if (img.width < 400 || img.height < 140) {
+        alert('L\'image doit faire au minimum 400 x 140 px (actuellement ' + img.width + ' x ' + img.height + ' px)');
+        URL.revokeObjectURL(img.src);
+        return;
+      }
+      URL.revokeObjectURL(img.src);
+      this.uploadFile(file);
+    };
+    img.src = URL.createObjectURL(file);
+  }
+
+  private uploadFile(file: File) {
     this.uploading.set(true);
     const fd = new FormData();
     fd.append('file', file);

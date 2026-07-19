@@ -93,6 +93,13 @@ export const adminRoutes: Routes = [
           import('./features/admin/trips/admin-trips.component')
             .then(m => m.AdminTripsComponent),
       },
+      {
+        path: 'admin/partenaires',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/admin/partenaires/admin-partenaires.component')
+            .then(m => m.AdminPartenairesComponent),
+      },
 ];
 
 

@@ -96,6 +96,46 @@
   margin: 6px 0 0;
 }
 
+.footer-partners {
+  border-top: 1px solid #1e293b;
+  padding: 20px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.footer-partners h4 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  margin: 0 0 12px;
+}
+
+.partners-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.partner-logo-link {
+  display: inline-block;
+  transition: opacity 0.2s;
+}
+
+.partner-logo-link:hover {
+  opacity: 0.8;
+}
+
+.partner-logo {
+  height: 56px;
+  max-width: 140px;
+  object-fit: contain;
+}
+
 .footer-bottom {
   border-top: 1px solid #1e293b;
   padding: 16px 24px;

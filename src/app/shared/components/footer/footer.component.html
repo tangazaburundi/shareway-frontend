@@ -45,6 +45,19 @@
     </div>
   </div>
 
+  @if (partenaires().length > 0) {
+  <div class="footer-partners">
+    <h4>{{ langService.t('footer.nos_partenaires') }}</h4>
+    <div class="partners-logos">
+      @for (p of partenaires(); track p.id) {
+      <a [href]="p.lienUrl || '#'" target="_blank" class="partner-logo-link" [title]="p.nom">
+        <img [src]="p.imageUrl" [alt]="p.nom" class="partner-logo" />
+      </a>
+      }
+    </div>
+  </div>
+  }
+
   <div class="footer-bottom">
     <div class="social-links">
       <a href="https://facebook.com" target="_blank" class="social facebook" aria-label="Facebook">

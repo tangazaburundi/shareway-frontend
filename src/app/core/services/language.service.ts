@@ -311,6 +311,8 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'admin.analytics.accepted': 'Accepté',
     'admin.analytics.rejected': 'Refusé',
     'admin.analytics.noVisits': 'Aucune visite trouvée',
+    'footer.nos_partenaires': 'Nos partenaires',
+    'sidebar.partenaires': 'Partenaires',
 
   },
   ki: {
@@ -620,6 +622,8 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'admin.analytics.rejected': 'Ankiwe',
     'admin.analytics.noVisits': 'Nta geno ribonetse',
     'nav.my-bookings': 'Ivyo nabitse',
+    'footer.nos_partenaires': 'Abadukorana',
+    'sidebar.partenaires': 'Abadukorana',
   }
 };
 

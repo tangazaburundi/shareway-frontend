@@ -49,7 +49,7 @@
         <textarea [(ngModel)]="form.description" placeholder="Description de la publicité" rows="3"></textarea>
       </div>
       <div class="form-group">
-        <label>Image</label>
+        <label>Image <span class="hint">(min. 400 x 140 px, max 10 Mo)</span></label>
         <div class="upload-toggle">
           <button type="button" class="toggle-btn" [class.active]="uploadMode() === 'url'" (click)="uploadMode.set('url')">URL</button>
           <button type="button" class="toggle-btn" [class.active]="uploadMode() === 'file'" (click)="uploadMode.set('file')">Fichier</button>

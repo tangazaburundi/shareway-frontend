@@ -34,6 +34,8 @@ export class LayoutComponent {
     { label: 'Messages', icon: '💬', path: 'messages' },
     { label: 'Signalements', icon: '🚨', path: 'reports' },
     { label: 'Journal d\'audit', icon: '📋', path: 'audit' },
+    { label: 'Publicités', icon: '📢', path: 'advertising' },
+    { label: 'Partenaires', icon: '🤝', path: 'partenaires' },
   ];
 
   constructor(private auth: AuthService) {}

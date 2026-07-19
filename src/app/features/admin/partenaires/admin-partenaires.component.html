@@ -1,0 +1,107 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Gestion des partenaires</h1>
+      <span class="subtitle">Ajoutez et gérez les logos de vos partenaires affichés dans le footer</span>
+    </div>
+    <button class="btn btn-primary" (click)="openCreate()">+ Nouveau partenaire</button>
+  </div>
+
+  @if (showForm()) {
+  <div class="form-card">
+    <h2>{{ editingId() ? 'Modifier' : 'Nouveau' }} partenaire</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Nom *</label>
+        <input [(ngModel)]="form.nom" placeholder="Nom du partenaire" required />
+      </div>
+      <div class="form-group form-group-full">
+        <label>Image du partenaire</label>
+        @if (imagePreview()) {
+        <div class="image-preview-inline">
+          <img [src]="imagePreview()" alt="Aperçu" />
+          <button class="btn-icon-remove" (click)="removeImage()" type="button">✕</button>
+        </div>
+        }
+        <div class="image-input-row">
+          <input [ngModel]="form.imageUrl" (ngModelChange)="form.imageUrl = $event; onImageUrlChange()"
+                 placeholder="https://example.com/logo.png" class="image-url-input" />
+          <span class="or-label">ou</span>
+          <label class="btn btn-accent btn-upload">
+            📁 Charger depuis PC
+            <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Lien du partenaire</label>
+        <input [(ngModel)]="form.lienUrl" placeholder="https://example.com" />
+      </div>
+      <div class="form-group">
+        <label>Ordre d'affichage</label>
+        <input [(ngModel)]="form.sortOrder" type="number" min="0" />
+      </div>
+      <div class="form-group">
+        <label>Actif</label>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="form.actif" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" (click)="save()">{{ editingId() ? 'Mettre à jour' : 'Créer' }}</button>
+      <button class="btn btn-secondary" (click)="cancelForm()">Annuler</button>
+    </div>
+  </div>
+  }
+
+  @if (loading()) {
+  <div class="skeleton-grid">
+    @for (i of [1,2,3]; track i) {
+    <div class="skeleton-card"></div>
+    }
+  </div>
+  } @else {
+  <div class="partner-grid">
+    @for (p of partenaires(); track p.id) {
+    <div class="partner-card" [class.inactive]="!p.actif">
+      <div class="partner-card-header">
+        <span class="badge" [class.badge-success]="p.actif" [class.badge-muted]="!p.actif">
+          {{ p.actif ? 'Actif' : 'Inactif' }}
+        </span>
+        <span class="sort-order">#{{ p.sortOrder }}</span>
+      </div>
+      <div class="partner-preview">
+        @if (p.imageUrl) {
+        <img [src]="p.imageUrl" [alt]="p.nom" />
+        } @else {
+        <div class="partner-placeholder">🏢</div>
+        }
+      </div>
+      <div class="partner-card-body">
+        <h3>{{ p.nom }}</h3>
+        @if (p.lienUrl) {
+        <a [href]="p.lienUrl" target="_blank" class="partner-link">{{ p.lienUrl }}</a>
+        }
+      </div>
+      <div class="partner-card-actions">
+        <button class="btn btn-sm" [class.btn-success]="!p.actif" [class.btn-muted]="p.actif"
+                (click)="toggleActive(p)">
+          {{ p.actif ? 'Désactiver' : 'Activer' }}
+        </button>
+        <button class="btn btn-sm btn-secondary" (click)="openEdit(p)">Modifier</button>
+        <button class="btn btn-sm btn-danger" (click)="deletePartenaire(p.id)">Supprimer</button>
+      </div>
+    </div>
+    }
+  </div>
+
+  @if (partenaires().length === 0) {
+  <div class="empty-state">
+    <p>Aucun partenaire ajouté.</p>
+    <button class="btn btn-primary" (click)="openCreate()">Ajouter un partenaire</button>
+  </div>
+  }
+  }
+</div>
