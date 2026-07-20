@@ -3,6 +3,13 @@
   "index": "/index.html",
   "dataGroups": [
     {
+      "name": "api-no-cache",
+      "urls": ["/api/v1/admin/**"],
+      "cacheConfig": {
+        "strategy": "networkOnly"
+      }
+    },
+    {
       "name": "api-performance",
       "urls": ["/api/v1/**"],
       "cacheConfig": {

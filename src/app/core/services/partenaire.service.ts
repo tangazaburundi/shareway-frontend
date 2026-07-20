@@ -8,7 +8,7 @@ import { Partenaire, CreatePartenaireCommand } from '../models/partenaire.model'
 
 @Injectable({ providedIn: 'root' })
 export class PartenaireService {
-  private readonly API = `${environment.apiUrl}/api/v1/partenaires`;
+  private readonly API = `${environment.apiUrl}/partenaires`;
 
   constructor(private http: HttpClient) {}
 
