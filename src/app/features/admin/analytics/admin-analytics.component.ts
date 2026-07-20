@@ -656,12 +656,13 @@ export class AdminAnalyticsComponent implements OnInit {
     this.visitorService.getStats().subscribe({
       next: (res: any) => {
         const data = res?.data ?? res;
+
         this.stats.set(data);
 
-        const days = data?.visitsByDay ?? [];
+        const days = data?.visitsByDay ?? {};
         const mapped = Object.entries(days).map(([date, count]) => ({
           date,
-          dateShort: this.shortDate(date),
+          dateShort: date,
           count: (count as number) ?? 0
         }));
         this.last30Days.set(mapped);
@@ -679,7 +680,10 @@ export class AdminAnalyticsComponent implements OnInit {
 
         this.loading.set(false);
       },
-      error: () => this.loading.set(false)
+      error: (err) => {
+        console.error('loadStats error:', err);
+        this.loading.set(false);
+      }
     });
   }
 
