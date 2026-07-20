@@ -21,6 +21,12 @@ jobs:
           script: |
             cd /opt/tangaza/shareway-backend
             git -C /opt/tangaza/shareway-frontend pull origin master
-            docker compose build frontend
-            docker compose up -d --no-deps frontend
+            docker compose build --no-cache frontend
+            docker create --name temp-frontend tangaza-frontend
+            docker cp temp-frontend:/usr/share/nginx/html /tmp/shareway-html
+            docker rm temp-frontend
+            rm -rf /usr/share/nginx/html/*
+            cp -r /tmp/shareway-html/* /usr/share/nginx/html/
+            rm -rf /tmp/shareway-html
+            nginx -s reload
             docker image prune -f
