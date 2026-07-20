@@ -53,7 +53,7 @@ import { LucideIconsDirective } from '../../../shared/directives/lucide-icons.di
               <i data-lucide="user-x"></i>
             </div>
             <div class="kpi-info">
-              <span class="kpi-value">{{ stats()?.anonymousVisitors ?? 0 }}</span>
+              <span class="kpi-value">{{ stats()?.totalAnonymous ?? 0 }}</span>
               <span class="kpi-label">{{ langService.t('admin.analytics.anonymous') || 'Visiteurs anonymes' }}</span>
             </div>
           </div>
@@ -191,8 +191,8 @@ import { LucideIconsDirective } from '../../../shared/directives/lucide-icons.di
                 <tr *ngFor="let v of visitors()">
                   <td>{{ v.visitedAt | date:'dd/MM/yyyy HH:mm' }}</td>
                   <td>
-                    <span *ngIf="v.userFirstName">{{ v.userFirstName }} {{ v.userLastName }}</span>
-                    <span *ngIf="!v.userFirstName" class="anonymous-badge">{{ langService.t('admin.analytics.anonymousUser') || 'Anonyme' }}</span>
+                    <span *ngIf="v.userName">{{ v.userName }}</span>
+                    <span *ngIf="!v.userName" class="anonymous-badge">{{ langService.t('admin.analytics.anonymousUser') || 'Anonyme' }}</span>
                   </td>
                   <td>{{ v.userEmail || '—' }}</td>
                   <td class="url-cell">{{ v.pageUrl }}</td>
@@ -654,20 +654,28 @@ export class AdminAnalyticsComponent implements OnInit {
 
   private loadStats() {
     this.visitorService.getStats().subscribe({
-      next: (data: any) => {
+      next: (res: any) => {
+        const data = res?.data ?? res;
         this.stats.set(data);
 
-        const days = data?.last30Days ?? [];
-        const mapped = days.map((d: any) => ({
-          date: d.date,
-          dateShort: this.shortDate(d.date),
-          count: d.count ?? 0
+        const days = data?.visitsByDay ?? [];
+        const mapped = Object.entries(days).map(([date, count]) => ({
+          date,
+          dateShort: this.shortDate(date),
+          count: (count as number) ?? 0
         }));
         this.last30Days.set(mapped);
-        this.maxDayCount.set(Math.max(1, ...mapped.map((d: any) => d.count)));
+        this.maxDayCount.set(Math.max(1, ...mapped.map(d => d.count)));
 
-        this.byCountry.set(data?.byCountry ?? []);
-        this.byCity.set(data?.byCity ?? []);
+        const countryMap = data?.visitsByCountry ?? {};
+        this.byCountry.set(
+          Object.entries(countryMap).map(([country, count]) => ({ country, count: count as number }))
+        );
+
+        const cityMap = data?.visitsByCity ?? {};
+        this.byCity.set(
+          Object.entries(cityMap).map(([city, count]) => ({ city, count: count as number }))
+        );
 
         this.loading.set(false);
       },

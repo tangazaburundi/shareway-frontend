@@ -19,7 +19,7 @@ export class VisitorService {
   }
 
   updateCookies(anonymousId: string, accepted: boolean) {
-    return this.http.patch(`${this.apiUrl}/visits/cookies`, { anonymousId, acceptedCookies: accepted });
+    return this.http.patch(`${this.apiUrl}/visits/cookies`, null, { params: { anonymousId, accepted: String(accepted) } });
   }
 
   getStats() {
