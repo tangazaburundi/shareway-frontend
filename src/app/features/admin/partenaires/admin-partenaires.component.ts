@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PartenaireService } from '../../../core/services/partenaire.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { Partenaire, CreatePartenaireCommand } from '../../../core/models/partenaire.model';
 
 @Component({
@@ -18,6 +19,7 @@ export class AdminPartenairesComponent implements OnInit {
   editingId = signal<string | null>(null);
   imagePreview = signal<string | null>(null);
   selectedFile = signal<File | null>(null);
+  submitted = signal(false);
 
   form: CreatePartenaireCommand = {
     nom: '',
@@ -27,7 +29,7 @@ export class AdminPartenairesComponent implements OnInit {
     sortOrder: 0
   };
 
-  constructor(private partenaireService: PartenaireService) {}
+  constructor(private partenaireService: PartenaireService, private toast: ToastService) {}
 
   ngOnInit() {
     this.loadPartenaires();
@@ -49,6 +51,7 @@ export class AdminPartenairesComponent implements OnInit {
     this.form = { nom: '', imageUrl: '', lienUrl: '', actif: true, sortOrder: 0 };
     this.imagePreview.set(null);
     this.selectedFile.set(null);
+    this.submitted.set(false);
     this.showForm.set(true);
   }
 
@@ -63,10 +66,22 @@ export class AdminPartenairesComponent implements OnInit {
     };
     this.imagePreview.set(p.imageUrl || null);
     this.selectedFile.set(null);
+    this.submitted.set(false);
     this.showForm.set(true);
   }
 
+  hasError(field: string): boolean {
+    if (!this.submitted()) return false;
+    switch (field) {
+      case 'nom': return !this.form.nom?.trim();
+      default: return false;
+    }
+  }
+
   save() {
+    this.submitted.set(true);
+    if (!this.form.nom?.trim()) return;
+
     if (this.editingId()) {
       this.partenaireService.update(this.editingId()!, this.form).subscribe({
         next: (saved) => {
@@ -75,9 +90,10 @@ export class AdminPartenairesComponent implements OnInit {
           } else {
             this.showForm.set(false);
             this.loadPartenaires();
+            this.toast.success('Partenaire mis à jour');
           }
         },
-        error: (err) => alert('Erreur: ' + (err.error?.message || 'Mise à jour échouée'))
+        error: (err) => this.toast.error(err.error?.message || 'Mise à jour échouée')
       });
     } else {
       this.partenaireService.create(this.form).subscribe({
@@ -87,9 +103,10 @@ export class AdminPartenairesComponent implements OnInit {
           } else {
             this.showForm.set(false);
             this.loadPartenaires();
+            this.toast.success('Partenaire créé');
           }
         },
-        error: (err) => alert('Erreur: ' + (err.error?.message || 'Création échouée'))
+        error: (err) => this.toast.error(err.error?.message || 'Création échouée')
       });
     }
   }
@@ -130,14 +147,14 @@ export class AdminPartenairesComponent implements OnInit {
     if (!confirm('Supprimer ce partenaire ?')) return;
     this.partenaireService.delete(id).subscribe({
       next: () => this.loadPartenaires(),
-      error: () => alert('Erreur lors de la suppression')
+      error: () => this.toast.error('Erreur lors de la suppression')
     });
   }
 
   toggleActive(p: Partenaire) {
     this.partenaireService.toggleActive(p.id).subscribe({
       next: () => this.loadPartenaires(),
-      error: () => alert('Erreur lors du changement de statut')
+      error: () => this.toast.error('Erreur lors du changement de statut')
     });
   }
 

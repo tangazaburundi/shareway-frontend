@@ -7,6 +7,7 @@ import { ReviewService } from '../../core/services/review.service';
 import { TripService } from '../../core/services/trip.service';
 import { AuthService } from '../../core/services/auth.service';
 import { LanguageService } from '../../core/services/language.service';
+import { ToastService } from '../../core/services/toast.service';
 import { User } from '../../core/models/user.model';
 import { Review } from '../../core/models/review.model';
 import { Trip } from '../../core/models/trip.model';
@@ -25,6 +26,7 @@ export class ProfileComponent implements OnInit {
   authService = inject(AuthService);
   private fb = inject(FormBuilder);
   langService = inject(LanguageService);
+  private toast = inject(ToastService);
 
   user: User | null = null;
   reviews: Review[] = []; userTrips: Trip[] = [];
@@ -219,12 +221,12 @@ export class ProfileComponent implements OnInit {
         this.reportReason
       ).subscribe({
         next: () => {
-          alert('Avis signalé avec succès');
+          this.toast.success('Avis signalé avec succès');
           this.closeReportModal();
         },
         error: (err) => {
           console.error(err);
-          alert('Erreur lors du signalement');
+          this.toast.error('Erreur lors du signalement');
         }
       });
     }

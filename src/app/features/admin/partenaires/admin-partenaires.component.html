@@ -13,7 +13,10 @@
     <div class="form-grid">
       <div class="form-group">
         <label>Nom *</label>
-        <input [(ngModel)]="form.nom" placeholder="Nom du partenaire" required />
+        <input [(ngModel)]="form.nom" placeholder="Nom du partenaire" required [class.input-error]="hasError('nom')" />
+        @if (hasError('nom')) {
+          <span class="field-error">Le nom est obligatoire</span>
+        }
       </div>
       <div class="form-group form-group-full">
         <label>Image du partenaire</label>

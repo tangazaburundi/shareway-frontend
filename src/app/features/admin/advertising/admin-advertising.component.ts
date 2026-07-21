@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AdvertisingService } from '../../../core/services/advertising.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { Advertising, CreateAdvertisingRequest, UpdateAdvertisingRequest } from '../../../core/models/advertising.model';
 import { PageResponse } from '../../../core/models/api-response.model';
 import { environment } from '../../../../environments/environment';
@@ -46,7 +47,7 @@ export class AdminAdvertisingComponent implements OnInit {
 
   private http = inject(HttpClient);
 
-  constructor(private adService: AdvertisingService) {}
+  constructor(private adService: AdvertisingService, private toast: ToastService) {}
 
   ngOnInit() {
     this.loadAds();
@@ -103,13 +104,13 @@ export class AdminAdvertisingComponent implements OnInit {
   save() {
     if (this.editingId()) {
       this.adService.update(this.editingId()!, this.form).subscribe({
-        next: () => { this.showForm.set(false); this.loadAds(this.currentPage()); },
-        error: (err) => alert('Erreur: ' + (err.error?.message || 'Mise à jour échouée'))
+        next: () => { this.showForm.set(false); this.loadAds(this.currentPage()); this.toast.success('Publicité mise à jour'); },
+        error: (err) => this.toast.error(err.error?.message || 'Mise à jour échouée')
       });
     } else {
       this.adService.create(this.form).subscribe({
-        next: () => { this.showForm.set(false); this.loadAds(this.currentPage()); this.loadStats(); },
-        error: (err) => alert('Erreur: ' + (err.error?.message || 'Création échouée'))
+        next: () => { this.showForm.set(false); this.loadAds(this.currentPage()); this.loadStats(); this.toast.success('Publicité créée'); },
+        error: (err) => this.toast.error(err.error?.message || 'Création échouée')
       });
     }
   }
@@ -117,8 +118,8 @@ export class AdminAdvertisingComponent implements OnInit {
   deleteAd(id: string) {
     if (!confirm('Supprimer cette publicité ?')) return;
     this.adService.delete(id).subscribe({
-      next: () => { this.loadAds(this.currentPage()); this.loadStats(); },
-      error: () => alert('Erreur lors de la suppression')
+      next: () => { this.loadAds(this.currentPage()); this.loadStats(); this.toast.success('Publicité supprimée'); },
+      error: () => this.toast.error('Erreur lors de la suppression')
     });
   }
 
@@ -126,12 +127,12 @@ export class AdminAdvertisingComponent implements OnInit {
     if (ad.active) {
       this.adService.deactivate(ad.id).subscribe({
         next: () => this.loadAds(this.currentPage()),
-        error: () => alert('Erreur lors de la désactivation')
+        error: () => this.toast.error('Erreur lors de la désactivation')
       });
     } else {
       this.adService.activate(ad.id).subscribe({
         next: () => this.loadAds(this.currentPage()),
-        error: () => alert('Erreur lors de l\'activation')
+        error: () => this.toast.error('Erreur lors de l\'activation')
       });
     }
   }
@@ -146,17 +147,17 @@ export class AdminAdvertisingComponent implements OnInit {
     if (!input.files?.length) return;
     const file = input.files[0];
     if (!file.type.startsWith('image/')) {
-      alert('Veuillez sélectionner une image');
+      this.toast.warning('Veuillez sélectionner une image');
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      alert('L\'image ne doit pas dépasser 10 Mo');
+      this.toast.warning('L\'image ne doit pas dépasser 10 Mo');
       return;
     }
     const img = new Image();
     img.onload = () => {
       if (img.width < 400 || img.height < 140) {
-        alert('L\'image doit faire au minimum 400 x 140 px (actuellement ' + img.width + ' x ' + img.height + ' px)');
+        this.toast.warning('L\'image doit faire au minimum 400 x 140 px (actuellement ' + img.width + ' x ' + img.height + ' px)');
         URL.revokeObjectURL(img.src);
         return;
       }
@@ -177,7 +178,7 @@ export class AdminAdvertisingComponent implements OnInit {
         this.uploadMode.set('url');
       },
       error: () => {
-        alert('Erreur lors de l\'upload de l\'image');
+        this.toast.error('Erreur lors de l\'upload de l\'image');
         this.uploading.set(false);
       }
     });
