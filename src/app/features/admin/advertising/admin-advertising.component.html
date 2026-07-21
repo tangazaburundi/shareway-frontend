@@ -173,7 +173,15 @@
           {{ ad.active ? 'Désactiver' : 'Activer' }}
         </button>
         <button class="btn btn-sm btn-secondary" (click)="openEdit(ad)">Modifier</button>
-        <button class="btn btn-sm btn-danger" (click)="deleteAd(ad.id)">Supprimer</button>
+        @if (confirmDeleteId() === ad.id) {
+          <span class="confirm-inline">
+            <span>Supprimer ?</span>
+            <button class="btn btn-sm btn-danger" (click)="confirmDelete()">Oui</button>
+            <button class="btn btn-sm btn-secondary" (click)="cancelDelete()">Non</button>
+          </span>
+        } @else {
+          <button class="btn btn-sm btn-danger" (click)="deleteAd(ad.id)">Supprimer</button>
+        }
       </div>
     </div>
     }

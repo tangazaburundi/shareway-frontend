@@ -20,6 +20,7 @@ export class AdminPartenairesComponent implements OnInit {
   imagePreview = signal<string | null>(null);
   selectedFile = signal<File | null>(null);
   submitted = signal(false);
+  confirmDeleteId = signal<string | null>(null);
 
   form: CreatePartenaireCommand = {
     nom: '',
@@ -144,11 +145,21 @@ export class AdminPartenairesComponent implements OnInit {
   }
 
   deletePartenaire(id: string) {
-    if (!confirm('Supprimer ce partenaire ?')) return;
+    this.confirmDeleteId.set(id);
+  }
+
+  confirmDelete() {
+    const id = this.confirmDeleteId();
+    if (!id) return;
+    this.confirmDeleteId.set(null);
     this.partenaireService.delete(id).subscribe({
-      next: () => this.loadPartenaires(),
+      next: () => { this.loadPartenaires(); this.toast.success('Partenaire supprimé'); },
       error: () => this.toast.error('Erreur lors de la suppression')
     });
+  }
+
+  cancelDelete() {
+    this.confirmDeleteId.set(null);
   }
 
   toggleActive(p: Partenaire) {

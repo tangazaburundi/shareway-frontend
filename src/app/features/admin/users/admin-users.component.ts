@@ -24,6 +24,7 @@ export class AdminUsersComponent implements OnInit {
 
   showBlockModal  = false;
   showDeleteModal = false;
+  showRejectModal = false;
   targetUser:     UserRow | null = null;
   blockReason     = '';
 
@@ -121,15 +122,25 @@ export class AdminUsersComponent implements OnInit {
   }
 
   reject(u: UserRow) {
-    if (!confirm(`Refuser le compte de ${u.firstName} ${u.lastName} ?`)) return;
-    this.acting = u.id;
-    this.svc.rejectUser(u.id).subscribe({
+    this.targetUser = u;
+    this.showRejectModal = true;
+  }
+
+  closeReject() {
+    this.showRejectModal = false;
+    this.targetUser = null;
+  }
+
+  confirmReject() {
+    if (!this.targetUser) return;
+    this.acting = this.targetUser.id;
+    this.svc.rejectUser(this.targetUser.id).subscribe({
       next: r => {
-        const idx = this.users.findIndex(x => x.id === u.id);
+        const idx = this.users.findIndex(x => x.id === this.targetUser!.id);
         if (idx >= 0 && r.data) this.users[idx] = r.data;
-        this.acting = null;
+        this.acting = null; this.closeReject();
       },
-      error: () => { this.acting = null; }
+      error: () => { this.acting = null; this.closeReject(); }
     });
   }
 

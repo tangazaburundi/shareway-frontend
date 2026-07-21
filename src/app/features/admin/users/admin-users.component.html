@@ -179,4 +179,20 @@
         </div>
       </div>
 
+      <!-- Modal refuser -->
+      <div *ngIf="showRejectModal" class="modal-overlay" (click)="closeReject()">
+        <div class="modal" (click)="$event.stopPropagation()">
+          <h2> Refuser le compte</h2>
+          <p>Vous allez refuser le compte de
+            <strong>{{ targetUser?.firstName }} {{ targetUser?.lastName }}</strong>.</p>
+          <div class="modal-actions">
+            <button class="btn-outline" (click)="closeReject()">Annuler</button>
+            <button class="btn-danger" (click)="confirmReject()" [disabled]="acting !== null">
+              <span *ngIf="acting" class="spin"></span>
+              Refuser
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>

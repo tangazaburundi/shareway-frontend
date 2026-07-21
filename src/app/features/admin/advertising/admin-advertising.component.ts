@@ -44,6 +44,7 @@ export class AdminAdvertisingComponent implements OnInit {
   paymentStatuses = ['FREE', 'PENDING', 'PAID'];
   uploading = signal(false);
   uploadMode = signal<'url' | 'file'>('url');
+  confirmDeleteId = signal<string | null>(null);
 
   private http = inject(HttpClient);
 
@@ -116,11 +117,21 @@ export class AdminAdvertisingComponent implements OnInit {
   }
 
   deleteAd(id: string) {
-    if (!confirm('Supprimer cette publicité ?')) return;
+    this.confirmDeleteId.set(id);
+  }
+
+  confirmDelete() {
+    const id = this.confirmDeleteId();
+    if (!id) return;
+    this.confirmDeleteId.set(null);
     this.adService.delete(id).subscribe({
       next: () => { this.loadAds(this.currentPage()); this.loadStats(); this.toast.success('Publicité supprimée'); },
       error: () => this.toast.error('Erreur lors de la suppression')
     });
+  }
+
+  cancelDelete() {
+    this.confirmDeleteId.set(null);
   }
 
   toggleActive(ad: Advertising) {

@@ -311,6 +311,15 @@
 
 .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
 
+.confirm-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #dc2626;
+}
+
 .empty-state {
   text-align: center;
   padding: 48px 24px;

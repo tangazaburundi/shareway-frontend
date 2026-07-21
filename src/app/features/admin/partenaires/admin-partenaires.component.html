@@ -94,7 +94,15 @@
           {{ p.actif ? 'Désactiver' : 'Activer' }}
         </button>
         <button class="btn btn-sm btn-secondary" (click)="openEdit(p)">Modifier</button>
-        <button class="btn btn-sm btn-danger" (click)="deletePartenaire(p.id)">Supprimer</button>
+        @if (confirmDeleteId() === p.id) {
+          <span class="confirm-inline">
+            <span>Supprimer ?</span>
+            <button class="btn btn-sm btn-danger" (click)="confirmDelete()">Oui</button>
+            <button class="btn btn-sm btn-secondary" (click)="cancelDelete()">Non</button>
+          </span>
+        } @else {
+          <button class="btn btn-sm btn-danger" (click)="deletePartenaire(p.id)">Supprimer</button>
+        }
       </div>
     </div>
     }
