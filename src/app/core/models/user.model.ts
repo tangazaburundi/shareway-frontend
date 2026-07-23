@@ -74,6 +74,7 @@ export interface RegisterRequest {
 
 export interface DashboardStats {
   totalTrips?: number;
+  completedTrips?: number;
   totalPassengers?: number;
   totalEarnings?: number;
   earningsByCurrency?: Record<string, number>;
