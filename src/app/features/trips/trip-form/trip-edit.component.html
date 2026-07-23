@@ -65,7 +65,7 @@
             <div class="field">
               <label>Prix par place</label>
               <div class="price-input">
-                <input type="number" [(ngModel)]="form.pricePerSeat" name="pricePerSeat" min="0" step="100" />
+                <input type="number" [(ngModel)]="form.pricePerSeat" name="pricePerSeat" min="0.01" step="100" />
                 <select [(ngModel)]="form.currency" name="currency">
                   <option value="FBU">FBU</option>
                   <option value="USD">USD</option>

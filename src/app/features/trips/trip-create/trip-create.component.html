@@ -203,8 +203,11 @@
               <input type="number"
                      formControlName="pricePerSeat"
                      class="input"
-                     min="0"
+                     min="0.01"
                      [class.input-error]="isInvalid('pricePerSeat')" />
+              @if (isInvalid('pricePerSeat')) {
+                <span class="field-error">Le prix doit être supérieur à 0</span>
+              }
             </div>
           </div>
 

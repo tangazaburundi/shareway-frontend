@@ -28,7 +28,7 @@ export class TripCreateComponent {
     departureAddress: [''], arrivalAddress: [''],
     departureTime: ['', Validators.required], arrivalTime: [''],
     totalSeats: [2, [Validators.required, Validators.min(1), Validators.max(8)]],
-    pricePerSeat: [0, [Validators.required, Validators.min(0)]],
+    pricePerSeat: [0, [Validators.required, Validators.min(0.01)]],
     description: [''], isRecurring: [false],
     frequency: ['WEEKLY'], recurringEndDate: [''],
     pref_music: [false], pref_smoking: [false], pref_pets: [false], pref_talking: [true],
