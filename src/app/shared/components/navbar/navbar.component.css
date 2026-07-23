@@ -180,6 +180,7 @@
 }
 
 .mobile-link.danger { color: var(--danger); }
+.mobile-link-profile { font-weight: 600; color: var(--primary); border-bottom: 2px solid var(--primary); }
 .mobile-lang { padding-top: 16px; }
 
 @keyframes fadeIn {

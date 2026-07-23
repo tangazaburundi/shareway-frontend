@@ -16,34 +16,36 @@
       <a routerLink="/trips" routerLinkActive="active" class="nav-link">
         {{ langService.t('nav.trips') }}
       </a>
+      <a routerLink="/contact" routerLinkActive="active" class="nav-link">
+        {{ langService.t('footer.contact') }}
+      </a>
       @if (auth.isAuthenticated()) {
-        @if (isDriver && !isAdmin) {
+        @if (isAdmin) {
+          <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
+            {{ langService.t('nav.dashboard') }}
+          </a>
+        }
+        @if (isDriver) {
           <a routerLink="/trips/new" class="btn btn-primary btn-sm">
             {{ langService.t('nav.propose') }}
           </a>
-          <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
-            {{ langService.t('nav.dashboard') }}
-          </a>
-
+          @if (!isAdmin) {
+            <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+              {{ langService.t('nav.dashboard') }}
+            </a>
+          }
           <a routerLink="/bookings" routerLinkActive="active" class="nav-link">
             {{ langService.t('nav.bookings') }}
           </a>
         }
-
-      @if (isAdmin) {
-        <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
-          {{ langService.t('nav.dashboard') }}
-        </a>
-      }
-
-      @if (isPassenger) {
-        <a routerLink="/passenger/dashboard" routerLinkActive="active" class="nav-link">
-          {{ langService.t('nav.dashboard') }}
-        </a>
-        <a routerLink="/my-bookings" routerLinkActive="active" class="nav-link">
-          {{ langService.t('nav.my-bookings') }}
-        </a>
-      }
+        @if (isPassenger && !isDriver) {
+          <a routerLink="/passenger/dashboard" routerLinkActive="active" class="nav-link">
+            {{ langService.t('nav.dashboard') }}
+          </a>
+          <a routerLink="/my-bookings" routerLinkActive="active" class="nav-link">
+            {{ langService.t('nav.my-bookings') }}
+          </a>
+        }
 
 
 
@@ -66,11 +68,17 @@
               </a>
               @if (isAdmin) {
                 <a routerLink="/admin/dashboard" class="dropdown-item" (click)="menuOpen=false">
-                  📊 {{ langService.t('nav.dashboard') }}
+                  📊 {{ langService.t('nav.dashboard') }} (Admin)
                 </a>
-              } @else if (isDriver || isPassenger) {
-                <a [routerLink]="isDriver ? '/dashboard' : '/passenger/dashboard'" class="dropdown-item" (click)="menuOpen=false">
-                  📊 {{ langService.t('nav.dashboard') }}
+              }
+              @if (isDriver) {
+                <a routerLink="/dashboard" class="dropdown-item" (click)="menuOpen=false">
+                  🚗 {{ langService.t('nav.dashboard') }} (Conducteur)
+                </a>
+              }
+              @if (isPassenger && !isDriver) {
+                <a routerLink="/passenger/dashboard" class="dropdown-item" (click)="menuOpen=false">
+                  📊 {{ langService.t('nav.dashboard') }} (Passager)
                 </a>
               }
               <a routerLink="/bookings" class="dropdown-item" (click)="menuOpen=false">
@@ -101,21 +109,24 @@
   @if (mobileOpen) {
     <div class="mobile-menu">
       <a routerLink="/trips" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.trips') }}</a>
+      <a routerLink="/contact" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('footer.contact') }}</a>
       @if (auth.isAuthenticated()) {
+        <a routerLink="/profile" (click)="mobileOpen=false" class="mobile-link mobile-link-profile">{{ langService.t('nav.profile') }}</a>
         @if (isAdmin) {
           <a routerLink="/admin/dashboard" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.dashboard') }}</a>
         }
-        @if (isDriver && !isAdmin) {
+        @if (isDriver) {
           <a routerLink="/trips/new" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.propose') }}</a>
-          <a routerLink="/dashboard" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.dashboard') }}</a>
+          @if (!isAdmin) {
+            <a routerLink="/dashboard" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.dashboard') }}</a>
+          }
+          <a routerLink="/bookings" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.bookings') }}</a>
         }
-        @if (isPassenger && !isAdmin) {
+        @if (isPassenger && !isDriver) {
           <a routerLink="/passenger/dashboard" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.dashboard') }}</a>
         }
-        <a routerLink="/bookings" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.bookings') }} </a>
         <a routerLink="/messages" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.messages') }}</a>
         <a routerLink="/notifications" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.notifications') }}</a>
-        <a routerLink="/profile" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.profile') }}</a>
         <button class="mobile-link danger" (click)="auth.logout(); mobileOpen=false">{{ langService.t('nav.logout') }}</button>
       } @else {
         <a routerLink="/auth/login" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.login') }}</a>

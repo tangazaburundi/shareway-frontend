@@ -28,10 +28,16 @@ export class LucideIconsDirective implements AfterViewInit, OnDestroy {
   }
 
   private initIcons() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
     try {
       if (typeof lucide !== 'undefined') {
         lucide.createIcons();
       }
     } catch {}
+    if (this.observer) {
+      this.observer.observe(this.el.nativeElement, { childList: true, subtree: true });
+    }
   }
 }

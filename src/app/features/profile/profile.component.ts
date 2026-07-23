@@ -161,7 +161,15 @@ export class ProfileComponent implements OnInit {
     const roles = ['DRIVER', 'PASSENGER', 'BOTH'];
     const next = roles[(roles.indexOf(this.user?.role || 'PASSENGER') + 1) % roles.length] as any;
     this.userService.switchRole(next).subscribe({
-      next: (res) => { this.user = res.data!; this.authService.updateCurrentUser(res.data!); }
+      next: (res) => {
+        this.user = res.data!;
+        this.authService.updateCurrentUser(res.data!);
+        this.toast.success('Rôle mis à jour : ' + next);
+      },
+      error: (err) => {
+        const msg = err?.error?.message || 'Impossible de changer de rôle';
+        this.toast.error(msg);
+      }
     });
   }
 
