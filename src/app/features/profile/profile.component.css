@@ -131,6 +131,19 @@
   cursor: pointer;
 }
 
+/* Consultation view */
+.card-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.card-header-row .card-title { margin-bottom: 0; }
+.info-grid { display: flex; flex-direction: column; gap: 0; }
+.info-row { display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--gray-100); }
+.info-row:last-child { border-bottom: none; }
+.info-label { width: 180px; flex-shrink: 0; font-size: .8rem; font-weight: 600; color: var(--gray-500); padding-top: 2px; }
+.info-value { font-size: .9rem; color: var(--gray-800); font-weight: 500; }
+.info-prefs { display: flex; flex-wrap: wrap; gap: 8px; }
+.pref-tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 8px; font-size: .78rem; font-weight: 500; background: var(--gray-100); color: var(--gray-500); }
+.pref-tag.pref-on { background: #d1fae5; color: #065f46; }
+.btn-sm { padding: 6px 14px; font-size: .8rem; }
+
 /* Cookie preferences */
 .cookie-info { font-size: .85rem; color: var(--gray-500); line-height: 1.6; margin-bottom: 16px; }
 .cookie-categories { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }

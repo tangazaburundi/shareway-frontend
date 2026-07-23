@@ -27,6 +27,9 @@ export interface UserTravelPreferences {
   smoking: boolean;
   pets: boolean;
   talking: boolean;
+  smallLuggage: boolean;
+  largeLuggage: boolean;
+  [key: string]: boolean;
 }
 
 export interface Vehicle {

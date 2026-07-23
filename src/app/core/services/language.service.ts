@@ -69,6 +69,7 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'trips.count.singular': 'trajet trouvé', 'trips.count.plural': 'trajets trouvés',
     'trips.seat.singular': 'place', 'trips.seat.plural': 'places',
     'trips.create.title': 'Proposer un trajet', 'trips.create.subtitle': 'Partagez votre voiture',
+    'trips.create.description': 'Description du trajet',
     'trips.create.section.route': '📍 Itinéraire', 'trips.create.section.time': '🕐 Horaire',
     'trips.create.section.seats': '💺 Places & prix', 'trips.create.section.prefs': '🎵 Préférences',
     'trips.create.section.stops': '📌 Arrêts intermédiaires',
@@ -311,6 +312,7 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'admin.analytics.accepted': 'Accepté',
     'admin.analytics.rejected': 'Refusé',
     'admin.analytics.noVisits': 'Aucune visite trouvée',
+    'profile.consult': 'Consulter',
     'footer.nos_partenaires': 'Nos partenaires',
     'sidebar.partenaires': 'Partenaires',
 
@@ -382,6 +384,7 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'trips.count.singular': 'inzira ibonetse', 'trips.count.plural': 'inzira zibonetse',
     'trips.seat.singular': 'intebe', 'trips.seat.plural': 'intebe',
     'trips.create.title': 'Tegura inzira', 'trips.create.subtitle': 'Gabana imodoka yawe',
+    'trips.create.description': 'Ibisobanuro by\'urugendo',
     'trips.create.section.route': '📍 Inzira', 'trips.create.section.time': '🕐 Amasaha',
     'trips.create.section.seats': '💺 Intebe & igiciro',
     'trips.create.section.prefs': '🎵 Ibifuzo',

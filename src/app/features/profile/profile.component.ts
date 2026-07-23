@@ -51,6 +51,7 @@ export class ProfileComponent implements OnInit {
     email: [{ value: '', disabled: true }],
     bio: ['', Validators.required], phone: ['', Validators.required], phoneVisible: [false], preferredLang: ['fr'],
     pref_music: [false], pref_smoking: [false], pref_pets: [false], pref_talking: [true], pref_ac: [false],
+    pref_smallLuggage: [false], pref_largeLuggage: [false],
   });
 
   vehicleForm = this.fb.group({
@@ -116,7 +117,7 @@ export class ProfileComponent implements OnInit {
     const v = this.editForm.value;
     const payload = {
       firstName: v.firstName, lastName: v.lastName, bio: v.bio, phone: v.phone, phoneVisible: v.phoneVisible, preferredLang: v.preferredLang,
-      preferences: { music: v.pref_music, smoking: v.pref_smoking, pets: v.pref_pets, talking: v.pref_talking }
+      preferences: { music: v.pref_music, smoking: v.pref_smoking, pets: v.pref_pets, talking: v.pref_talking, smallLuggage: v.pref_smallLuggage, largeLuggage: v.pref_largeLuggage }
     };
     this.userService.updateProfile(payload as any).subscribe({
       next: (res) => {
@@ -242,11 +243,16 @@ export class ProfileComponent implements OnInit {
       const uid = pid || this.authService.currentUser()?.id!;
       this.loading = true;
 
-      this.userService.getProfile(uid).subscribe({
+      const profileCall = (!pid || pid === this.authService.currentUser()?.id)
+        ? this.userService.getMe()
+        : this.userService.getProfile(uid);
+
+      profileCall.subscribe({
         next: (res) => {
           this.user = res.data!;
           this.loading = false;
 
+          this.editForm.get('email')!.enable({ emitEvent: false });
           this.editForm.patchValue({
             firstName: this.user.firstName,
             lastName: this.user.lastName,
@@ -259,8 +265,11 @@ export class ProfileComponent implements OnInit {
             pref_smoking: this.user.preferences?.smoking ?? false,
             pref_pets: this.user.preferences?.pets ?? false,
             pref_talking: this.user.preferences?.talking ?? true,
-            pref_ac: false
+            pref_ac: false,
+            pref_smallLuggage: this.user.preferences?.smallLuggage ?? false,
+            pref_largeLuggage: this.user.preferences?.largeLuggage ?? false,
           });
+          this.editForm.get('email')!.disable({ emitEvent: false });
 
           if (this.user.vehicle) {
             this.vehicleForm.patchValue(this.user.vehicle as any);

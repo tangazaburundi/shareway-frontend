@@ -11,11 +11,12 @@ import { ReviewModalComponent } from '../../../shared/components/review-modal/re
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { LanguageService } from '../../../core/services/language.service';
 import { ReviewService } from '../../../core/services/review.service';
+import { LucideIconsDirective } from '../../../shared/directives/lucide-icons.directive';
 
 
 @Component({ selector: 'app-trip-detail', standalone: true,
   imports: [
-  CommonModule, RouterLink, RatingStarsComponent, CurrencySelectorComponent, CancelModalComponent, ReviewModalComponent, ModalComponent],
+  CommonModule, RouterLink, RatingStarsComponent, CurrencySelectorComponent, CancelModalComponent, ReviewModalComponent, ModalComponent, LucideIconsDirective],
   templateUrl: './trip-detail.component.html',
   styleUrls: ['./trip-detail.component.css']
    })
@@ -258,6 +259,10 @@ export class TripDetailComponent implements OnInit {
     cancelLabel: 'Garder le trajet',
     reasonRequired: true
   };
+
+  cleanPhone(phone: string): string {
+    return phone.replace(/[^0-9]/g, '');
+  }
 
   cancelBookingConfig = {
     title: 'Annuler la réservation',

@@ -89,10 +89,61 @@
         <!-- Main content -->
         <div class="profile-main">
 
-          <!-- Edit form -->
+          <!-- Profile consultation (read-only) -->
+          @if (isOwnProfile && activeSection === '') {
+            <div class="card">
+              <div class="card-header-row">
+                <h3 class="card-title">👤 {{ langService.t('profile.edit') }}</h3>
+                <button class="btn btn-outline btn-sm" (click)="activeSection = 'edit'">✏️ {{ langService.t('profile.edit') }}</button>
+              </div>
+              <div class="info-grid">
+                <div class="info-row">
+                  <span class="info-label">{{ langService.t('auth.login.email') }}</span>
+                  <span class="info-value">{{ user.email }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">{{ langService.t('auth.register.firstName') }}</span>
+                  <span class="info-value">{{ user.firstName }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">{{ langService.t('auth.register.lastName') }}</span>
+                  <span class="info-value">{{ user.lastName }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">{{ langService.t('profile.bio') }}</span>
+                  <span class="info-value">{{ user.bio || '—' }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">{{ langService.t('profile.phone') }}</span>
+                  <span class="info-value">{{ user.phone || '—' }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">{{ langService.t('profile.lang') }}</span>
+                  <span class="info-value">{{ user.preferredLang === 'ki' ? '🇧🇮 Kirundi' : '🇫🇷 Français' }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">{{ langService.t('profile.preferences') }}</span>
+                  <div class="info-prefs">
+                    @for (p of prefKeys; track p) {
+                      @if (user.preferences && user.preferences[p] !== undefined) {
+                        <span class="pref-tag" [class.pref-on]="user.preferences[p]">
+                          {{ user.preferences[p] ? '✅' : '❌' }} {{ langService.t('trips.prefs.' + p) }}
+                        </span>
+                      }
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Edit form (modification mode) -->
           @if (isOwnProfile && activeSection === 'edit') {
             <div class="card">
-              <h3 class="card-title">✏️ {{ langService.t('profile.edit') }}</h3>
+              <div class="card-header-row">
+                <h3 class="card-title">✏️ {{ langService.t('profile.edit') }}</h3>
+                <button class="btn btn-outline btn-sm" (click)="activeSection = ''">👁️ {{ langService.t('profile.consult') || 'Consulter' }}</button>
+              </div>
               <form [formGroup]="editForm" (ngSubmit)="saveProfile()">
                 @if (saveSuccess) { <div class="alert alert-success">✅ Profil mis à jour !</div> }
                 <div class="form-group">

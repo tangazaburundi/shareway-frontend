@@ -9,7 +9,9 @@ let isRefreshing = false;
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  const token = authService.getToken();
+  const userToken = authService.getToken();
+  const adminToken = localStorage.getItem('admin_token');
+  const token = req.url.includes('/admin/') ? adminToken : (userToken || adminToken);
 
   const authReq: HttpRequest<unknown> = token
     ? req.clone({
