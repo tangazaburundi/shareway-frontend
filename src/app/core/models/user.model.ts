@@ -72,6 +72,17 @@ export interface RegisterRequest {
   role: UserRole;
 }
 
+export interface RoleRequest {
+  id: string;
+  requestedRole: UserRole;
+  currentRole: UserRole;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  reason?: string;
+  reviewComment?: string;
+  createdAt: string;
+  reviewedAt?: string;
+}
+
 export interface DashboardStats {
   totalTrips?: number;
   completedTrips?: number;

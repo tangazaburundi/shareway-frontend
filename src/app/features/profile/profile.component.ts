@@ -8,7 +8,7 @@ import { TripService } from '../../core/services/trip.service';
 import { AuthService } from '../../core/services/auth.service';
 import { LanguageService } from '../../core/services/language.service';
 import { ToastService } from '../../core/services/toast.service';
-import { User } from '../../core/models/user.model';
+import { User, RoleRequest } from '../../core/models/user.model';
 import { Review } from '../../core/models/review.model';
 import { Trip } from '../../core/models/trip.model';
 import { RatingStarsComponent } from '../../shared/components/rating-stars/rating-stars.component';
@@ -33,6 +33,10 @@ export class ProfileComponent implements OnInit {
   loading = true; tab = 'trips'; activeSection = '';
   savingProfile = false; savingVehicle = false; saveSuccess = false; vehicleSaved = false; identityUploaded = false;
   prefKeys = ['music', 'smoking', 'pets', 'talking', 'ac','smallLuggage','largeLuggage'];
+
+  roleRequests: RoleRequest[] = [];
+  roleRequestForm = { requestedRole: '' as string, reason: '' };
+  submittingRoleRequest = false;
 
   isReportModalOpen = false;
   reportReason = '';
@@ -157,20 +161,60 @@ export class ProfileComponent implements OnInit {
     this.userService.uploadIdentity(file).subscribe({ next: () => { this.identityUploaded = true; } });
   }
 
-  switchRole() {
-    const roles = ['DRIVER', 'PASSENGER', 'BOTH'];
-    const next = roles[(roles.indexOf(this.user?.role || 'PASSENGER') + 1) % roles.length] as any;
-    this.userService.switchRole(next).subscribe({
-      next: (res) => {
-        this.user = res.data!;
-        this.authService.updateCurrentUser(res.data!);
-        this.toast.success('Rôle mis à jour : ' + next);
+  submitRoleRequest() {
+    if (!this.roleRequestForm.requestedRole) return;
+    this.submittingRoleRequest = true;
+    this.userService.createRoleRequest(this.roleRequestForm.requestedRole, this.roleRequestForm.reason).subscribe({
+      next: () => {
+        this.toast.success(this.langService.t('profile.roleRequest.submitted'));
+        this.roleRequestForm = { requestedRole: '', reason: '' };
+        this.loadRoleRequests();
+        this.submittingRoleRequest = false;
+        this.activeSection = '';
       },
       error: (err) => {
-        const msg = err?.error?.message || 'Impossible de changer de rôle';
-        this.toast.error(msg);
+        this.toast.error(err?.error?.message || 'Erreur lors de la soumission');
+        this.submittingRoleRequest = false;
       }
     });
+  }
+
+  loadRoleRequests() {
+    this.userService.getMyRoleRequests().subscribe({
+      next: (res) => { this.roleRequests = res.data || []; }
+    });
+  }
+
+  getRoleLabel(role: string): string {
+    const labels: Record<string, string> = {
+      'DRIVER': this.langService.t('profile.role.driver'),
+      'PASSENGER': this.langService.t('profile.role.passenger'),
+      'BOTH': this.langService.t('profile.role.both'),
+    };
+    return labels[role] || role;
+  }
+
+  getStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      'PENDING': this.langService.t('profile.roleRequest.pending') || 'En attente',
+      'APPROVED': this.langService.t('profile.roleRequest.approved') || 'Approuvée',
+      'REJECTED': this.langService.t('profile.roleRequest.rejected') || 'Refusée',
+    };
+    return labels[status] || status;
+  }
+
+  hasPendingRequest(): boolean {
+    return this.roleRequests.some(r => r.status === 'PENDING');
+  }
+
+  getAvailableRoles(): { value: string; label: string }[] {
+    const current = this.user?.role || 'PASSENGER';
+    const all: { value: string; label: string }[] = [
+      { value: 'DRIVER', label: this.langService.t('profile.role.driver') },
+      { value: 'PASSENGER', label: this.langService.t('profile.role.passenger') },
+      { value: 'BOTH', label: this.langService.t('profile.role.both') },
+    ];
+    return all.filter(r => r.value !== current);
   }
 
   loadCookiePrefs() {
@@ -293,6 +337,10 @@ export class ProfileComponent implements OnInit {
           this.reviews = res.data?.content || [];
         }
       });
+
+      if (this.isOwnProfile) {
+        this.loadRoleRequests();
+      }
 
        if(!pid){
         this.tripService.getMyTrips().subscribe({ next: (res) => { this.userTrips = res.data || []; } });

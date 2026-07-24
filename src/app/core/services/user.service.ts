@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { User, Vehicle, Notification, DashboardStats } from '../models/user.model';
+import { User, Vehicle, Notification, DashboardStats, RoleRequest } from '../models/user.model';
 import { ApiResponse } from '../models/api-response.model';
 import { environment } from '../../../environments/environment';
 
@@ -41,6 +41,14 @@ export class UserService {
 
   switchRole(role: 'DRIVER' | 'PASSENGER' | 'BOTH'): Observable<ApiResponse<User>> {
     return this.http.patch<ApiResponse<User>>(`${this.API}/me/role`, { role });
+  }
+
+  createRoleRequest(requestedRole: string, reason: string): Observable<ApiResponse<RoleRequest>> {
+    return this.http.post<ApiResponse<RoleRequest>>(`${this.API}/me/role-requests`, { requestedRole, reason });
+  }
+
+  getMyRoleRequests(): Observable<ApiResponse<RoleRequest[]>> {
+    return this.http.get<ApiResponse<RoleRequest[]>>(`${this.API}/me/role-requests`);
   }
 
   getNotifications(): Observable<ApiResponse<Notification[]>> {

@@ -79,7 +79,7 @@
               <button class="action-btn" (click)="activeSection = activeSection === 'cookies' ? '' : 'cookies'; loadCookiePrefs()">
                 🍪 {{ langService.t('cookies.title') }}
               </button>
-              <button class="action-btn" (click)="switchRole()">
+              <button class="action-btn" (click)="activeSection = activeSection === 'roleRequest' ? '' : 'roleRequest'; loadRoleRequests()">
                 🔄 {{ langService.t('profile.role.switch') }}
               </button>
             </div>
@@ -262,6 +262,67 @@
                     <input type="file" accept="image/*,.pdf" (change)="uploadIdentity($event)" hidden>
                   </label>
                   @if (identityUploaded) { <div class="alert alert-success" style="margin-top:12px">✅ {{ langService.t('profile.identity.pending') }}</div> }
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Role Request -->
+          @if (isOwnProfile && activeSection === 'roleRequest') {
+            <div class="card">
+              <div class="card-header-row">
+                <h3 class="card-title">🔄 {{ langService.t('profile.role.switch') }}</h3>
+                <button class="btn btn-outline btn-sm" (click)="activeSection = ''">{{ langService.t('common.close') || 'Fermer' }}</button>
+              </div>
+
+              <div class="role-current">
+                <span class="info-label">{{ langService.t('profile.role') || 'Rôle actuel' }} :</span>
+                <span class="role-pill" [class]="'role-' + user!.role.toLowerCase()">{{ getRoleLabel(user!.role) }}</span>
+              </div>
+
+              @if (hasPendingRequest()) {
+                <div class="alert alert-warning">
+                  ⏳ {{ langService.t('profile.roleRequest.pendingMessage') || 'Une demande est déjà en attente de validation par un administrateur.' }}
+                </div>
+              } @else {
+                <form (ngSubmit)="submitRoleRequest()" class="role-request-form">
+                  <div class="form-group">
+                    <label>{{ langService.t('profile.roleRequest.targetRole') || 'Rôle souhaité' }}</label>
+                    <div class="role-options">
+                      @for (r of getAvailableRoles(); track r.value) {
+                        <button type="button" class="role-option" [class.active]="roleRequestForm.requestedRole === r.value" (click)="roleRequestForm.requestedRole = r.value">
+                          {{ r.value === 'DRIVER' ? '🚗' : r.value === 'PASSENGER' ? '👤' : '🔄' }} {{ r.label }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>{{ langService.t('profile.roleRequest.reason') || 'Raison (optionnel)' }}</label>
+                    <textarea class="input textarea" rows="3" [(ngModel)]="roleRequestForm.reason" name="reason" [placeholder]="langService.t('profile.roleRequest.reasonPlaceholder') || 'Expliquez pourquoi vous souhaitez ce rôle...'"></textarea>
+                  </div>
+                  <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" [disabled]="submittingRoleRequest || !roleRequestForm.requestedRole">
+                      @if (submittingRoleRequest) { <span class="spinner"></span> }
+                      {{ langService.t('profile.roleRequest.submit') || 'Soumettre la demande' }}
+                    </button>
+                  </div>
+                </form>
+              }
+
+              @if (roleRequests.length > 0) {
+                <h4 class="section-subtitle">{{ langService.t('profile.roleRequest.history') || 'Historique des demandes' }}</h4>
+                <div class="role-requests-list">
+                  @for (req of roleRequests; track req.id) {
+                    <div class="role-request-item">
+                      <div class="rr-header">
+                        <span class="rr-role">{{ getRoleLabel(req.currentRole) }} → {{ getRoleLabel(req.requestedRole) }}</span>
+                        <span class="rr-badge rr-{{ req.status.toLowerCase() }}">{{ getStatusLabel(req.status) }}</span>
+                      </div>
+                      @if (req.reason) { <p class="rr-reason">{{ req.reason }}</p> }
+                      @if (req.reviewComment) { <p class="rr-comment">{{ req.reviewComment }}</p> }
+                      <span class="rr-date">{{ req.createdAt | date:'d MMM yyyy HH:mm' }}</span>
+                    </div>
+                  }
                 </div>
               }
             </div>
