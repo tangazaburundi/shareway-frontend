@@ -1,0 +1,109 @@
+/* Hero — same style as homepage hero */
+.about-hero {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  margin-top: 15px;
+  padding: 80px 24px;
+  text-align: center;
+  border-radius: 16px;
+}
+
+.hero-title {
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  margin: 0 0 16px;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--gray-600);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Sections */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.about-section {
+  padding: 64px 24px;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--gray-900);
+  margin: 0 0 24px;
+}
+
+.section-desc {
+  font-size: 1.05rem;
+  color: var(--gray-600);
+  line-height: 1.8;
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Mission */
+.mission {
+  background: white;
+}
+
+/* Values — same cards as homepage features */
+.values {
+  background: #f8fafc;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.value-card {
+  padding: 28px 24px;
+  border: 1px solid var(--gray-200);
+  border-radius: 16px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.value-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.value-icon {
+  font-size: 2rem;
+  margin-bottom: 14px;
+}
+
+.value-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0 0 8px;
+}
+
+.value-card p {
+  color: var(--gray-600);
+  line-height: 1.6;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .about-hero { padding: 48px 16px; }
+  .hero-title { font-size: 2rem; }
+
+  .about-section { padding: 40px 16px; }
+  .section-title { font-size: 1.5rem; }
+  .values-grid { grid-template-columns: 1fr; }
+}

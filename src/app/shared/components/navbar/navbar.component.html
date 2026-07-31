@@ -19,6 +19,9 @@
       <a routerLink="/contact" routerLinkActive="active" class="nav-link">
         {{ langService.t('footer.contact') }}
       </a>
+      <a routerLink="/a-propos" routerLinkActive="active" class="nav-link">
+        {{ langService.t('footer.about') }}
+      </a>
       @if (auth.isAuthenticated()) {
         @if (isAdmin) {
           <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
@@ -110,6 +113,7 @@
     <div class="mobile-menu">
       <a routerLink="/trips" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.trips') }}</a>
       <a routerLink="/contact" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('footer.contact') }}</a>
+      <a routerLink="/a-propos" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('footer.about') }}</a>
       @if (auth.isAuthenticated()) {
         <a routerLink="/profile" (click)="mobileOpen=false" class="mobile-link mobile-link-profile">{{ langService.t('nav.profile') }}</a>
         @if (isAdmin) {

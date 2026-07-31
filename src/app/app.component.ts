@@ -8,6 +8,7 @@ import { AdBottomBannerComponent } from './shared/components/ad-banner/ad-bottom
 import { CookieConsentComponent } from './shared/components/cookie-consent/cookie-consent.component';
 import { ToastContainerComponent } from './shared/components/toast/toast-container.component';
 import { AuthService } from './core/services/auth.service';
+import { LanguageService } from './core/services/language.service';
 import { filter } from 'rxjs';
 
 @Component({
@@ -20,7 +21,17 @@ import { filter } from 'rxjs';
 export class AppComponent {
   private router = inject(Router);
   private auth = inject(AuthService);
+  langService = inject(LanguageService);
   isHome = false;
+  isAbout = false;
+
+  services = [
+    'Développement web & mobile sur mesure',
+    'Plateformes marketplace & SaaS',
+    'UI/UX Design',
+    'Cloud & DevOps',
+    'Conseil & accompagnement digital',
+  ];
 
   get isLoggedIn(): boolean {
     return this.auth.isAuthenticated();
@@ -29,7 +40,9 @@ export class AppComponent {
   constructor() {
     this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(e => {
       this.isHome = e.urlAfterRedirects === '/' || e.urlAfterRedirects === '';
+      this.isAbout = e.urlAfterRedirects === '/a-propos';
     });
     this.isHome = this.router.url === '/' || this.router.url === '';
+    this.isAbout = this.router.url === '/a-propos';
   }
 }

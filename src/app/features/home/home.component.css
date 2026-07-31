@@ -1,11 +1,13 @@
 .hero {
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  margin-top: 15px;
   padding: 80px 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 48px;
   min-height: 480px;
+  border-radius: 16px;
 }
 
 .hero-content { max-width: 600px; flex: 1; }

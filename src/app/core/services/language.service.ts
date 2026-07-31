@@ -323,8 +323,19 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'admin.analytics.rejected': 'Refusé',
     'admin.analytics.noVisits': 'Aucune visite trouvée',
     'profile.consult': 'Consulter',
+    'footer.developed_by': 'Développé par',
     'footer.nos_partenaires': 'Nos partenaires',
     'sidebar.partenaires': 'Partenaires',
+    'about.title': 'À propos de ShareWay',
+    'about.subtitle': 'La plateforme de covoiturage qui connecte les voyageurs.',
+    'about.mission': 'Notre mission',
+    'about.mission_text': 'Chez ShareWay, nous croyons en un voyage plus économique, écologique et convivial. Nous facilitons la mise en relation entre conducteurs et passagers pour des trajets partagés, simples et sécurisés.',
+    'about.our_values': 'Nos valeurs',
+    'about.value_simple': 'Simplifier le voyage', 'about.value_simple_text': 'Rendre chaque trajet aussi simple qu\'une réservation en ligne.',
+    'about.value_trust': 'Confiance', 'about.value_trust_text': 'Créer un environnement de confiance avec des profils vérifiés et des avis authentiques.',
+    'about.value_community': 'Communauté', 'about.value_community_text': 'Bâtir une communauté solidaire où chaque voyage partagé rapproche les personnes.',
+    'about.powered_title': 'Propulsé par Kubinex',
+    'about.powered_text': 'Kubinex est une agence de développement spécialisée dans la création de plateformes digitales innovantes : marketplaces, applications mobiles, SaaS et solutions cloud. Nous accompagnons les entreprises dans leur transformation digitale.',
 
   },
   ki: {
@@ -647,6 +658,17 @@ export const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'nav.my-bookings': 'Ivyo nabitse',
     'footer.nos_partenaires': 'Abadukorana',
     'sidebar.partenaires': 'Abadukorana',
+    'footer.developed_by': 'Ikozwe na',
+    'about.title': 'Ivyerekeye ShareWay',
+    'about.subtitle': 'Urubuga rwo gutwara hamwe rushira hamwe abagenzi.',
+    'about.mission': 'Inshingano yacu',
+    'about.mission_text': 'Muri ShareWay, twizera ingendo z\'ubukungu, z\'ibidukikije kandi z\'ubufatanye. Turorosha ubufatanye hagati y\'abashoferi n\'abagenzi kugira ingendo z\'ubufatanye, zoroheje kandi zizewe.',
+    'about.our_values': 'Inyungu zacu',
+    'about.value_simple': 'Kworosha ingendo', 'about.value_simple_text': 'Gukora buri rugendo rworoshye nk\'ugukenera intango.',
+    'about.value_trust': 'Amizero', 'about.value_trust_text': 'Kubaka ibidukikije by\'amizero hamwe n\'ibisobanuro nyakuri.',
+    'about.value_community': 'Umuryango', 'about.value_community_text': 'Gukomeza umuryango aho buri rugendo rugirango ruhurize abantu hamwe.',
+    'about.powered_title': 'Ikorwa na Kubinex',
+    'about.powered_text': 'Kubinex n\'agence y\'ikoranabuhanga ibitandukanye no gukora platforme z\'ikoranabuhanga: marketplaces, applications mobiles, SaaS, na cloud. Dufasha amasosiyete mu guhindura ikoranabuhanga.',
   }
 };
 

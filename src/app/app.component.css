@@ -27,6 +27,65 @@
 .btn-primary { background: white; color: #1a8b82; border: none; cursor: pointer; text-decoration: none; display: inline-block; }
 .btn-primary:hover { background: #f0fdfa; }
 
+/* Powered by Kubinex — shown on about page, full width between content and footer */
+.powered-section {
+  background: #f0f9ff;
+  padding: 48px 24px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+.powered-card {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.powered-logo {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.powered-logo-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 20px;
+  object-fit: cover;
+}
+.powered-domain {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  user-select: none;
+}
+.powered-info { flex: 1; }
+.powered-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0 0 12px;
+}
+.powered-text {
+  color: var(--gray-600);
+  line-height: 1.7;
+  margin: 0 0 16px;
+}
+.powered-services {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.powered-services li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray-600);
+  font-size: 0.95rem;
+  padding: 6px 0;
+}
+.check-icon { color: #4f46e5; flex-shrink: 0; }
+
 @media (max-width: 1024px) {
   .app-body {
     padding: 0 16px;
@@ -39,6 +98,10 @@
   }
   .cta-section { padding: 32px 16px; }
   .cta-title { font-size: 1.35rem; }
+  .powered-section { padding: 32px 16px; }
+  .powered-card { flex-direction: column; text-align: center; }
+  .powered-title { text-align: center; }
+  .powered-services li { justify-content: center; }
 }
 
 .whatsapp-float {
