@@ -190,6 +190,22 @@
   object-fit: cover;
 }
 
+.footer-powered-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #475569;
+  text-decoration: none;
+}
+
+.footer-powered-link:hover {
+  color: #1e293b;
+}
+
+.footer-powered-domain {
+  font-size: 0.72rem;
+}
+
 @media (max-width: 900px) {
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
