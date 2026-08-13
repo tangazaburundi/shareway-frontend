@@ -20,25 +20,35 @@ import { LanguageService } from '../../../core/services/language.service';
             <form (ngSubmit)="onSubmit()">
               <div class="form-group">
                 <label>{{ langService.t('auth.reset.passwordLabel') || 'Nouveau mot de passe' }}</label>
-                <input
-                  type="password"
-                  [(ngModel)]="newPassword"
-                  name="newPassword"
-                  [placeholder]="langService.t('auth.reset.passwordPlaceholder') || 'Mot de passe'"
-                  required
-                  minlength="8"
-                />
+                <div class="input-wrapper">
+                  <input
+                    [type]="showPassword ? 'text' : 'password'"
+                    [(ngModel)]="newPassword"
+                    name="newPassword"
+                    [placeholder]="langService.t('auth.reset.passwordPlaceholder') || 'Mot de passe'"
+                    required
+                    minlength="8"
+                  />
+                  <button type="button" class="input-toggle" (click)="showPassword = !showPassword">
+                    {{ showPassword ? '🙈' : '👁️' }}
+                  </button>
+                </div>
               </div>
 
               <div class="form-group">
                 <label>{{ langService.t('auth.reset.confirmLabel') || 'Confirmer le mot de passe' }}</label>
-                <input
-                  type="password"
-                  [(ngModel)]="confirmPassword"
-                  name="confirmPassword"
-                  [placeholder]="langService.t('auth.reset.confirmPlaceholder') || 'Confirmer'"
-                  required
-                />
+                <div class="input-wrapper">
+                  <input
+                    [type]="showConfirm ? 'text' : 'password'"
+                    [(ngModel)]="confirmPassword"
+                    name="confirmPassword"
+                    [placeholder]="langService.t('auth.reset.confirmPlaceholder') || 'Confirmer'"
+                    required
+                  />
+                  <button type="button" class="input-toggle" (click)="showConfirm = !showConfirm">
+                    {{ showConfirm ? '🙈' : '👁️' }}
+                  </button>
+                </div>
               </div>
 
               <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
@@ -103,6 +113,10 @@ import { LanguageService } from '../../../core/services/language.service';
     .form-group {
       text-align: left;
       margin-bottom: 20px;
+    }
+
+    .form-group .input-wrapper input {
+      padding-right: 44px;
     }
 
     label {
@@ -219,6 +233,8 @@ export class ResetPasswordComponent implements OnInit {
   token = '';
   newPassword = '';
   confirmPassword = '';
+  showPassword = false;
+  showConfirm = false;
   loading = false;
   submitted = false;
   invalidToken = false;
