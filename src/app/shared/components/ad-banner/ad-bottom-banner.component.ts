@@ -54,7 +54,7 @@ import { Advertising } from '../../../core/models/advertising.model';
       width: 24px;
       height: 24px;
       border-radius: 4px;
-      object-fit: cover;
+      object-fit: contain;
       flex-shrink: 0;
     }
     .ad-bottom-banner__text {

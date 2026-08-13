@@ -178,16 +178,13 @@
 }
 
 .image-preview img {
-  width: 100%;
+  width: auto;
+  max-width: 100%;
+  max-height: 140px;
   height: auto;
   object-fit: contain;
-}
-
-.image-preview img {
-  width: 100%;
-  height: 100px;
-  object-fit: cover;
   display: block;
+  margin: 0 auto;
 }
 
 .form-group input,
@@ -270,7 +267,7 @@
   min-height: 120px;
   max-height: 200px;
   overflow: hidden;
-  background: var(--gray-100);
+  background: #ffffff;
 }
 
 .ad-preview img {
