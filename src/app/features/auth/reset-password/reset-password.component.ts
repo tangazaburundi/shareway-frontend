@@ -20,8 +20,9 @@ import { LanguageService } from '../../../core/services/language.service';
             <form (ngSubmit)="onSubmit()">
               <div class="form-group">
                 <label>{{ langService.t('auth.reset.passwordLabel') || 'Nouveau mot de passe' }}</label>
-                <div class="input-wrapper">
+                <div class="password-row">
                   <input
+                    class="password-input"
                     [type]="showPassword ? 'text' : 'password'"
                     [(ngModel)]="newPassword"
                     name="newPassword"
@@ -29,7 +30,7 @@ import { LanguageService } from '../../../core/services/language.service';
                     required
                     minlength="8"
                   />
-                  <button type="button" class="input-toggle" (click)="showPassword = !showPassword">
+                  <button type="button" class="toggle-btn" (click)="showPassword = !showPassword">
                     {{ showPassword ? '🙈' : '👁️' }}
                   </button>
                 </div>
@@ -37,15 +38,16 @@ import { LanguageService } from '../../../core/services/language.service';
 
               <div class="form-group">
                 <label>{{ langService.t('auth.reset.confirmLabel') || 'Confirmer le mot de passe' }}</label>
-                <div class="input-wrapper">
+                <div class="password-row">
                   <input
+                    class="password-input"
                     [type]="showConfirm ? 'text' : 'password'"
                     [(ngModel)]="confirmPassword"
                     name="confirmPassword"
                     [placeholder]="langService.t('auth.reset.confirmPlaceholder') || 'Confirmer'"
                     required
                   />
-                  <button type="button" class="input-toggle" (click)="showConfirm = !showConfirm">
+                  <button type="button" class="toggle-btn" (click)="showConfirm = !showConfirm">
                     {{ showConfirm ? '🙈' : '👁️' }}
                   </button>
                 </div>
@@ -115,8 +117,29 @@ import { LanguageService } from '../../../core/services/language.service';
       margin-bottom: 20px;
     }
 
-    .form-group .input-wrapper input {
-      padding-right: 44px;
+    .password-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .password-row .password-input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .toggle-btn {
+      flex-shrink: 0;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 0 14px;
+    }
+
+    .toggle-btn:hover {
+      border-color: #1a8b82;
     }
 
     label {
