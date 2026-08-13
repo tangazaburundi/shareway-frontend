@@ -120,6 +120,7 @@ import { LanguageService } from '../../../core/services/language.service';
     .password-row {
       display: flex;
       gap: 8px;
+      align-items: stretch;
     }
 
     .password-row .password-input {
@@ -129,13 +130,17 @@ import { LanguageService } from '../../../core/services/language.service';
 
     .toggle-btn {
       flex-shrink: 0;
+      width: 38px;
       border: 1px solid #d1d5db;
       border-radius: 8px;
       background: #fff;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 13px;
       line-height: 1;
-      padding: 0 14px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .toggle-btn:hover {
