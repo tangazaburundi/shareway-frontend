@@ -44,5 +44,6 @@ export class AppComponent {
     });
     this.isHome = this.router.url === '/' || this.router.url === '';
     this.isAbout = this.router.url === '/a-propos';
+    this.auth.armSessionExpiryReload();
   }
 }

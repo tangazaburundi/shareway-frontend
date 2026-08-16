@@ -58,8 +58,11 @@ export class AdminDashboardComponent implements OnInit {
     this.adminService.exportUsersCsv().subscribe(blob => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'users.csv'; a.click();
-      window.URL.revokeObjectURL(url);
+      a.href = url; a.download = 'users.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.setTimeout(() => window.URL.revokeObjectURL(url), 1000);
     });
   }
 
