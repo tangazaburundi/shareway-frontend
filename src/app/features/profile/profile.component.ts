@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { UserService } from '../../core/services/user.service';
 import { ReviewService } from '../../core/services/review.service';
 import { TripService } from '../../core/services/trip.service';
+import { RideService } from '../../core/services/ride.service';
 import { AuthService } from '../../core/services/auth.service';
 import { LanguageService } from '../../core/services/language.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -23,13 +24,14 @@ export class ProfileComponent implements OnInit {
   private userService = inject(UserService);
   private reviewService = inject(ReviewService);
   private tripService = inject(TripService);
+  private rideService = inject(RideService);
   authService = inject(AuthService);
   private fb = inject(FormBuilder);
   langService = inject(LanguageService);
   private toast = inject(ToastService);
 
   user: User | null = null;
-  reviews: Review[] = []; userTrips: Trip[] = [];
+  reviews: Review[] = []; rideRatings: any[] = []; userTrips: Trip[] = [];
   loading = true; tab = 'trips'; activeSection = '';
   savingProfile = false; savingVehicle = false; saveSuccess = false; vehicleSaved = false; identityUploaded = false;
   prefKeys = ['music', 'smoking', 'pets', 'talking', 'ac','smallLuggage','largeLuggage'];
@@ -108,6 +110,7 @@ export class ProfileComponent implements OnInit {
 
       this.user = null;
       this.reviews = [];
+      this.rideRatings = [];
       this.userTrips = [];
       this.loading = true;
 
@@ -339,6 +342,12 @@ export class ProfileComponent implements OnInit {
       this.reviewService.getUserReviews(uid).subscribe({
         next: (res: any) => {
           this.reviews = res.data?.content || [];
+        }
+      });
+
+      this.rideService.getRideRatingsForUser(uid).subscribe({
+        next: (res: any) => {
+          this.rideRatings = res.data || [];
         }
       });
 

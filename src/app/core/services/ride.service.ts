@@ -155,6 +155,12 @@ export class RideService {
     return this.http.post<ApiResponse<void>>(`${this.API}/admin/settings/${key}`, { value });
   }
 
+  // ── Ride Ratings (avis taxi) ───────────────────────────────────
+
+  getRideRatingsForUser(userId: string): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.API}/ratings/user/${userId}`);
+  }
+
   // ── SOS ───────────────────────────────────────────────────────
 
   sosAlert(rideId: string): Observable<ApiResponse<void>> {

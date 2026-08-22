@@ -9,8 +9,8 @@
     <div class="navbar-links">
       <!-- Mode toggle -->
       <button class="mode-toggle" (click)="switchMode()" [class.taxi-active]="appMode.isTaxi()">
-        <span class="mode-icon">{{ appMode.isTaxi() ? '🚕' : '🚗' }}</span>
-        <span class="mode-label">{{ appMode.isTaxi() ? 'Taxi' : 'Covoiturage' }}</span>
+        <span class="mode-icon">{{ appMode.isTaxi() ? '🚗' : '🚕' }}</span>
+        <span class="mode-label">{{ appMode.isTaxi() ? 'Covoiturage' : 'Taxi' }}</span>
       </button>
 
       <!-- LIENS COVOITURAGE -->
@@ -132,7 +132,7 @@
   @if (mobileOpen) {
     <div class="mobile-menu">
       <button class="mobile-mode-toggle" (click)="switchMode()" [class.taxi-active]="appMode.isTaxi()">
-        {{ appMode.isTaxi() ? '🚕 Mode Taxi' : '🚗 Mode Covoiturage' }}
+        {{ appMode.isTaxi() ? '🚗 Mode Covoiturage' : '🚕 Mode Taxi' }}
       </button>
 
       <!-- MOBILE LIENS COVOITURAGE -->
