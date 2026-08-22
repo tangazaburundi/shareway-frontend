@@ -10,6 +10,7 @@ import { ToastContainerComponent } from './shared/components/toast/toast-contain
 import { AuthService } from './core/services/auth.service';
 import { LanguageService } from './core/services/language.service';
 import { DriverLocationService } from './core/services/driver-location.service';
+import { NotificationService } from './core/services/notification.service';
 import { filter } from 'rxjs';
 
 @Component({
@@ -23,6 +24,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private auth = inject(AuthService);
   private driverLocation = inject(DriverLocationService);
+  private notifService = inject(NotificationService);
   langService = inject(LanguageService);
   isHome = false;
   isAbout = false;
@@ -51,6 +53,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.autoStartDriverTracking();
+    if (this.auth.isAuthenticated()) {
+      this.notifService.init();
+    }
   }
 
   ngOnDestroy() {

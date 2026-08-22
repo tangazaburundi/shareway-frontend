@@ -96,6 +96,41 @@ import * as L from 'leaflet';
         >
           Ticket
         </button>
+
+        <button
+          class="btn-chat"
+          *ngIf="ride()?.status !== 'COMPLETED' && ride()?.status !== 'CANCELLED' && ride()?.status !== 'EXPIRED' && ride()?.driverFirstName"
+          (click)="openChat()"
+        >
+          💬 Chat
+        </button>
+      </div>
+
+      <!-- Chat Modal -->
+      <div class="modal-overlay" *ngIf="chatOpen()" (click)="closeChat()">
+        <div class="chat-modal" (click)="$event.stopPropagation()">
+          <div class="chat-header">
+            <h3>Chat avec {{ ride()?.driverFirstName || 'Chauffeur' }}</h3>
+            <button class="close-btn" (click)="closeChat()">✕</button>
+          </div>
+          <div class="chat-messages">
+            <div *ngIf="chatMessages().length === 0" class="chat-empty">Aucun message</div>
+            <div *ngFor="let msg of chatMessages(); trackBy: trackMsgById"
+                 class="chat-msg" [class.mine]="msg.senderId === currentUserId()">
+              <div class="msg-content">{{ msg.content }}</div>
+              <div class="msg-time">{{ msg.sentAt | date:'HH:mm' }}</div>
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <input type="text" class="chat-input" placeholder="Votre message..."
+                   [value]="chatInput()"
+                   (input)="chatInput.set($any($event.target).value)"
+                   (keydown.enter)="sendMessage()" />
+            <button class="send-btn" (click)="sendMessage()" [disabled]="!chatInput().trim()">
+              Envoyer
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Rating Modal -->
@@ -149,12 +184,13 @@ import * as L from 'leaflet';
     .driver-plate { font-size: 0.8rem; color: #888; font-family: monospace; }
     .driver-rating { font-weight: 600; color: #f59e0b; }
     .eta-bar { padding: 10px 16px; background: #eff6ff; text-align: center; font-weight: 500; color: #2563eb; }
-    .action-buttons { padding: 16px; background: white; display: flex; gap: 10px; }
-    .btn-cancel { flex: 1; padding: 12px; background: #fee2e2; color: #dc2626; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .btn-rate { flex: 1; padding: 12px; background: #fbbf24; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .btn-done { flex: 1; padding: 12px; background: #22c55e; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .btn-invoice { flex: 1; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .btn-receipt { flex: 1; padding: 12px; background: #16a34a; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    .action-buttons { padding: 16px; background: white; display: flex; flex-wrap: wrap; gap: 10px; }
+    .btn-cancel { flex: 1 1 45%; padding: 12px; background: #fee2e2; color: #dc2626; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    .btn-rate { flex: 1 1 45%; padding: 12px; background: #fbbf24; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    .btn-done { flex: 1 1 45%; padding: 12px; background: #22c55e; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    .btn-invoice { flex: 1 1 45%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    .btn-receipt { flex: 1 1 45%; padding: 12px; background: #16a34a; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    .btn-chat { flex: 1 1 45%; padding: 12px; background: #8b5cf6; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
     .rating-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; }
     .rating-content { background: white; border-radius: 16px; padding: 24px; width: 90%; max-width: 360px; }
     .rating-content h3 { text-align: center; margin-bottom: 16px; }
@@ -165,6 +201,24 @@ import * as L from 'leaflet';
     .btn-skip { flex: 1; padding: 10px; background: #f5f5f5; border: none; border-radius: 8px; cursor: pointer; }
     .btn-submit { flex: 1; padding: 10px; background: #22c55e; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
     .btn-submit:disabled { background: #ccc; }
+    .btn-chat { flex: 1; padding: 12px; background: #8b5cf6; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .chat-modal { background: white; border-radius: 16px; width: 100%; max-width: 400px; height: 70vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+    .chat-header { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #e5e7eb; }
+    .chat-header h3 { margin: 0; font-size: 16px; color: #333; }
+    .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #6b7280; padding: 4px 8px; border-radius: 8px; }
+    .close-btn:hover { background: #f3f4f6; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .chat-empty { text-align: center; color: #9ca3af; padding: 40px 0; }
+    .chat-msg { max-width: 80%; padding: 10px 14px; border-radius: 12px; background: #f3f4f6; align-self: flex-start; }
+    .chat-msg.mine { background: #2563eb; color: white; align-self: flex-end; }
+    .msg-content { font-size: 14px; line-height: 1.4; }
+    .msg-time { font-size: 11px; opacity: 0.7; margin-top: 4px; }
+    .chat-input-row { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid #e5e7eb; }
+    .chat-input { flex: 1; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; }
+    .chat-input:focus { border-color: #2563eb; }
+    .send-btn { padding: 10px 16px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; }
+    .send-btn:disabled { background: #93c5fd; cursor: not-allowed; }
   `]
 })
 export class RideTrackingComponent implements OnInit, OnDestroy {
@@ -174,6 +228,10 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
   ratingComment = signal('');
   rated = signal(false);
   showRating = false;
+  chatOpen = signal(false);
+  chatMessages = signal<any[]>([]);
+  chatInput = signal('');
+  currentUserId = signal('');
   private map: L.Map | null = null;
   private driverMarker: L.Marker | null = null;
   private refreshInterval: any;
@@ -195,6 +253,8 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
     if (token && !this.wsService.isConnected()) {
       this.wsService.connect(token);
     }
+    const user = this.auth.currentUser();
+    if (user) this.currentUserId.set(user.id);
     const id = this.route.snapshot.paramMap.get('id')!;
     this.loadRide(id);
     this.refreshInterval = setInterval(() => this.loadRide(id), 5000);
@@ -258,6 +318,12 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
     this.wsService.subscribe('/topic/ride/' + rideId + '/tracking').subscribe((msg: any) => {
       if (this.driverMarker && this.map) {
         this.mapService.updateMarkerPosition(this.driverMarker, msg.lat, msg.lng);
+      }
+    });
+    this.wsService.subscribe('/topic/ride/' + rideId + '/chat').subscribe((msg: any) => {
+      if (msg) {
+        this.chatMessages.update(msgs => [...msgs, msg]);
+        this.notificationSound.play('message');
       }
     });
   }
@@ -380,5 +446,43 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
         console.error('Failed to download receipt:', err);
       }
     });
+  }
+
+  openChat(): void {
+    if (!this.ride()) return;
+    this.chatOpen.set(true);
+    this.chatInput.set('');
+    this.loadChatMessages(this.ride()!.id);
+  }
+
+  closeChat(): void {
+    this.chatOpen.set(false);
+    this.chatMessages.set([]);
+  }
+
+  loadChatMessages(rideId: string): void {
+    this.rideService.getRideMessages(rideId).subscribe({
+      next: (res) => {
+        const data = res?.data || res;
+        this.chatMessages.set(Array.isArray(data) ? data : []);
+      },
+      error: (err: any) => console.error('Failed to load messages:', err)
+    });
+  }
+
+  sendMessage(): void {
+    const content = this.chatInput().trim();
+    if (!content || !this.ride()) return;
+    this.rideService.sendRideMessage(this.ride()!.id, content).subscribe({
+      next: () => {
+        this.chatInput.set('');
+        this.loadChatMessages(this.ride()!.id);
+      },
+      error: (err: any) => console.error('Failed to send message:', err)
+    });
+  }
+
+  trackMsgById(_index: number, msg: any): string {
+    return msg.id || _index;
   }
 }
