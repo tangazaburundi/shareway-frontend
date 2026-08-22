@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
@@ -9,6 +9,7 @@ import { CookieConsentComponent } from './shared/components/cookie-consent/cooki
 import { ToastContainerComponent } from './shared/components/toast/toast-container.component';
 import { AuthService } from './core/services/auth.service';
 import { LanguageService } from './core/services/language.service';
+import { DriverLocationService } from './core/services/driver-location.service';
 import { filter } from 'rxjs';
 
 @Component({
@@ -18,9 +19,10 @@ import { filter } from 'rxjs';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private auth = inject(AuthService);
+  private driverLocation = inject(DriverLocationService);
   langService = inject(LanguageService);
   isHome = false;
   isAbout = false;
@@ -45,5 +47,20 @@ export class AppComponent {
     this.isHome = this.router.url === '/' || this.router.url === '';
     this.isAbout = this.router.url === '/a-propos';
     this.auth.armSessionExpiryReload();
+  }
+
+  ngOnInit() {
+    this.autoStartDriverTracking();
+  }
+
+  ngOnDestroy() {
+    this.driverLocation.stopTracking();
+  }
+
+  private autoStartDriverTracking() {
+    const user = this.auth.currentUser();
+    if (user && (user.role === 'DRIVER' || user.role === 'BOTH') && !this.driverLocation.isTracking()) {
+      this.driverLocation.startTracking();
+    }
   }
 }

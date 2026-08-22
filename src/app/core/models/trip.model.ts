@@ -1,6 +1,6 @@
 
 
-export type Currency = 'FBU' | 'USD' | 'EUR';
+export type Currency = 'FBU' | 'USD' | 'EUR' | 'FRW';
 export type TripFrequency = 'ONCE' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY';
 export type WeekDay = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN';
 /*
@@ -155,13 +155,14 @@ export interface TripCancellation {
 }
 
 export const EXCHANGE_RATES: Record<Currency, Record<Currency, number>> = {
-  FBU: { FBU: 1, USD: 0.00034, EUR: 0.00031 },
-  USD: { FBU: 2900, USD: 1, EUR: 0.92 },
-  EUR: { FBU: 3200, USD: 1.09, EUR: 1 }
+  FBU: { FBU: 1, USD: 0.00034, EUR: 0.00031, FRW: 0.00048 },
+  USD: { FBU: 2900, USD: 1, EUR: 0.92, FRW: 1410 },
+  EUR: { FBU: 3200, USD: 1.09, EUR: 1, FRW: 1530 },
+  FRW: { FBU: 2060, USD: 0.00071, EUR: 0.00065, FRW: 1 }
 };
 
 export const CURRENCY_SYMBOLS: Record<Currency, string> = {
-  FBU: 'FBU', USD: '$', EUR: '€'
+  FBU: 'FBU', USD: '$', EUR: '€', FRW: 'FRW'
 };
 
 // ── Modèles Trajet ─────────────────────────────────────────────────────────
@@ -227,7 +228,7 @@ export interface Trip {
   availableSeats:   number;
   totalSeats:       number;
   pricePerSeat:     number;
-  currency:         'FBU' | 'USD' | 'EUR';
+  currency:         'FBU' | 'USD' | 'EUR' | 'FRW';
   description?:     string;
   status:           TripStatus;
   shareToken?:      string;

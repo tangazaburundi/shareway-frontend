@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { MessageService } from '../../core/services/message.service';
 import { ChatService } from '../../core/services/chat.service';
 import { AuthService } from '../../core/services/auth.service';
+import { NotificationSoundService } from '../../core/services/notification-sound.service';
 import { Conversation, Message } from '../../core/models/message.model';
 import { mapConversation, mapMessage } from '../../core/mappers/message.mapper';
 import { TimeAgoPipe } from '../../shared/pipes/time-ago.pipe';
@@ -25,6 +26,7 @@ export class MessagesComponent implements OnInit, AfterViewChecked, OnDestroy {
   private chatService = inject(ChatService);
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
+  private notificationSound = inject(NotificationSoundService);
   private wsSub!: Subscription;
 
   langService = inject(LanguageService);
@@ -50,6 +52,7 @@ export class MessagesComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.chatService.ensureConnected();
     this.loadConversations();
 
     this.route.paramMap.subscribe(params => {
@@ -62,6 +65,9 @@ export class MessagesComponent implements OnInit, AfterViewChecked, OnDestroy {
     this.wsSub = this.chatService.onNewMessage().subscribe(msg => {
       if (msg.senderId === this.activeUserId || msg.receiverId === this.activeUserId) {
         this.messages.push(mapMessage(msg));
+        if (msg.senderId !== this.currentUserId) {
+          this.notificationSound.play('message');
+        }
         if (msg.senderId === this.activeUserId) {
           this.chatService.markAsRead(this.activeUserId);
         }
@@ -129,6 +135,7 @@ export class MessagesComponent implements OnInit, AfterViewChecked, OnDestroy {
       next: (res) => {
         if (res?.data) {
           this.messages.push(mapMessage(res.data));
+          this.notificationSound.play('message');
         }
         this.sending = false;
       },

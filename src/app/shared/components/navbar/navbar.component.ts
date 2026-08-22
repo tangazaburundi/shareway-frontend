@@ -2,6 +2,7 @@ import { Component, inject, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
+import { AppModeService } from '../../../core/services/app-mode.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
@@ -11,6 +12,7 @@ import { NotificationBellComponent } from '../notification-bell/notification-bel
   templateUrl: './navbar.component.html', styleUrls: ['./navbar.component.css'] })
 export class NavbarComponent {
   auth = inject(AuthService);
+  appMode = inject(AppModeService);
   langService = inject(LanguageService);
   menuOpen = false; mobileOpen = false;
 
@@ -25,7 +27,6 @@ export class NavbarComponent {
 
   get isAdmin() {
     const r = this.auth.currentUser()?.systemRole;
-   // console.log("user",this.auth.currentUser());
     return r === 'SUPER_ADMIN' || r === 'ADMIN';
   }
 
@@ -35,6 +36,10 @@ export class NavbarComponent {
   }
   toggleMenu() { this.menuOpen = !this.menuOpen; }
   toggleMobile() { this.mobileOpen = !this.mobileOpen; }
+
+  switchMode() {
+    this.appMode.toggleMode();
+  }
 
   @HostListener('document:click', ['$event'])
   onDocClick(e: Event) {

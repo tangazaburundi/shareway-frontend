@@ -34,6 +34,16 @@ export const routes: Routes = [
   { path: 'bookings', canActivate: [authGuard], loadComponent: () => import('./features/bookings/bookings-management.component').then(m => m.BookingManagementComponent) },
   { path: 'my-bookings', canActivate: [authGuard], loadComponent: () => import('./features/bookings/my-bookings.component').then(m => m.MyBookingsComponent) },
 
+  // ── Mode Uber (On-Demand) ──────────────────────────────────────
+  { path: 'ride/request', canActivate: [authGuard], loadComponent: () => import('./features/rides/ride-request/ride-request.component').then(m => m.RideRequestComponent) },
+  { path: 'ride/searching/:id', canActivate: [authGuard], loadComponent: () => import('./features/rides/ride-searching/ride-searching.component').then(m => m.RideSearchingComponent) },
+  { path: 'ride/tracking/:id', canActivate: [authGuard], loadComponent: () => import('./features/rides/ride-tracking/ride-tracking.component').then(m => m.RideTrackingComponent) },
+  { path: 'ride/history', canActivate: [authGuard], loadComponent: () => import('./features/rides/ride-history/ride-history.component').then(m => m.RideHistoryComponent) },
+  { path: 'ride/offer/:id', canActivate: [authGuard, driverGuard], loadComponent: () => import('./features/rides/ride-offer/ride-offer.component').then(m => m.RideOfferComponent) },
+  { path: 'ride/pickup/:id', canActivate: [authGuard, driverGuard], loadComponent: () => import('./features/rides/ride-pickup/ride-pickup.component').then(m => m.RidePickupComponent) },
+  { path: 'ride/in-progress/:id', canActivate: [authGuard, driverGuard], loadComponent: () => import('./features/rides/ride-in-progress/ride-in-progress.component').then(m => m.RideInProgressComponent) },
+  { path: 'driver/dashboard', canActivate: [authGuard, driverGuard], loadComponent: () => import('./features/rides/driver-dashboard/driver-dashboard.component').then(m => m.DriverDashboardComponent) },
+
  // { path: 'bookings', canActivate: [authGuard], loadComponent: () => import('./features/bookings/bookings.component').then(m => m.BookingsComponent) },
   { path: 'notifications', canActivate: [authGuard], loadComponent: () => import('./features/notifications/notifications.component').then(m => m.NotificationsComponent) },
   { path: 'profile', canActivate: [authGuard], loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent) },

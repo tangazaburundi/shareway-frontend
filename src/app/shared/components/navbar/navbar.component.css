@@ -48,6 +48,29 @@
   color: var(--primary);
 }
 
+.nav-driver-link {
+  color: #22c55e !important;
+  font-weight: 600;
+}
+.nav-driver-link.active {
+  color: #16a34a !important;
+}
+
+.mode-toggle {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 20px; border: 2px solid #e5e7eb;
+  background: #f9fafb; cursor: pointer; font-size: 0.8rem; font-weight: 600;
+  transition: all 0.2s; white-space: nowrap;
+}
+.mode-toggle.taxi-active {
+  background: #fef3c7; border-color: #f59e0b; color: #92400e;
+}
+.mode-toggle:not(.taxi-active) {
+  background: #ecfdf5; border-color: #10b981; color: #065f46;
+}
+.mode-toggle:hover { transform: scale(1.03); }
+.mode-icon { font-size: 1rem; }
+
 .nav-user {
   position: relative;
   display: flex;
@@ -181,6 +204,19 @@
 
 .mobile-link.danger { color: var(--danger); }
 .mobile-link-profile { font-weight: 600; color: var(--primary); border-bottom: 2px solid var(--primary); }
+.mobile-mode-toggle {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 16px; margin-bottom: 8px; border-radius: 10px;
+  border: 2px solid #e5e7eb; background: #f9fafb; font-weight: 600;
+  font-size: 0.95rem; cursor: pointer; font-family: inherit;
+  width: 100%;
+}
+.mobile-mode-toggle.taxi-active {
+  background: #fef3c7; border-color: #f59e0b; color: #92400e;
+}
+.mobile-mode-toggle:not(.taxi-active) {
+  background: #ecfdf5; border-color: #10b981; color: #065f46;
+}
 .mobile-lang { padding-top: 16px; }
 
 @keyframes fadeIn {

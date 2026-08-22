@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { User, Vehicle, Notification, DashboardStats, RoleRequest } from '../models/user.model';
+import { User, Vehicle, Notification, DashboardStats, RoleRequest, EmergencyContact } from '../models/user.model';
 import { ApiResponse } from '../models/api-response.model';
 import { environment } from '../../../environments/environment';
 
@@ -65,6 +65,24 @@ export class UserService {
 
   getPassengerDashboard(): Observable<ApiResponse<PassengerDashboard>> {
     return this.http.get<ApiResponse<PassengerDashboard>>(`${environment.apiUrl}/dashboard/passenger`);
+  }
+
+  // ── Contacts d'urgence ─────────────────────────────────────────
+
+  getEmergencyContacts(): Observable<ApiResponse<EmergencyContact[]>> {
+    return this.http.get<ApiResponse<EmergencyContact[]>>(`${this.API}/me/emergency-contacts`);
+  }
+
+  addEmergencyContact(name: string, phone: string, relationship?: string): Observable<ApiResponse<EmergencyContact>> {
+    return this.http.post<ApiResponse<EmergencyContact>>(`${this.API}/me/emergency-contacts`, { name, phone, relationship });
+  }
+
+  updateEmergencyContact(id: string, name: string, phone: string, relationship?: string): Observable<ApiResponse<EmergencyContact>> {
+    return this.http.put<ApiResponse<EmergencyContact>>(`${this.API}/me/emergency-contacts/${id}`, { name, phone, relationship });
+  }
+
+  deleteEmergencyContact(id: string): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.API}/me/emergency-contacts/${id}`);
   }
 }
 

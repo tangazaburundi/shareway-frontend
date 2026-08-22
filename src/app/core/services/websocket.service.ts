@@ -25,14 +25,18 @@ export class WebSocketService implements OnDestroy {
   isConnected = this.connected.asReadonly();
 
   connect(token: string): void {
-    if (this.ws?.readyState === WebSocket.OPEN) return;
+    if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) return;
 
     this.ws = new WebSocket(`${this.WS_URL}?token=${token}`);
 
     this.ws.onopen = () => {
       this.connected.set(true);
       this.reconnectAttempts = 0;
-      this.sendStomp('CONNECT', {});
+      this.sendStomp('CONNECT', {
+        'accept-version': '1.1,1.2',
+        'heart-beat': '10000,10000',
+        'Authorization': `Bearer ${token}`
+      });
     };
 
     this.ws.onmessage = (event) => this.handleMessage(event.data);
@@ -42,18 +46,19 @@ export class WebSocketService implements OnDestroy {
       this.tryReconnect(token);
     };
 
-    this.ws.onerror = () => {
-      this.ws?.close();
-    };
+    this.ws.onerror = () => {};
   }
 
   disconnect(): void {
     if (this.ws) {
-      this.sendStomp('DISCONNECT', {});
+      if (this.ws.readyState === WebSocket.OPEN) {
+        this.sendStomp('DISCONNECT', {});
+      }
       this.ws.close();
       this.ws = null;
     }
     this.connected.set(false);
+    this.reconnectAttempts = this.maxReconnectAttempts;
     this.subscriptions.forEach(s => s.complete());
     this.subscriptions.clear();
   }
@@ -99,10 +104,9 @@ export class WebSocketService implements OnDestroy {
     const frame = this.parseStompFrame(data);
     if (!frame || frame.command === 'RECEIPT') return;
 
-    const destination = frame.headers?.['destination'] || frame.headers?.['subscription'];
-    if (!destination) return;
-
-    const subject = this.subscriptions.get(destination);
+    const subId = frame.headers?.['subscription'];
+    const dest = frame.headers?.['destination'];
+    const subject = (subId && this.subscriptions.get(subId)) || (dest && this.subscriptions.get(dest));
     if (subject) {
       try {
         const parsed = frame.body ? JSON.parse(frame.body) : null;
@@ -142,7 +146,10 @@ export class WebSocketService implements OnDestroy {
   private tryReconnect(token: string): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) return;
     this.reconnectAttempts++;
-    setTimeout(() => this.connect(token), 2000 * this.reconnectAttempts);
+    setTimeout(() => {
+      if (this.connected()) return;
+      this.connect(token);
+    }, 2000 * this.reconnectAttempts);
   }
 
   ngOnDestroy(): void {
