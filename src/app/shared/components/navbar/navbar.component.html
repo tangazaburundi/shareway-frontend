@@ -1,11 +1,5 @@
 <nav class="navbar">
   <div class="navbar-container">
-<!--
-   <a routerLink="/" class="navbar-brand">
-      <span class="brand-icon">🚗</span>
-      <span class="brand-name">ShareWay</span>
-    </a>
--->
 
     <a routerLink="/" class="navbar-brand">
       <img src="assets/images/shareway.png" alt="ShareWay" style="height:60px;">
@@ -13,24 +7,23 @@
     </a>
 
     <div class="navbar-links">
-      <a routerLink="/trips" routerLinkActive="active" class="nav-link">
-        {{ langService.t('nav.trips') }}
-      </a>
-      <a routerLink="/contact" routerLinkActive="active" class="nav-link">
-        {{ langService.t('footer.contact') }}
-      </a>
-      <a routerLink="/a-propos" routerLinkActive="active" class="nav-link">
-        {{ langService.t('footer.about') }}
-      </a>
-      @if (auth.isAuthenticated()) {
-        @if (isAdmin) {
-          <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
-            {{ langService.t('nav.dashboard') }}
-          </a>
-        }
-        @if (isDriver) {
+      <!-- Mode toggle -->
+      <button class="mode-toggle" (click)="switchMode()" [class.taxi-active]="appMode.isTaxi()">
+        <span class="mode-icon">{{ appMode.isTaxi() ? '🚗' : '🚕' }}</span>
+        <span class="mode-label">{{ appMode.isTaxi() ? 'Covoiturage' : 'Taxi' }}</span>
+      </button>
+
+      <!-- LIENS COVOITURAGE -->
+      <ng-container *ngIf="appMode.isCovoiturage()">
+        <a routerLink="/trips" routerLinkActive="active" class="nav-link">
+          {{ langService.t('nav.trips') }}
+        </a>
+        @if (auth.isAuthenticated() && isDriver) {
           <a routerLink="/trips/new" class="btn btn-primary btn-sm">
             {{ langService.t('nav.propose') }}
+          </a>
+          <a routerLink="/driver/dashboard" routerLinkActive="active" class="nav-link nav-driver-link">
+            🚗 Mode Chauffeur
           </a>
           @if (!isAdmin) {
             <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
@@ -41,7 +34,7 @@
             {{ langService.t('nav.bookings') }}
           </a>
         }
-        @if (isPassenger && !isDriver) {
+        @if (auth.isAuthenticated() && isPassenger && !isDriver) {
           <a routerLink="/passenger/dashboard" routerLinkActive="active" class="nav-link">
             {{ langService.t('nav.dashboard') }}
           </a>
@@ -49,9 +42,34 @@
             {{ langService.t('nav.my-bookings') }}
           </a>
         }
+      </ng-container>
 
+      <!-- LIENS TAXI -->
+      <ng-container *ngIf="appMode.isTaxi()">
+        <a routerLink="/ride/request" routerLinkActive="active" class="btn btn-primary btn-sm">
+          📞 Demander un taxi
+        </a>
+        @if (auth.isAuthenticated() && isDriver) {
+          <a routerLink="/driver/dashboard" routerLinkActive="active" class="nav-link nav-driver-link">
+            🚕 Mode Chauffeur
+          </a>
+        }
+        <a routerLink="/ride/history" routerLinkActive="active" class="nav-link">
+          Mes courses
+        </a>
+      </ng-container>
 
+      <!-- LIENS COMMUNS -->
+      <a routerLink="/contact" routerLinkActive="active" class="nav-link">
+        {{ langService.t('footer.contact') }}
+      </a>
 
+      @if (auth.isAuthenticated()) {
+        @if (isAdmin) {
+          <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
+            {{ langService.t('nav.dashboard') }}
+          </a>
+        }
         <a routerLink="/messages" routerLinkActive="active" class="nav-link">
           {{ langService.t('nav.messages') }}
         </a>
@@ -74,19 +92,21 @@
                   📊 {{ langService.t('nav.dashboard') }} (Admin)
                 </a>
               }
-              @if (isDriver) {
+              @if (appMode.isTaxi() && isDriver) {
+                <a routerLink="/driver/dashboard" class="dropdown-item" (click)="menuOpen=false">
+                  🚕 Dashboard Taxi
+                </a>
+              }
+              @if (appMode.isCovoiturage() && isDriver) {
                 <a routerLink="/dashboard" class="dropdown-item" (click)="menuOpen=false">
-                  🚗 {{ langService.t('nav.dashboard') }} (Conducteur)
+                  🚗 Dashboard Covoiturage
                 </a>
               }
-              @if (isPassenger && !isDriver) {
-                <a routerLink="/passenger/dashboard" class="dropdown-item" (click)="menuOpen=false">
-                  📊 {{ langService.t('nav.dashboard') }} (Passager)
+              @if (appMode.isTaxi()) {
+                <a routerLink="/ride/history" class="dropdown-item" (click)="menuOpen=false">
+                  📋 Historique courses
                 </a>
               }
-              <a routerLink="/bookings" class="dropdown-item" (click)="menuOpen=false">
-                🎫 {{ langService.t('nav.bookings') }}
-              </a>
               <a routerLink="/notifications" class="dropdown-item" (click)="menuOpen=false">
                 🔔 {{ langService.t('nav.notifications') }}
               </a>
@@ -111,24 +131,39 @@
 
   @if (mobileOpen) {
     <div class="mobile-menu">
-      <a routerLink="/trips" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.trips') }}</a>
-      <a routerLink="/contact" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('footer.contact') }}</a>
-      <a routerLink="/a-propos" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('footer.about') }}</a>
-      @if (auth.isAuthenticated()) {
-        <a routerLink="/profile" (click)="mobileOpen=false" class="mobile-link mobile-link-profile">{{ langService.t('nav.profile') }}</a>
-        @if (isAdmin) {
-          <a routerLink="/admin/dashboard" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.dashboard') }}</a>
-        }
-        @if (isDriver) {
+      <button class="mobile-mode-toggle" (click)="switchMode()" [class.taxi-active]="appMode.isTaxi()">
+        {{ appMode.isTaxi() ? '🚗 Mode Covoiturage' : '🚕 Mode Taxi' }}
+      </button>
+
+      <!-- MOBILE LIENS COVOITURAGE -->
+      @if (appMode.isCovoiturage()) {
+        <a routerLink="/trips" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.trips') }}</a>
+        @if (auth.isAuthenticated() && isDriver) {
           <a routerLink="/trips/new" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.propose') }}</a>
+          <a routerLink="/driver/dashboard" (click)="mobileOpen=false" class="mobile-link">🚗 Dashboard Chauffeur</a>
           @if (!isAdmin) {
             <a routerLink="/dashboard" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.dashboard') }}</a>
           }
           <a routerLink="/bookings" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.bookings') }}</a>
         }
-        @if (isPassenger && !isDriver) {
+        @if (auth.isAuthenticated() && isPassenger && !isDriver) {
           <a routerLink="/passenger/dashboard" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.dashboard') }}</a>
+          <a routerLink="/my-bookings" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.my-bookings') }}</a>
         }
+      }
+
+      <!-- MOBILE LIENS TAXI -->
+      @if (appMode.isTaxi()) {
+        <a routerLink="/ride/request" (click)="mobileOpen=false" class="mobile-link">📞 Demander un taxi</a>
+        @if (auth.isAuthenticated() && isDriver) {
+          <a routerLink="/driver/dashboard" (click)="mobileOpen=false" class="mobile-link">🚕 Dashboard Chauffeur</a>
+        }
+        <a routerLink="/ride/history" (click)="mobileOpen=false" class="mobile-link">📋 Mes courses</a>
+      }
+
+      <a routerLink="/contact" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('footer.contact') }}</a>
+      @if (auth.isAuthenticated()) {
+        <a routerLink="/profile" (click)="mobileOpen=false" class="mobile-link mobile-link-profile">{{ langService.t('nav.profile') }}</a>
         <a routerLink="/messages" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.messages') }}</a>
         <a routerLink="/notifications" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.notifications') }}</a>
         <button class="mobile-link danger" (click)="auth.logout(); mobileOpen=false">{{ langService.t('nav.logout') }}</button>

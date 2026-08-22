@@ -19,7 +19,7 @@ export class ChatService implements OnDestroy {
     private auth: AuthService
   ) {}
 
-  private ensureConnected(): void {
+  ensureConnected(): void {
     if (this.wsConnected) return;
     const token = this.auth.getToken();
     if (!token) return;
@@ -102,7 +102,6 @@ export class ChatService implements OnDestroy {
   sendMessage(receiverId: string, content: string): Observable<any> {
     this.ensureConnected();
     this.stopTyping(receiverId);
-    this.ws.send('/app/chat.send', { receiverId, content });
     return this.messageService.sendMessage({ receiverId, content });
   }
 

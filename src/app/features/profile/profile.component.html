@@ -82,6 +82,9 @@
               <button class="action-btn" (click)="activeSection = activeSection === 'roleRequest' ? '' : 'roleRequest'; loadRoleRequests()">
                 🔄 {{ langService.t('profile.role.switch') }}
               </button>
+              <button class="action-btn" (click)="activeSection = activeSection === 'emergencyContacts' ? '' : 'emergencyContacts'; loadEmergencyContacts()">
+                🆘 Contacts d'urgence
+              </button>
             </div>
           }
         </div>
@@ -267,6 +270,59 @@
             </div>
           }
 
+          <!-- Emergency Contacts -->
+          @if (isOwnProfile && activeSection === 'emergencyContacts') {
+            <div class="card">
+              <div class="card-header-row">
+                <h3 class="card-title">🆘 Contacts d'urgence</h3>
+                <button class="btn btn-outline btn-sm" (click)="activeSection = ''">Fermer</button>
+              </div>
+              <p class="ec-info">En cas d'alerte SOS, un SMS sera envoye a vos contacts d'urgence.</p>
+
+              @if (ecSaved) { <div class="alert alert-success">✅ Operation reussie !</div> }
+              @if (ecError) { <div class="alert alert-error">{{ ecError }}</div> }
+
+              <!-- Add contact form -->
+              <div class="ec-add-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Nom *</label>
+                    <input type="text" class="input" [(ngModel)]="ecForm.name" placeholder="Ex: Maman" />
+                  </div>
+                  <div class="form-group">
+                    <label>Telephone *</label>
+                    <input type="tel" class="input" [(ngModel)]="ecForm.phone" placeholder="+257 79 000 000" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Lien de parente</label>
+                  <input type="text" class="input" [(ngModel)]="ecForm.relationship" placeholder="Ex: Mere, Frere, Ami(e)" />
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" (click)="addEmergencyContact()" [disabled]="!ecForm.name || !ecForm.phone || ecSaving">
+                  @if (ecSaving) { <span class="spinner"></span> }
+                  + Ajouter
+                </button>
+              </div>
+
+              <!-- Contacts list -->
+              <div class="ec-list">
+                @if (emergencyContacts.length === 0) {
+                  <div class="ec-empty">Aucun contact d'urgence ajoute.</div>
+                }
+                @for (c of emergencyContacts; track c.id) {
+                  <div class="ec-item">
+                    <div class="ec-item-info">
+                      <strong>{{ c.name }}</strong>
+                      <span class="ec-phone">{{ c.phone }}</span>
+                      @if (c.relationship) { <span class="ec-rel">{{ c.relationship }}</span> }
+                    </div>
+                    <button class="btn btn-outline btn-sm ec-del" (click)="deleteEmergencyContact(c.id)">Supprimer</button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
           <!-- Role Request -->
           @if (isOwnProfile && activeSection === 'roleRequest') {
             <div class="card">
@@ -361,7 +417,10 @@
               {{ langService.t('profile.trips') }} ({{ userTrips.length }})
             </button>
             <button class="tab" [class.active]="tab === 'reviews'" (click)="tab='reviews'">
-              {{ langService.t('profile.reviews') }} ({{ reviews.length }})
+              🚗 Avis covoiturage ({{ reviews.length }})
+            </button>
+            <button class="tab" [class.active]="tab === 'rideRatings'" (click)="tab='rideRatings'">
+              🚕 Avis taxi ({{ rideRatings.length }})
             </button>
             @if (isOwnProfile) {
               <button class="tab" [class.active]="tab === 'bookings'" (click)="tab='bookings'">
@@ -425,7 +484,7 @@
 
             @if ((reviews?.length ?? 0) === 0) {
             <div class="section-empty">
-              <p>Aucun avis</p>
+              <p>Aucun avis covoiturage</p>
             </div>
             }
 
@@ -460,6 +519,41 @@
 
 
 
+            </div>
+            }
+          </div>
+          }
+
+          @if (tab === 'rideRatings') {
+          <div class="list-section">
+
+            @if ((rideRatings?.length ?? 0) === 0) {
+            <div class="section-empty">
+              <p>Aucun avis taxi</p>
+            </div>
+            }
+
+            @for (r of rideRatings; track r.id) {
+            <div class="review-item">
+              <div class="review-header">
+                <a [routerLink]="['/profile', r.fromUserId]" class="reviewer">
+                  @if (r.fromUserAvatarUrl) {
+                  <img [src]="r.fromUserAvatarUrl" class="av-xs" alt="">
+                  } @else {
+                  <div class="av-xs-placeholder">
+                    {{ r.fromUserFirstName?.charAt(0) }}
+                  </div>
+                  }
+                  {{ r.fromUserFirstName }}
+                </a>
+
+                <app-rating-stars [rating]="r.rating" />
+                <span class="r-date">{{ r.createdAt | timeAgo }}</span>
+              </div>
+
+              @if (r.comment) {
+              <p class="r-comment">{{ r.comment }}</p>
+              }
             </div>
             }
           </div>

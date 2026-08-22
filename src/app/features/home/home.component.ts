@@ -1,10 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LanguageService } from '../../core/services/language.service';
 import { AuthService } from '../../core/services/auth.service';
+import { AppModeService } from '../../core/services/app-mode.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
@@ -20,6 +21,7 @@ export class HomeComponent implements OnInit {
   private router = inject(Router);
   private http = inject(HttpClient);
   authService = inject(AuthService);
+  appMode = inject(AppModeService);
 
   from = '';
   to = '';
@@ -38,12 +40,23 @@ export class HomeComponent implements OnInit {
     this.loadStats();
   }
 
+  selectMode(mode: 'covoiturage' | 'taxi') {
+    this.appMode.setMode(mode);
+    if (mode === 'taxi') {
+      this.router.navigate(['/ride/request']);
+    }
+  }
+
   search(): void {
     if (this.from || this.to || this.date) {
       this.router.navigate(['/trips'], {
         queryParams: { from: this.from, to: this.to, date: this.date }
       });
     }
+  }
+
+  becomeDriver() {
+    this.router.navigate(['/auth/register'], { queryParams: { role: 'DRIVER' } });
   }
 
   private loadStats() {

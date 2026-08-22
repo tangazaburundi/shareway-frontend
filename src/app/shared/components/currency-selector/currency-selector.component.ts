@@ -7,7 +7,7 @@ import { Currency, CURRENCY_SYMBOLS } from '../../../core/models/trip.model';
 export class CurrencySelectorComponent {
   @Input() value: Currency = 'FBU';
   @Output() valueChange = new EventEmitter<Currency>();
-  currencies: Currency[] = ['FBU', 'USD', 'EUR'];
+  currencies: Currency[] = ['FBU', 'USD', 'EUR', 'FRW'];
   symbols = CURRENCY_SYMBOLS;
   select(c: Currency): void { this.value = c; this.valueChange.emit(c); }
 }

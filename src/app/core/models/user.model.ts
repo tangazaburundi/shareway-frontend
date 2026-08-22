@@ -83,6 +83,15 @@ export interface RoleRequest {
   reviewedAt?: string;
 }
 
+export interface EmergencyContact {
+  id: string;
+  name: string;
+  phone: string;
+  relationship?: string;
+  active: boolean;
+  createdAt: string;
+}
+
 export interface DashboardStats {
   totalTrips?: number;
   completedTrips?: number;

@@ -5,10 +5,11 @@ import { CommonModule } from '@angular/common';
 import { UserService } from '../../core/services/user.service';
 import { ReviewService } from '../../core/services/review.service';
 import { TripService } from '../../core/services/trip.service';
+import { RideService } from '../../core/services/ride.service';
 import { AuthService } from '../../core/services/auth.service';
 import { LanguageService } from '../../core/services/language.service';
 import { ToastService } from '../../core/services/toast.service';
-import { User, RoleRequest } from '../../core/models/user.model';
+  import { User, RoleRequest, EmergencyContact } from '../../core/models/user.model';
 import { Review } from '../../core/models/review.model';
 import { Trip } from '../../core/models/trip.model';
 import { RatingStarsComponent } from '../../shared/components/rating-stars/rating-stars.component';
@@ -23,13 +24,14 @@ export class ProfileComponent implements OnInit {
   private userService = inject(UserService);
   private reviewService = inject(ReviewService);
   private tripService = inject(TripService);
+  private rideService = inject(RideService);
   authService = inject(AuthService);
   private fb = inject(FormBuilder);
   langService = inject(LanguageService);
   private toast = inject(ToastService);
 
   user: User | null = null;
-  reviews: Review[] = []; userTrips: Trip[] = [];
+  reviews: Review[] = []; rideRatings: any[] = []; userTrips: Trip[] = [];
   loading = true; tab = 'trips'; activeSection = '';
   savingProfile = false; savingVehicle = false; saveSuccess = false; vehicleSaved = false; identityUploaded = false;
   prefKeys = ['music', 'smoking', 'pets', 'talking', 'ac','smallLuggage','largeLuggage'];
@@ -37,6 +39,10 @@ export class ProfileComponent implements OnInit {
   roleRequests: RoleRequest[] = [];
   roleRequestForm = { requestedRole: '' as string, reason: '' };
   submittingRoleRequest = false;
+
+  emergencyContacts: EmergencyContact[] = [];
+  ecForm = { name: '', phone: '', relationship: '' };
+  ecSaving = false; ecSaved = false; ecError = '';
 
   isReportModalOpen = false;
   reportReason = '';
@@ -104,6 +110,7 @@ export class ProfileComponent implements OnInit {
 
       this.user = null;
       this.reviews = [];
+      this.rideRatings = [];
       this.userTrips = [];
       this.loading = true;
 
@@ -338,6 +345,12 @@ export class ProfileComponent implements OnInit {
         }
       });
 
+      this.rideService.getRideRatingsForUser(uid).subscribe({
+        next: (res: any) => {
+          this.rideRatings = res.data || [];
+        }
+      });
+
       if (this.isOwnProfile) {
         this.loadRoleRequests();
       }
@@ -345,5 +358,44 @@ export class ProfileComponent implements OnInit {
        if(!pid){
         this.tripService.getMyTrips().subscribe({ next: (res) => { this.userTrips = res.data || []; } });
       }
+    }
+
+    // ── Contacts d'urgence ──────────────────────────────────────
+
+    loadEmergencyContacts() {
+      this.userService.getEmergencyContacts().subscribe({
+        next: (res) => { this.emergencyContacts = res.data || []; }
+      });
+    }
+
+    addEmergencyContact() {
+      if (!this.ecForm.name || !this.ecForm.phone) return;
+      this.ecSaving = true; this.ecError = '';
+      this.userService.addEmergencyContact(this.ecForm.name, this.ecForm.phone, this.ecForm.relationship).subscribe({
+        next: (res) => {
+          this.emergencyContacts.unshift(res.data!);
+          this.ecForm = { name: '', phone: '', relationship: '' };
+          this.ecSaved = true; this.ecSaving = false;
+          setTimeout(() => this.ecSaved = false, 2000);
+        },
+        error: (err) => {
+          this.ecError = err?.error?.message || 'Erreur lors de l\'ajout';
+          this.ecSaving = false;
+        }
+      });
+    }
+
+    deleteEmergencyContact(id: string) {
+      if (!confirm('Supprimer ce contact d\'urgence ?')) return;
+      this.userService.deleteEmergencyContact(id).subscribe({
+        next: () => {
+          this.emergencyContacts = this.emergencyContacts.filter(c => c.id !== id);
+          this.ecSaved = true;
+          setTimeout(() => this.ecSaved = false, 2000);
+        },
+        error: (err) => {
+          this.ecError = err?.error?.message || 'Erreur lors de la suppression';
+        }
+      });
     }
 }
