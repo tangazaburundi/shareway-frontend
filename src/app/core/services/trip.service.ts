@@ -191,7 +191,6 @@ export class TripService {
      );
    }
 
-   //TODO
    generateShareLink(id: string) {
      return this.http.post<{
        data: { url: string }

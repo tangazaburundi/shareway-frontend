@@ -176,7 +176,6 @@ export class AdminService {
   exportUsersExcel(): Observable<Blob> {
     return this.http.get(`${this.API}/admin/export/users/excel`, { responseType: 'blob' });
   }
-  //TODO A VERIFIER
 
   deleteUser(id: string): Observable<void> {
     return this.http.delete<void>(`${this.API}/admin/users/${id}`);
@@ -197,8 +196,8 @@ export class AdminService {
   assignSystemRole(id: string, systemRole: string): Observable<ApiResponse<any>> {
     return this.http.put<ApiResponse<any>>(`${this.API}/admin/users/${id}/system-role`, { systemRole });
   }
-  //TODO A VERIFIER
-      // ── Audit ──────────────────────────────────────────────────────────────────
+
+  // ── Audit ──────────────────────────────────────────────────────────────────
   getAuditLogs(userId?: string, page = 0, size = 50): Observable<PageResponse<AuditRow>> {
     let params = new HttpParams().set('page', page).set('size', size);
     if (userId) params = params.set('userId', userId);
