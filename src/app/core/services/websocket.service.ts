@@ -15,16 +15,23 @@ export class WebSocketService implements OnDestroy {
   private ws: WebSocket | null = null;
   private readonly WS_URL = environment.apiUrl.replace('https', 'wss').replace('http', 'ws') + '/ws';
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
+  private maxReconnectAttempts = 10;
   private subscriptions = new Map<string, Subject<any>>();
   private pendingSubscriptions: Array<{ destination: string; callback: (msg: any) => void }> = [];
   private connected = signal(false);
+  private token: string = '';
 
   private stompSendQueue: string[] = [];
+  private visibilityHandler = () => this.onVisibilityChange();
 
   isConnected = this.connected.asReadonly();
 
+  constructor() {
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
   connect(token: string): void {
+    this.token = token;
     if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) return;
 
     this.ws = new WebSocket(`${this.WS_URL}?token=${token}`);
@@ -86,6 +93,13 @@ export class WebSocketService implements OnDestroy {
     }
   }
 
+  private onVisibilityChange(): void {
+    if (document.visibilityState === 'visible' && this.token && !this.connected()) {
+      this.reconnectAttempts = 0;
+      this.connect(this.token);
+    }
+  }
+
   private sendStomp(command: string, headers: Record<string, string>, body = ''): void {
     let frame = command + '\n';
     for (const [key, val] of Object.entries(headers)) {
@@ -137,6 +151,9 @@ export class WebSocketService implements OnDestroy {
   }
 
   private flushPendingSubscriptions(): void {
+    for (const [destination] of this.subscriptions) {
+      this.sendStomp('SUBSCRIBE', { id: destination, destination });
+    }
     for (const sub of this.pendingSubscriptions) {
       this.sendStomp('SUBSCRIBE', { id: sub.destination, destination: sub.destination });
     }

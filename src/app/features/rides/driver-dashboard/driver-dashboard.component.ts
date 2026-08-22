@@ -147,6 +147,14 @@ import { Ride } from '../../../core/models/ride.model';
             </div>
             <div class="ride-actions">
               @switch (activeRide()!.status) {
+                @case ('DRIVER_FOUND') {
+                  <button class="action-btn primary" (click)="acceptFromCard()">
+                    Accepter
+                  </button>
+                  <button class="action-btn danger" (click)="rejectFromCard()">
+                    Refuser
+                  </button>
+                }
                 @case ('ACCEPTED') {
                   <button class="action-btn primary" (click)="markEnRoute()">
                     En route vers le passager
@@ -1951,6 +1959,36 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   }
 
   // ── Incoming Ride Request ────────────────────────────────────
+
+  acceptFromCard(): void {
+    const ride = this.activeRide();
+    if (!ride) return;
+    this.rideService.acceptRide(ride.id).subscribe({
+      next: (res) => {
+        if (res.success && res.data) this.activeRide.set(res.data);
+        else this.loadActiveRide();
+        this.dismissIncoming();
+        this.loadHistory();
+        this.loadStats();
+        this.loadEarnings();
+      },
+      error: (err) => console.error('Failed to accept ride:', err)
+    });
+  }
+
+  rejectFromCard(): void {
+    const ride = this.activeRide();
+    if (!ride) return;
+    this.rideService.rejectRide(ride.id, 'Refusé depuis le tableau de bord').subscribe({
+      next: () => {
+        this.activeRide.set(null);
+        this.dismissIncoming();
+        this.loadHistory();
+        this.loadStats();
+      },
+      error: (err) => console.error('Failed to reject ride:', err)
+    });
+  }
 
   acceptIncoming(): void {
     const req = this.incomingRequest();
