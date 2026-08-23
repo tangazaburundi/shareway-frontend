@@ -28,75 +28,7 @@ import { Advertising } from '../../../core/models/advertising.model';
       </div>
     }
   `,
-  styles: [`
-    :host { display: block; width: 100%; }
-    .ad-banner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      max-height: 40px;
-      padding: 4px 12px;
-      background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
-      border-bottom: 1px solid #c8e6c9;
-      font-size: 13px;
-      overflow: hidden;
-    }
-    .ad-banner__content {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      min-width: 0;
-      flex: 1;
-      overflow: hidden;
-    }
-    .ad-banner__icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      object-fit: contain;
-      flex-shrink: 0;
-    }
-    .ad-banner__text {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      min-width: 0;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-    .ad-banner__label {
-      font-size: 10px;
-      text-transform: uppercase;
-      color: #689f38;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      flex-shrink: 0;
-    }
-    .ad-banner__title {
-      font-weight: 600;
-      color: #333;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .ad-banner__desc {
-      color: #666;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .ad-banner__close {
-      background: none;
-      border: none;
-      font-size: 14px;
-      color: #999;
-      cursor: pointer;
-      padding: 2px 6px;
-      border-radius: 4px;
-      flex-shrink: 0;
-      line-height: 1;
-    }
-    .ad-banner__close:hover { color: #333; background: rgba(0,0,0,0.06); }
-  `]
+  styleUrls: ['./ad-banner.component.css']
 })
 export class AdBannerComponent implements OnInit {
   private advertisingService = inject(AdvertisingService);

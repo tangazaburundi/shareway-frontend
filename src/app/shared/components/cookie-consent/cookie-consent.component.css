@@ -1,0 +1,56 @@
+.cookie-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #1e293b; z-index: 9999;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
+      animation: slideUp 0.25s ease-out;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .cookie-bar-inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: 10px 20px;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+    }
+
+    .cookie-bar-text {
+      display: flex; align-items: center; gap: 8px;
+      color: #cbd5e1; font-size: 0.82rem; flex: 1; min-width: 200px;
+    }
+    .cookie-icon { font-size: 1.1rem; }
+    .cookie-link { color: #7dd3fc; text-decoration: underline; font-size: 0.78rem; white-space: nowrap; }
+
+    .cookie-options {
+      display: flex; gap: 14px; flex-wrap: wrap; width: 100%;
+      padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .cookie-opt {
+      display: flex; align-items: center; gap: 5px; cursor: pointer;
+      color: #94a3b8; font-size: 0.78rem;
+    }
+    .cookie-opt input[type="checkbox"] {
+      width: 14px; height: 14px; accent-color: #1a8b82; cursor: pointer;
+    }
+    .opt-disabled { opacity: 0.5; cursor: not-allowed; }
+    .opt-disabled input { cursor: not-allowed; }
+    .opt-label { white-space: nowrap; }
+
+    .cookie-actions {
+      display: flex; gap: 6px; flex-shrink: 0;
+    }
+    .cb-btn {
+      padding: 6px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; border: none; white-space: nowrap; transition: all 0.15s;
+    }
+    .cb-expand { background: transparent; color: #94a3b8; border: 1px solid #475569; }
+    .cb-expand:hover { color: #e2e8f0; border-color: #94a3b8; }
+    .cb-reject { background: transparent; color: #94a3b8; border: 1px solid #475569; }
+    .cb-reject:hover { color: #e2e8f0; border-color: #94a3b8; }
+    .cb-accept { background: #1a8b82; color: white; }
+    .cb-accept:hover { background: #15706a; }
+
+    @media (max-width: 768px) {
+      .cookie-bar-inner { padding: 8px 14px; gap: 8px; }
+      .cookie-bar-text { font-size: 0.78rem; min-width: 0; }
+      .cookie-actions { width: 100%; }
+      .cb-btn { flex: 1; text-align: center; padding: 8px 10px; }
+    }\r\n

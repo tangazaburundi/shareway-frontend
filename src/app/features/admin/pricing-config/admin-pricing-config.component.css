@@ -1,0 +1,45 @@
+    .page { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+    .page-header h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+    .subtitle { color: #6b7280; font-size: 0.9rem; }
+    .btn-primary { background: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .form-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .form-card h2 { margin: 0 0 1rem; font-size: 1.1rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 0.85rem; font-weight: 600; color: #374151; }
+    .form-group input, .form-group select { padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.9rem; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .input-error { border-color: #ef4444 !important; }
+    .field-error { color: #ef4444; font-size: 0.8rem; }
+    .hint { color: #9ca3af; font-size: 0.75rem; }
+    .form-actions { display: flex; gap: 10px; margin-top: 1rem; }
+    .btn-secondary { background: #f3f4f6; color: #374151; padding: 10px 20px; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; }
+    .toggle { position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: #ccc; border-radius: 24px; transition: 0.3s; }
+    .toggle-slider::before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .toggle-slider { background: #2563eb; }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+    .config-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+    .config-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; border-left: 4px solid #2563eb; }
+    .config-card.inactive { opacity: 0.6; border-left-color: #9ca3af; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+    .badge { padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-muted { background: #f3f4f6; color: #6b7280; }
+    .currency { font-size: 0.85rem; color: #6b7280; font-weight: 600; }
+    .config-card h3 { margin: 0 0 0.75rem; font-size: 1.1rem; }
+    .config-details { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; }
+    .detail-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: #6b7280; }
+    .detail-row strong { color: #111827; }
+    .card-actions { display: flex; gap: 8px; }
+    .btn-edit { flex: 1; padding: 8px; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 6px; font-weight: 500; cursor: pointer; }
+    .btn-delete { flex: 1; padding: 8px; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; border-radius: 6px; font-weight: 500; cursor: pointer; }
+    .empty-state { grid-column: 1 / -1; text-align: center; color: #9ca3af; padding: 2rem; }
+    .skeleton-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+    .skeleton-card { height: 200px; background: #f3f4f6; border-radius: 12px; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @media (max-width: 640px) { .page { padding: 1rem; } .form-grid { grid-template-columns: 1fr; } .config-grid { grid-template-columns: 1fr; } }
+  

@@ -67,59 +67,7 @@ import { NotificationSoundService, SOUND_CATALOG, SoundType, SoundOption } from 
       }
     </div>
   `,
-  styles: [`
-    .page { padding: 2rem; max-width: 600px; margin: 0 auto; }
-    .page-header { margin-bottom: 1.5rem; }
-    .page-header h1 { margin: 8px 0 4px; font-size: 1.5rem; font-weight: 700; }
-    .subtitle { color: #6b7280; font-size: 0.9rem; }
-    .back-btn {
-      background: none; border: none; color: #2563eb; cursor: pointer;
-      font-size: 0.9rem; font-weight: 500; padding: 0;
-    }
-    .back-btn:hover { text-decoration: underline; }
-    .form-card {
-      background: white; border: 1px solid #e5e7eb; border-radius: 12px;
-      padding: 1.25rem; margin-bottom: 1rem;
-    }
-    .form-card h2 { margin: 0 0 1rem; font-size: 1rem; font-weight: 600; color: #1f2937; }
-    .form-group { display: flex; flex-direction: column; gap: 4px; }
-    .volume-row { display: flex; align-items: center; gap: 12px; }
-    .volume-row input[type="range"] { flex: 1; accent-color: #2563eb; height: 6px; }
-    .volume-icon { font-size: 1.2rem; }
-    .volume-value { font-size: 0.9rem; font-weight: 600; color: #2563eb; min-width: 40px; }
-    .sound-options { display: flex; flex-direction: column; gap: 8px; }
-    .sound-option {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 16px; border: 1px solid #e5e7eb; border-radius: 10px;
-      background: white; cursor: pointer; transition: all 0.15s;
-    }
-    .sound-option:hover { border-color: #93c5fd; background: #f0f7ff; }
-    .sound-option.active { border-color: #2563eb; background: #eff6ff; box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
-    .sound-label { font-size: 0.9rem; font-weight: 500; color: #374151; }
-    .preview-btn {
-      background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 8px;
-      padding: 6px 14px; cursor: pointer; font-size: 0.8rem; font-weight: 500;
-      color: #374151; transition: all 0.15s;
-    }
-    .preview-btn:hover { background: #e5e7eb; }
-    .form-actions { margin-top: 1.5rem; }
-    .btn-primary {
-      background: #2563eb; color: white; padding: 12px 32px; border: none;
-      border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;
-      width: 100%;
-    }
-    .btn-primary:hover { background: #1d4ed8; }
-    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-    .disabled-card {
-      background: white; border: 1px solid #e5e7eb; border-radius: 12px;
-      padding: 3rem 2rem; text-align: center;
-    }
-    .disabled-icon { font-size: 3rem; margin-bottom: 1rem; }
-    .disabled-card h3 { margin: 0 0 8px; color: #374151; }
-    .disabled-card p { margin: 0; color: #6b7280; font-size: 0.9rem; }
-    .skeleton-card { height: 200px; background: #f3f4f6; border-radius: 12px; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-  `]
+  styleUrls: ['./sound-settings.component.css']
 })
 export class SoundSettingsComponent implements OnInit {
   loading = signal(true);

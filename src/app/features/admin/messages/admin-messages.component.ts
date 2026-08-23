@@ -59,52 +59,7 @@ import { AdminService, MessageRow } from '../../../core/services/admin.service';
       </div>
     </div>
   `,
-  styles: [`
-    .page { padding: 2rem; max-width: 900px; margin: 0 auto; }
-    .page-header { margin-bottom: 1.5rem; }
-    h1 { font-size: 1.4rem; font-weight: 700; margin: 0 0 .25rem; }
-    .sub { color: #64748b; font-size: .875rem; margin: 0; }
-    .loading { color: #64748b; padding: 2rem 0; }
-    .empty { text-align: center; padding: 3rem; color: #64748b; background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; }
-
-    .cards { display: flex; flex-direction: column; gap: 1rem; }
-    .msg-card { background: #fff; border: 1.5px solid #fbbf24; border-radius: 12px; padding: 1.25rem; }
-
-    .msg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem; }
-    .participants { display: flex; align-items: center; gap: .5rem; font-size: .85rem; }
-    .uid { background: #f1f5f9; padding: .2rem .5rem; border-radius: 4px; font-family: monospace; color: #334155; }
-    .arrow { color: #94a3b8; }
-    .date { font-size: .8rem; color: #94a3b8; }
-
-    .msg-content {
-      background: #f8fafc; border-radius: 8px; padding: .875rem;
-      font-size: .9rem; color: #1e293b; line-height: 1.5; margin-bottom: .75rem;
-      border-left: 3px solid #fbbf24;
-    }
-
-    .flag-reason { font-size: .8rem; color: #92400e; background: #fef3c7; padding: .5rem .75rem; border-radius: 6px; margin-bottom: .75rem; }
-
-    .msg-actions { display: flex; gap: .75rem; }
-    .btn-ok, .btn-del {
-      padding: .5rem 1.1rem; border-radius: 8px; border: none;
-      font-size: .875rem; font-weight: 600; cursor: pointer;
-      display: flex; align-items: center; gap: .4rem; transition: opacity .15s;
-    }
-    .btn-ok:disabled, .btn-del:disabled { opacity: .5; cursor: not-allowed; }
-    .btn-ok  { background: #d1fae5; color: #065f46; }
-    .btn-ok:hover:not(:disabled)  { background: #a7f3d0; }
-    .btn-del { background: #fee2e2; color: #991b1b; }
-    .btn-del:hover:not(:disabled) { background: #fecaca; }
-
-    .error-inline { font-size: .8rem; color: #b91c1c; margin-top: .5rem; }
-
-    .pagination { display: flex; align-items: center; justify-content: center; gap: 1rem; padding: 1.5rem 0; font-size: .875rem; }
-    .pagination button { padding: .4rem .9rem; border-radius: 6px; border: 1.5px solid #e5e7eb; background: #fff; cursor: pointer; }
-    .pagination button:disabled { opacity: .4; }
-
-    .spin { width: 12px; height: 12px; border: 2px solid rgba(0,0,0,.2); border-top-color: currentColor; border-radius: 50%; animation: spin .7s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  `]
+  styleUrls: ['./admin-messages.component.css']
 })
 export class AdminMessagesComponent implements OnInit {
   messages:   MessageRow[] = [];

@@ -163,6 +163,9 @@
 
       <a routerLink="/contact" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('footer.contact') }}</a>
       @if (auth.isAuthenticated()) {
+        @if (isAdmin) {
+          <a routerLink="/admin/dashboard" (click)="mobileOpen=false" class="mobile-link mobile-link-profile">📊 {{ langService.t('nav.dashboard') }} (Admin)</a>
+        }
         <a routerLink="/profile" (click)="mobileOpen=false" class="mobile-link mobile-link-profile">{{ langService.t('nav.profile') }}</a>
         <a routerLink="/messages" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.messages') }}</a>
         <a routerLink="/notifications" (click)="mobileOpen=false" class="mobile-link">{{ langService.t('nav.notifications') }}</a>
