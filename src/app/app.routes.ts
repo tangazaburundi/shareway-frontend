@@ -48,6 +48,7 @@ export const routes: Routes = [
   { path: 'notifications', canActivate: [authGuard], loadComponent: () => import('./features/notifications/notifications.component').then(m => m.NotificationsComponent) },
   { path: 'profile', canActivate: [authGuard], loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent) },
   { path: 'profile/:id', loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent) },
+  { path: 'settings/sounds', canActivate: [authGuard], loadComponent: () => import('./features/settings/sound-settings/sound-settings.component').then(m => m.SoundSettingsComponent) },
   { path: 'a-propos', loadComponent: () => import('./features/about/about.component').then(m => m.AboutComponent) },
   { path: 'contact', loadComponent: () => import('./features/contact/contact.component').then(m => m.ContactComponent) },
   { path: 'faq', loadComponent: () => import('./features/legal/faq/faq.component').then(m => m.FaqComponent) },

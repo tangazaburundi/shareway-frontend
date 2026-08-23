@@ -1539,6 +1539,7 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   incomingRequest = signal<any>(null);
   requestLoading = signal<boolean>(false);
   requestTimer = signal<number>(180);
+  searchTimeoutSeconds = signal<number>(180);
   showRejectConfirm = signal<boolean>(false);
   showTransferConfirm = signal<boolean>(false);
   rejectReason = signal<string>('');
@@ -1586,12 +1587,16 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
     this.loadStats();
     this.loadEarnings();
     this.loadCurrentUserId();
+    this.loadSearchTimeout();
 
     const token = localStorage.getItem('shareway_token') || '';
     this.websocketService.connect(token);
     this.websocketService.subscribe('/user/queue/ride-update').subscribe((msg: any) => {
       if (msg && (msg.status === 'CANCELLED' || msg.status === 'EXPIRED')) {
         this.notificationSound.play('ride-cancelled');
+        if (this.incomingRequest() && this.incomingRequest().rideId === msg.rideId) {
+          this.dismissIncoming();
+        }
       }
       this.loadActiveRide();
       this.loadHistory();
@@ -1610,7 +1615,7 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
       }
       this.notificationSound.play('ride-request');
       this.incomingRequest.set(msg);
-      this.requestTimer.set(180);
+      this.requestTimer.set(this.searchTimeoutSeconds());
       this.requestLoading.set(false);
       if (this.requestTimerInterval) clearInterval(this.requestTimerInterval);
       this.requestTimerInterval = setInterval(() => {
@@ -1620,7 +1625,7 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
             clearInterval(this.requestTimerInterval);
             this.requestTimerInterval = null;
           }
-          this.rejectIncoming();
+          this.autoRejectOnTimeout();
         } else {
           this.requestTimer.set(t - 1);
         }
@@ -1662,6 +1667,52 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  loadSearchTimeout(): void {
+    let adminDefaults: Record<string, string> = {};
+
+    this.rideService.getSearchTimeoutConfig().subscribe({
+      next: (res: any) => {
+        if (res && res.data) {
+          this.searchTimeoutSeconds.set(res.data.timeoutSeconds || 180);
+          this.requestTimer.set(this.searchTimeoutSeconds());
+          if (res.data.notificationVolume !== undefined && res.data.notificationVolume !== null) {
+            this.notificationSound.setVolume(res.data.notificationVolume);
+          }
+          adminDefaults = {
+            'ride-request': res.data.defaultRideRequestSound || 'classic',
+            'ride-accepted': res.data.defaultRideAcceptedSound || 'success',
+            'ride-cancelled': res.data.defaultRideCancelledSound || 'alert',
+            'ride-completed': res.data.defaultRideCompletedSound || 'tada',
+            'message': res.data.defaultMessageSound || 'ping',
+            'sos': res.data.defaultSosSound || 'siren',
+          };
+          this.notificationSound.setPrefs(adminDefaults);
+        }
+        this.rideService.getSoundPreferences().subscribe({
+          next: (res2: any) => {
+            if (res2 && res2.data) {
+              const d = res2.data;
+              if (d.notificationVolume !== undefined && d.notificationVolume !== null) {
+                this.notificationSound.setVolume(d.notificationVolume);
+              }
+              const merged = { ...adminDefaults };
+              if (d.rideRequestSound) merged['ride-request'] = d.rideRequestSound;
+              if (d.rideAcceptedSound) merged['ride-accepted'] = d.rideAcceptedSound;
+              if (d.rideCancelledSound) merged['ride-cancelled'] = d.rideCancelledSound;
+              if (d.rideCompletedSound) merged['ride-completed'] = d.rideCompletedSound;
+              if (d.messageSound) merged['message'] = d.messageSound;
+              if (d.sosSound) merged['sos'] = d.sosSound;
+              this.notificationSound.setPrefs(merged as any);
+            }
+          },
+          error: () => {}
+        });
+      },
+      error: () => {}
+    });
+  }
+
 
   loadActiveRide(): void {
     this.rideService.getDriverActiveRide().subscribe({
@@ -2008,13 +2059,32 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Failed to accept ride:', err);
-        this.requestLoading.set(false);
+        this.dismissIncoming();
       }
     });
   }
 
   rejectIncoming(): void {
     this.showRejectConfirm.set(true);
+  }
+
+  autoRejectOnTimeout(): void {
+    const req = this.incomingRequest();
+    if (!req || !req.rideId) {
+      this.dismissIncoming();
+      return;
+    }
+    this.requestLoading.set(true);
+    this.rideService.timeoutRide(req.rideId).subscribe({
+      next: () => {
+        this.dismissIncoming();
+        this.loadHistory();
+        this.loadStats();
+      },
+      error: () => {
+        this.dismissIncoming();
+      }
+    });
   }
 
   cancelReject(): void {
@@ -2046,7 +2116,7 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
       this.requestTimerInterval = null;
     }
     this.incomingRequest.set(null);
-    this.requestTimer.set(180);
+    this.requestTimer.set(this.searchTimeoutSeconds());
     this.requestLoading.set(false);
     this.showRejectConfirm.set(false);
     this.rejectReason.set('');
