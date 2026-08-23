@@ -54,7 +54,7 @@
   background: white;
 }
 
-/* Values — same cards as homepage features */
+/* Values */
 .values {
   background: #f8fafc;
 }
@@ -96,6 +96,11 @@
   line-height: 1.6;
   font-size: 0.9rem;
   margin: 0;
+}
+
+/* Powered */
+.powered {
+  background: #f8fafc;
 }
 
 /* Responsive */

@@ -14,6 +14,7 @@ export class FaqComponent {
   langService = inject(LanguageService);
 
   openIndex: number | null = null;
+  openTaxiIndex: number | null = null;
 
   faqs = [
     { qKey: 'faq.q1', aKey: 'faq.a1' },
@@ -21,10 +22,28 @@ export class FaqComponent {
     { qKey: 'faq.q3', aKey: 'faq.a3' },
     { qKey: 'faq.q4', aKey: 'faq.a4' },
     { qKey: 'faq.q5', aKey: 'faq.a5' },
-    { qKey: 'faq.q6', aKey: 'faq.a6' }
+    { qKey: 'faq.q6', aKey: 'faq.a6' },
+    { qKey: 'faq.q7', aKey: 'faq.a7' },
+    { qKey: 'faq.q8', aKey: 'faq.a8' },
+    { qKey: 'faq.q9', aKey: 'faq.a9' },
+    { qKey: 'faq.q10', aKey: 'faq.a10' },
+  ];
+
+  taxiFaqs = [
+    { qKey: 'faq.tq1', aKey: 'faq.ta1' },
+    { qKey: 'faq.tq2', aKey: 'faq.ta2' },
+    { qKey: 'faq.tq3', aKey: 'faq.ta3' },
+    { qKey: 'faq.tq4', aKey: 'faq.ta4' },
+    { qKey: 'faq.tq5', aKey: 'faq.ta5' },
+    { qKey: 'faq.tq6', aKey: 'faq.ta6' },
+    { qKey: 'faq.tq7', aKey: 'faq.ta7' },
   ];
 
   toggle(index: number): void {
     this.openIndex = this.openIndex === index ? null : index;
+  }
+
+  toggleTaxi(index: number): void {
+    this.openTaxiIndex = this.openTaxiIndex === index ? null : index;
   }
 }

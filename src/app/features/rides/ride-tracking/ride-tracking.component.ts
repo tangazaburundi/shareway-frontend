@@ -104,6 +104,18 @@ import * as L from 'leaflet';
         >
           💬 Chat
         </button>
+
+        <button
+          class="btn-sos"
+          *ngIf="ride()?.status !== 'COMPLETED' && ride()?.status !== 'CANCELLED' && ride()?.status !== 'EXPIRED' && ride()?.driverFirstName && !sosSent()"
+          (click)="triggerSOS()"
+        >
+          🚨 SOS
+        </button>
+
+        <div class="sos-sent" *ngIf="sosSent()">
+          🚨 Alerte SOS envoyée — L'administration a été notifiée
+        </div>
       </div>
 
       <!-- Chat Modal -->
@@ -175,6 +187,7 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
   chatMessages = signal<any[]>([]);
   chatInput = signal('');
   currentUserId = signal('');
+  sosSent = signal(false);
   private map: L.Map | null = null;
   private driverMarker: L.Marker | null = null;
   private refreshInterval: any;
@@ -432,5 +445,22 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
 
   trackMsgById(_index: number, msg: any): string {
     return msg.id || _index;
+  }
+
+  triggerSOS(): void {
+    if (!this.ride() || this.sosSent()) return;
+    if (!confirm('Êtes-vous sûr de vouloir déclencher une alerte SOS ?\nL\'administration et le chauffeur seront notifiés avec votre position GPS.')) {
+      return;
+    }
+    this.notificationSound.play('sos');
+    this.rideService.sosAlert(this.ride()!.id).subscribe({
+      next: () => {
+        this.sosSent.set(true);
+      },
+      error: (err: any) => {
+        console.error('SOS alert failed:', err);
+        alert('Erreur lors de l\'envoi de l\'alerte SOS. Veuillez réessayer.');
+      }
+    });
   }
 }

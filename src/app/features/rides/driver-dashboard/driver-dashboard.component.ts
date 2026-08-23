@@ -66,6 +66,9 @@ import { Ride } from '../../../core/models/ride.model';
         <section class="earnings-section">
           <div class="section-header">
             <h2>Revenus</h2>
+            <button class="link-btn" (click)="goToEarnings()">
+              Voir le détail →
+            </button>
             <button class="link-btn" (click)="toggleEarningsDetail()">
               {{ showEarningsDetail() ? 'Masquer' : 'Détails' }}
             </button>
@@ -1127,6 +1130,10 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
 
   viewOnMap(rideId: string): void {
     this.router.navigate(['/ride/tracking', rideId]);
+  }
+
+  goToEarnings(): void {
+    this.router.navigate(['/driver/earnings']);
   }
 
   setActiveTab(tab: 'all' | 'completed' | 'cancelled'): void {
