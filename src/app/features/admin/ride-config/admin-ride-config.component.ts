@@ -98,63 +98,7 @@ import { NotificationSoundService, SOUND_CATALOG, SoundType, SoundOption } from 
       }
     </div>
   `,
-  styles: [`
-    .page { padding: 2rem; max-width: 800px; margin: 0 auto; }
-    .page-header { margin-bottom: 1.5rem; }
-    .page-header h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
-    .subtitle { color: #6b7280; font-size: 0.9rem; }
-    .form-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
-    .form-card h2 { margin: 0 0 1rem; font-size: 1.1rem; font-weight: 600; color: #1f2937; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-    .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 1rem; }
-    .form-group label { font-size: 0.85rem; font-weight: 600; color: #374151; }
-    .form-group input[type="number"] { padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.9rem; }
-    .form-group input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-    .hint { color: #9ca3af; font-size: 0.75rem; margin-top: 2px; }
-    .volume-row { display: flex; align-items: center; gap: 12px; }
-    .volume-row input[type="range"] { flex: 1; accent-color: #2563eb; }
-    .volume-value { font-size: 0.9rem; font-weight: 600; color: #2563eb; min-width: 40px; }
-    .sounds-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1rem; }
-    .sound-section h3 { font-size: 0.85rem; font-weight: 600; color: #374151; margin: 0 0 8px; }
-    .sound-options { display: flex; flex-direction: column; gap: 6px; }
-    .sound-option {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 8px;
-      background: white; cursor: pointer; transition: all 0.15s;
-    }
-    .sound-option:hover { border-color: #93c5fd; background: #f0f7ff; }
-    .sound-option.active { border-color: #2563eb; background: #eff6ff; }
-    .sound-label { font-size: 0.85rem; font-weight: 500; color: #374151; }
-    .preview-btn {
-      background: none; border: 1px solid #d1d5db; border-radius: 6px;
-      padding: 2px 8px; cursor: pointer; font-size: 0.75rem; color: #6b7280;
-      transition: all 0.15s;
-    }
-    .preview-btn:hover { background: #f3f4f6; color: #374151; }
-    .toggle-group { flex-direction: row; align-items: center; gap: 12px; }
-    .toggle { position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; }
-    .toggle input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider {
-      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      background: #ccc; border-radius: 24px; transition: 0.3s;
-    }
-    .toggle-slider::before {
-      content: ''; position: absolute; width: 18px; height: 18px;
-      left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s;
-    }
-    .toggle input:checked + .toggle-slider { background: #2563eb; }
-    .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
-    .form-actions { margin-bottom: 1.5rem; }
-    .btn-primary { background: #2563eb; color: white; padding: 10px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
-    .btn-primary:hover { background: #1d4ed8; }
-    .info-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; }
-    .info-card h3 { margin: 0 0 0.75rem; font-size: 1rem; }
-    .info-card ul { margin: 0; padding-left: 1.25rem; }
-    .info-card li { font-size: 0.85rem; color: #64748b; margin-bottom: 4px; }
-    .skeleton-card { height: 200px; background: #f3f4f6; border-radius: 12px; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-    @media (max-width: 640px) { .page { padding: 1rem; } .form-grid, .sounds-grid { grid-template-columns: 1fr; } }
-  `]
+  styleUrls: ['./admin-ride-config.component.css']
 })
 export class AdminRideConfigComponent implements OnInit {
   loading = signal(true);

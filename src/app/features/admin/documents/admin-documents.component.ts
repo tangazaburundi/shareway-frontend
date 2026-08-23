@@ -92,68 +92,7 @@ import { AdminService, DocumentRow } from '../../../core/services/admin.service'
       </div>
     </div>
   `,
-  styles: [`
-    .page { padding: 2rem; max-width: 1100px; margin: 0 auto; }
-    .page-header { margin-bottom: 1.5rem; }
-    h1 { font-size: 1.4rem; font-weight: 700; margin: 0 0 .25rem; }
-    .sub { color: #64748b; font-size: .875rem; margin: 0; }
-    .loading { color: #64748b; padding: 2rem 0; }
-    .empty { text-align: center; padding: 3rem; color: #64748b; background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; }
-
-    .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
-    .doc-card { background: #fff; border: 1.5px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; }
-
-    .doc-type { display: flex; align-items: center; gap: .75rem; margin-bottom: .875rem; }
-    .type-icon { font-size: 1.75rem; }
-    .type-label { font-size: .95rem; font-weight: 700; color: #1e293b; }
-    .user-info { font-size: .8rem; color: #64748b; margin-top: .15rem; }
-
-    .doc-meta { display: flex; flex-direction: column; gap: .2rem; margin-bottom: .75rem; }
-    .filename { font-size: .85rem; color: #334155; font-family: monospace; }
-    .date, .expires { font-size: .78rem; color: #94a3b8; }
-    .expires { color: #f59e0b; }
-
-    .preview-link {
-      display: inline-block; font-size: .85rem; color: #4f46e5;
-      text-decoration: none; margin-bottom: .875rem;
-    }
-    .preview-link:hover { text-decoration: underline; }
-
-    .doc-actions { display: flex; gap: .75rem; }
-    .btn-approve, .btn-reject-btn {
-      flex: 1; padding: .5rem; border-radius: 8px; border: none;
-      font-size: .875rem; font-weight: 600; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: .4rem;
-    }
-    .btn-approve { background: #d1fae5; color: #065f46; }
-    .btn-approve:hover:not(:disabled) { background: #a7f3d0; }
-    .btn-approve:disabled { opacity: .5; cursor: not-allowed; }
-    .btn-reject-btn { background: #fee2e2; color: #991b1b; }
-    .btn-reject-btn:hover { background: #fecaca; }
-
-    .error-inline { font-size: .8rem; color: #b91c1c; margin-top: .5rem; }
-
-    /* Modal */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-    .modal { background: #fff; border-radius: 12px; padding: 2rem; width: 100%; max-width: 460px; }
-    .modal h2 { margin: 0 0 .5rem; font-size: 1.1rem; }
-    .modal p { color: #555; font-size: .9rem; margin-bottom: 1rem; }
-    .field { margin-bottom: 1rem; }
-    .field label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: .4rem; color: #333; }
-    .field select, .field textarea {
-      width: 100%; padding: .7rem; border: 1.5px solid #e5e7eb; border-radius: 8px;
-      font-size: .9rem; box-sizing: border-box;
-    }
-    .field select:focus, .field textarea:focus { outline: none; border-color: #4f46e5; }
-    .error-box { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: .7rem; border-radius: 8px; font-size: .85rem; margin-bottom: .75rem; }
-    .modal-actions { display: flex; gap: .75rem; justify-content: flex-end; }
-    .btn-cancel { padding: .5rem 1rem; border-radius: 8px; border: 1.5px solid #e5e7eb; background: #fff; cursor: pointer; font-size: .875rem; }
-    .btn-danger { padding: .5rem 1.25rem; border-radius: 8px; background: #ef4444; color: #fff; border: none; font-size: .875rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: .5rem; }
-    .btn-danger:disabled { opacity: .6; cursor: not-allowed; }
-    .btn-danger:hover:not(:disabled) { background: #dc2626; }
-    .spin { width: 12px; height: 12px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  `]
+  styleUrls: ['./admin-documents.component.css']
 })
 export class AdminDocumentsComponent implements OnInit {
   docs:         DocumentRow[] = [];

@@ -28,75 +28,7 @@ import { Advertising } from '../../../core/models/advertising.model';
       </div>
     }
   `,
-  styles: [`
-    :host { display: block; width: 100%; }
-    .ad-bottom-banner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      max-height: 40px;
-      padding: 4px 12px;
-      background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
-      border-top: 1px solid #bbdefb;
-      font-size: 13px;
-      overflow: hidden;
-    }
-    .ad-bottom-banner__content {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      min-width: 0;
-      flex: 1;
-      overflow: hidden;
-    }
-    .ad-bottom-banner__icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      object-fit: contain;
-      flex-shrink: 0;
-    }
-    .ad-bottom-banner__text {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      min-width: 0;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-    .ad-bottom-banner__label {
-      font-size: 10px;
-      text-transform: uppercase;
-      color: #1565c0;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      flex-shrink: 0;
-    }
-    .ad-bottom-banner__title {
-      font-weight: 600;
-      color: #333;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .ad-bottom-banner__desc {
-      color: #666;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .ad-bottom-banner__close {
-      background: none;
-      border: none;
-      font-size: 14px;
-      color: #999;
-      cursor: pointer;
-      padding: 2px 6px;
-      border-radius: 4px;
-      flex-shrink: 0;
-      line-height: 1;
-    }
-    .ad-bottom-banner__close:hover { color: #333; background: rgba(0,0,0,0.06); }
-  `]
+  styleUrls: ['./ad-bottom-banner.component.css']
 })
 export class AdBottomBannerComponent implements OnInit {
   private advertisingService = inject(AdvertisingService);

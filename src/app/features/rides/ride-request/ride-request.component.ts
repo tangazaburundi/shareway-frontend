@@ -143,65 +143,7 @@ import * as L from 'leaflet';
       </div>
     </div>
   `,
-  styles: [`
-    .ride-request-page { height: 100vh; display: flex; flex-direction: column; position: relative; }
-    .map-container { position: relative; flex: 1; min-height: 50vh; z-index: 1; cursor: crosshair; }
-    .map-hint {
-      position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,0.7); color: #fff; padding: 8px 16px; border-radius: 20px;
-      font-size: 0.85rem; z-index: 1000; pointer-events: none; white-space: nowrap;
-      animation: pulse-hint 2s infinite;
-    }
-    @keyframes pulse-hint {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
-    .bottom-sheet { position: absolute; bottom: 0; left: 0; right: 0; background: white; border-radius: 20px 20px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 10; padding: 20px; max-height: 55vh; overflow-y: auto; }
-    .sheet-header h2 { margin: 0 0 16px; font-size: 1.3rem; color: #1a1a2e; }
-    .input-group { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; background: #f5f5f5; border-radius: 10px; padding: 10px 14px; }
-    .input-group input { flex: 1; border: none; background: transparent; font-size: 0.95rem; outline: none; }
-    .input-icon { width: 12px; height: 12px; border-radius: 50%; }
-    .input-icon.pickup { background: #22c55e; }
-    .input-icon.destination { background: #ef4444; }
-    .btn-locate { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 4px; }
-    .check-icon { font-size: 1rem; flex-shrink: 0; }
-    .btn-clear { background: #ef4444; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 0.75rem; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-    .hint-message { font-size: 0.8rem; color: #d97706; padding: 8px 12px; background: #fef3c7; border-radius: 8px; margin-bottom: 8px; }
-    .suggestions { max-height: 200px; overflow-y: auto; border-top: 1px solid #eee; }
-    .suggestion-item { display: flex; align-items: center; gap: 10px; padding: 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
-    .suggestion-item:hover { background: #f8f8f8; }
-    .suggestion-icon { font-size: 1.2rem; }
-    .suggestion-name { font-weight: 500; font-size: 0.9rem; }
-    .suggestion-city { font-size: 0.8rem; color: #888; }
-    .estimate-section { background: #f0fdf4; border-radius: 12px; padding: 14px; margin: 12px 0; }
-    .estimate-row { display: flex; justify-content: space-between; padding: 4px 0; }
-    .estimate-label { color: #666; font-size: 0.9rem; }
-    .estimate-value { font-weight: 600; font-size: 0.9rem; }
-    .estimate-row.price { border-top: 1px solid #ddd; margin-top: 6px; padding-top: 8px; }
-    .estimate-row.price .estimate-value { font-size: 1.1rem; color: #16a34a; }
-    .estimate-row.surge .estimate-value { color: #ea580c; }
-    .btn-request { width: 100%; padding: 14px; background: #22c55e; color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-    .btn-request:hover:not(:disabled) { background: #16a34a; }
-    .btn-request:disabled { background: #ccc; cursor: not-allowed; }
-    .error-msg { background: #fef2f2; color: #dc2626; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 8px; border: 1px solid #fecaca; }
-    .selected-driver-banner { display: flex; align-items: center; gap: 12px; padding: 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; margin-bottom: 12px; }
-    .driver-avatar { width: 40px; height: 40px; border-radius: 50%; background: #3b82f6; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; flex-shrink: 0; overflow: hidden; }
-    .driver-avatar-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-    .driver-info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-    .driver-name { font-weight: 600; font-size: 0.95rem; color: #1e3a5f; }
-    .driver-detail { font-size: 0.8rem; color: #666; }
-    .driver-rating { font-size: 0.8rem; color: #d97706; }
-    .btn-clear-driver { background: #ef4444; color: #fff; border: none; border-radius: 50%; width: 26px; height: 26px; font-size: 0.8rem; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-    .active-ride-banner { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; margin-bottom: 12px; }
-    .banner-icon { font-size: 1.5rem; flex-shrink: 0; }
-    .banner-text { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-    .banner-status { font-weight: 600; font-size: 0.9rem; color: #166534; }
-    .banner-route { font-size: 0.8rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .banner-view { padding: 8px 16px; background: #22c55e; color: white; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; flex-shrink: 0; }
-    .banner-view:hover { background: #16a34a; }
-    .banner-cancel { width: 32px; height: 32px; background: #ef4444; color: white; border: none; border-radius: 50%; font-size: 1rem; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-    .banner-cancel:hover { background: #dc2626; }
-  `]
+  styleUrls: ['./ride-request.component.css']
 })
 export class RideRequestComponent implements OnInit, AfterViewInit, OnDestroy {
   private map: L.Map | null = null;
