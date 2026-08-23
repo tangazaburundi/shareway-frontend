@@ -12,52 +12,56 @@ import { filter } from 'rxjs/operators';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="admin-layout">
-      <aside class="sidebar">
-        <div class="logo">🛠️ Shareway <span>Admin</span></div>
+      <div class="sidebar-overlay" [class.visible]="sidebarOpen" (click)="sidebarOpen = false"></div>
+      <aside class="sidebar" [class.open]="sidebarOpen">
+        <div class="sidebar-header">
+          <div class="logo">🛠️ Shareway <span>Admin</span></div>
+          <button class="close-btn" (click)="sidebarOpen = false">✕</button>
+        </div>
         <nav>
-          <a class="nav-item" routerLink="/admin/dashboard" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/dashboard" routerLinkActive="active" (click)="sidebarOpen = false">
             📊 Dashboard
           </a>
-          <a class="nav-item" routerLink="/admin/users" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/users" routerLinkActive="active" (click)="sidebarOpen = false">
             👥 Utilisateurs
           </a>
-          <a class="nav-item" routerLink="/admin/documents" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/documents" routerLinkActive="active" (click)="sidebarOpen = false">
             📄 Documents
           </a>
-          <a class="nav-item" routerLink="/admin/trips" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/trips" routerLinkActive="active" (click)="sidebarOpen = false">
             🚗 Courses
           </a>
-          <a class="nav-item" routerLink="/admin/ride-config" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/ride-config" routerLinkActive="active" (click)="sidebarOpen = false">
             ⚙️ Config courses
           </a>
-          <a class="nav-item" routerLink="/admin/pricing-config" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/pricing-config" routerLinkActive="active" (click)="sidebarOpen = false">
             💰 Tarification
           </a>
-          <a class="nav-item" routerLink="/admin/sms-config" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/sms-config" routerLinkActive="active" (click)="sidebarOpen = false">
             📱 SMS
           </a>
-          <a class="nav-item" routerLink="/admin/reviews" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/reviews" routerLinkActive="active" (click)="sidebarOpen = false">
             ⭐ Avis
           </a>
-          <a class="nav-item" routerLink="/admin/reports" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/reports" routerLinkActive="active" (click)="sidebarOpen = false">
             🚩 Signalements
           </a>
-          <a class="nav-item" routerLink="/admin/messages" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/messages" routerLinkActive="active" (click)="sidebarOpen = false">
             💬 Messages
           </a>
-          <a class="nav-item" routerLink="/admin/analytics" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/analytics" routerLinkActive="active" (click)="sidebarOpen = false">
             📈 Analytics
           </a>
-          <a class="nav-item" routerLink="/admin/advertising" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/advertising" routerLinkActive="active" (click)="sidebarOpen = false">
             📢 Publicité
           </a>
-          <a class="nav-item" routerLink="/admin/partenaires" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/partenaires" routerLinkActive="active" (click)="sidebarOpen = false">
             🤝 Partenaires
           </a>
-          <a class="nav-item" routerLink="/admin/role-requests" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/role-requests" routerLinkActive="active" (click)="sidebarOpen = false">
             🔑 Demandes de rôle
           </a>
-          <a class="nav-item" routerLink="/admin/audit" routerLinkActive="active">
+          <a class="nav-item" routerLink="/admin/audit" routerLinkActive="active" (click)="sidebarOpen = false">
             📋 Audit
           </a>
         </nav>
@@ -69,6 +73,7 @@ import { filter } from 'rxjs/operators';
       </aside>
       <main class="main">
         <div class="topbar">
+          <button class="hamburger" (click)="sidebarOpen = !sidebarOpen">☰</button>
           <div class="topbar-spacer"></div>
           <div class="topbar-actions">
             <button class="sound-toggle" (click)="notificationSound.toggle()" [title]="notificationSound.enabled() ? 'Désactiver le son' : 'Activer le son'">
@@ -146,12 +151,52 @@ import { filter } from 'rxjs/operators';
       0%, 100% { opacity: 1; }
       50% { opacity: 0.6; }
     }
+
+    .hamburger { display: none; background: none; border: 1px solid #ddd; border-radius: 8px; padding: 6px 10px; font-size: 20px; cursor: pointer; margin-right: 12px; }
+
+    .sidebar-overlay { display: none; }
+
+    .sidebar-header { display: contents; }
+    .close-btn { display: none; }
+
+    @media (max-width: 960px) {
+      .admin-layout { position: relative; }
+
+      .sidebar-overlay {
+        display: block;
+        position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 99;
+        opacity: 0; pointer-events: none; transition: opacity .2s;
+      }
+      .sidebar-overlay.visible { opacity: 1; pointer-events: auto; }
+
+      .sidebar {
+        position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+        transform: translateX(-100%); transition: transform .25s ease;
+        width: 260px;
+      }
+      .sidebar.open { transform: translateX(0); }
+
+      .sidebar-header {
+        display: flex; justify-content: space-between; align-items: center;
+      }
+      .close-btn {
+        display: block; background: none; border: none; color: #fff;
+        font-size: 1.3rem; cursor: pointer; padding: 4px 8px;
+      }
+
+      .hamburger { display: block; }
+
+      .main { width: 100%; }
+
+      .topbar { padding: 0.75rem 1rem; }
+    }
   `]
 })
 export class AdminLayoutComponent implements OnInit, OnDestroy {
   adminUser = signal<any>(null);
   sosAlerts = signal<any[]>([]);
   rejectionAlerts = signal<any[]>([]);
+  sidebarOpen = false;
 
   private wsConnected = false;
 

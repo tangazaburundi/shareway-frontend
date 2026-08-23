@@ -494,6 +494,7 @@ import { Ride } from '../../../core/models/ride.model';
       margin: 0 auto;
       padding: 16px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow-x: hidden;
     }
 
     .dashboard-header {
@@ -603,9 +604,110 @@ import { Ride } from '../../../core/models/ride.model';
       color: #991b1b;
     }
 
-    .status-badge[data-status="SEARCHING"] {
-      background: #e0f2fe;
-      color: #0369a1;
+      .status-badge[data-status="SEARCHING"] {
+        background: #e0f2fe;
+        color: #0369a1;
+      }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .earnings-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 960px) {
+      .stats-row, .earnings-summary {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .stat-value {
+        font-size: 18px;
+      }
+
+      .stat-card {
+        padding: 14px;
+      }
+
+      .earnings-card {
+        padding: 14px 10px;
+        gap: 8px;
+      }
+
+      .earnings-icon {
+        font-size: 22px;
+      }
+
+      .weekly-chart {
+        height: 100px;
+      }
+
+      .chart-bar {
+        font-size: 11px;
+      }
+
+      .ride-route {
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .route-connector {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .stats-row, .earnings-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .header-right {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .sound-toggle {
+        margin-right: 0;
+        padding: 6px 10px;
+        font-size: 18px;
+      }
+
+      .status-badge {
+        padding: 4px 10px;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .dashboard-header h1 {
+        font-size: 18px;
+      }
+
+      .header-avatar, .header-avatar-placeholder {
+        width: 36px;
+        height: 36px;
+      }
+
+      .availability-toggle {
+        flex-direction: column;
+        gap: 4px;
+        padding: 10px 16px;
+      }
     }
 
     .availability-section {
@@ -644,13 +746,6 @@ import { Ride } from '../../../core/models/ride.model';
 
     .toggle-icon {
       font-size: 24px;
-    }
-
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
     }
 
     .stat-card {
@@ -970,12 +1065,6 @@ import { Ride } from '../../../core/models/ride.model';
 
     .link-btn:hover {
       text-decoration: underline;
-    }
-
-    .earnings-summary {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
     }
 
     .earnings-card {
