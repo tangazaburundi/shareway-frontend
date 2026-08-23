@@ -55,4 +55,7 @@
     .chat-input:focus { border-color: #2563eb; }
     .send-btn { padding: 10px 16px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; }
     .send-btn:disabled { background: #93c5fd; cursor: not-allowed; }
+    .btn-sos { flex: 1 1 100%; padding: 14px; background: #dc2626; color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: pointer; animation: pulse-sos 1.5s infinite; }
+    .sos-sent { flex: 1 1 100%; padding: 14px; background: #fef2f2; color: #991b1b; border: 2px solid #fecaca; border-radius: 10px; font-weight: 600; text-align: center; font-size: 14px; }
+    @keyframes pulse-sos { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
   

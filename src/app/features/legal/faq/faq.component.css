@@ -23,11 +23,28 @@
 }
 
 .faq-container {
-  max-width: 680px;
+  max-width: 720px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.faq-category {
+  margin-top: 24px;
+}
+
+.category-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin: 0 0 8px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary, #4F46E5);
+}
+
+.faq-category.taxi {
+  margin-top: 32px;
 }
 
 .card {
@@ -77,6 +94,22 @@
 .faq-answer p {
   margin: 0;
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.7;
   color: var(--gray-600);
+}
+
+.faq-answer p :global(strong),
+.faq-answer p :global(b) {
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.faq-answer p ul,
+.faq-answer p ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.faq-answer p li {
+  margin-bottom: 4px;
 }

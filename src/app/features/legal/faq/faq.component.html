@@ -5,14 +5,40 @@
   </div>
 
   <div class="faq-container">
+
+    <div class="faq-category" *ngIf="langService.currentLang() === 'fr'">
+      <h2 class="category-title">🚗 Mode Covoiturage</h2>
+    </div>
+    <div class="faq-category" *ngIf="langService.currentLang() === 'ki'">
+      <h2 class="category-title">🚗 Ubwoko bwa Covoiturage</h2>
+    </div>
+
     <div class="card" *ngFor="let faq of faqs; let i = index">
       <button class="faq-question" (click)="toggle(i)">
         <span>{{ langService.t(faq.qKey) }}</span>
         <span class="faq-chevron" [class.open]="openIndex === i">&#9662;</span>
       </button>
       <div class="faq-answer" *ngIf="openIndex === i">
-        <p>{{ langService.t(faq.aKey) }}</p>
+        <p [innerHTML]="langService.t(faq.aKey)"></p>
       </div>
     </div>
+
+    <div class="faq-category taxi" *ngIf="langService.currentLang() === 'fr'">
+      <h2 class="category-title">🚕 Mode Taxi</h2>
+    </div>
+    <div class="faq-category taxi" *ngIf="langService.currentLang() === 'ki'">
+      <h2 class="category-title">🚕 Ubwoko bwa Taxi</h2>
+    </div>
+
+    <div class="card" *ngFor="let faq of taxiFaqs; let i = index">
+      <button class="faq-question" (click)="toggleTaxi(i)">
+        <span>{{ langService.t(faq.qKey) }}</span>
+        <span class="faq-chevron" [class.open]="openTaxiIndex === i">&#9662;</span>
+      </button>
+      <div class="faq-answer" *ngIf="openTaxiIndex === i">
+        <p [innerHTML]="langService.t(faq.aKey)"></p>
+      </div>
+    </div>
+
   </div>
 </div>

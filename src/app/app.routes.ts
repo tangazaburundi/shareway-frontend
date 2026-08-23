@@ -43,6 +43,7 @@ export const routes: Routes = [
   { path: 'ride/pickup/:id', canActivate: [authGuard, driverGuard], loadComponent: () => import('./features/rides/ride-pickup/ride-pickup.component').then(m => m.RidePickupComponent) },
   { path: 'ride/in-progress/:id', canActivate: [authGuard, driverGuard], loadComponent: () => import('./features/rides/ride-in-progress/ride-in-progress.component').then(m => m.RideInProgressComponent) },
   { path: 'driver/dashboard', canActivate: [authGuard, driverGuard], loadComponent: () => import('./features/rides/driver-dashboard/driver-dashboard.component').then(m => m.DriverDashboardComponent) },
+  { path: 'driver/earnings', canActivate: [authGuard, driverGuard], loadComponent: () => import('./features/rides/driver-earnings/driver-earnings.component').then(m => m.DriverEarningsComponent) },
 
  // { path: 'bookings', canActivate: [authGuard], loadComponent: () => import('./features/bookings/bookings.component').then(m => m.BookingsComponent) },
   { path: 'notifications', canActivate: [authGuard], loadComponent: () => import('./features/notifications/notifications.component').then(m => m.NotificationsComponent) },

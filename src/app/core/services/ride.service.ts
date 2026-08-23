@@ -215,6 +215,20 @@ export class RideService {
     return this.http.get<ApiResponse<any>>(`${this.API}/driver/earnings/weekly`);
   }
 
+  getDriverEarningsDetailed(): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.API}/driver/earnings/detailed`);
+  }
+
+  addFuelEntry(entry: any): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.API}/driver/fuel-entries`, entry);
+  }
+
+  getDriverEarningsDaily(year: number, month: number): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.API}/driver/earnings/daily`, {
+      params: { year, month }
+    });
+  }
+
   // ── Favorites ─────────────────────────────────────────────────
 
   getFavoriteAddresses(): Observable<ApiResponse<any[]>> {
