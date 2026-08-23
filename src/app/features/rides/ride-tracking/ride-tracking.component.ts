@@ -301,6 +301,11 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
           clearInterval(this.refreshInterval);
           this.ride.set({ ...this.ride()!, status: msg.status });
           setTimeout(() => this.router.navigate(['/ride/request']), 3000);
+        } else if (msg.status === 'COMPLETED') {
+          this.notificationSound.play('ride-completed');
+          clearInterval(this.refreshInterval);
+          this.ride.set({ ...this.ride()!, status: msg.status });
+          setTimeout(() => this.router.navigate(['/ride/' + rideId + '/rate']), 2000);
         } else {
           if (msg.status === 'ACCEPTED' || msg.status === 'DRIVER_FOUND') {
             this.notificationSound.play('ride-accepted');

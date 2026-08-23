@@ -67,6 +67,10 @@ export class RideService {
     return this.http.post<ApiResponse<void>>(`${this.API}/${id}/reject`, { reason: reason || '' });
   }
 
+  timeoutRide(id: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.API}/${id}/timeout`, {});
+  }
+
   driverEnRoute(id: string): Observable<ApiResponse<Ride>> {
     return this.http.post<ApiResponse<Ride>>(`${this.API}/${id}/driver-en-route`, {});
   }
@@ -148,11 +152,27 @@ export class RideService {
   // ── Admin — System Settings ──────────────────────────────────
 
   getSystemSettings(): Observable<ApiResponse<Record<string, string>>> {
-    return this.http.get<ApiResponse<Record<string, string>>>(`${this.API}/admin/settings`);
+    return this.http.get<ApiResponse<Record<string, string>>>(`${environment.apiUrl}/admin/settings`);
   }
 
   updateSystemSetting(key: string, value: string): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${this.API}/admin/settings/${key}`, { value });
+    return this.http.post<ApiResponse<void>>(`${environment.apiUrl}/admin/settings/${key}`, { value });
+  }
+
+  // ── Ride Config (public) ─────────────────────────────────────
+
+  getSearchTimeoutConfig(): Observable<ApiResponse<{ timeoutMinutes: number; timeoutSeconds: number; rebroadcastRadiusKm: number; notificationVolume: number }>> {
+    return this.http.get<ApiResponse<{ timeoutMinutes: number; timeoutSeconds: number; rebroadcastRadiusKm: number; notificationVolume: number }>>(`${this.API}/config/timeout`);
+  }
+
+  // ── Sound Preferences (user) ────────────────────────────────────
+
+  getSoundPreferences(): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${environment.apiUrl}/users/me/sound-preferences`);
+  }
+
+  updateSoundPreferences(prefs: any): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${environment.apiUrl}/users/me/sound-preferences`, prefs);
   }
 
   // ── Ride Ratings (avis taxi) ───────────────────────────────────

@@ -452,6 +452,7 @@ export class RideOfferComponent implements OnInit, OnDestroy {
   ride = signal<Ride | null>(null);
   timerSeconds = signal(180);
   timerOffset = signal(0);
+  searchTimeout = signal(180);
   processing = signal(false);
   showRejectConfirm = signal(false);
   rejectReason = signal('');
@@ -470,7 +471,7 @@ export class RideOfferComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.rideId = this.route.snapshot.paramMap.get('id') || '';
     this.loadRide();
-    this.startTimer();
+    this.loadSearchTimeout();
   }
 
   ngOnDestroy() {
@@ -490,6 +491,22 @@ export class RideOfferComponent implements OnInit, OnDestroy {
     });
   }
 
+  private loadSearchTimeout() {
+    this.rideService.getSearchTimeoutConfig().subscribe({
+      next: (res: any) => {
+        if (res && res.data) {
+          this.searchTimeout.set(res.data.timeoutSeconds || 180);
+          this.timerSeconds.set(this.searchTimeout());
+          this.timerOffset.set(0);
+        }
+        this.startTimer();
+      },
+      error: () => {
+        this.startTimer();
+      }
+    });
+  }
+
   private startTimer() {
     const circumference = 100;
     this.countdown = setInterval(() => {
@@ -500,12 +517,12 @@ export class RideOfferComponent implements OnInit, OnDestroy {
         return;
       }
       this.timerSeconds.set(current - 1);
-      this.timerOffset.set(circumference * (1 - (current - 1) / 180));
+      this.timerOffset.set(circumference * (1 - (current - 1) / this.searchTimeout()));
     }, 1000);
   }
 
   private autoReject() {
-    this.rideService.rejectRide(this.rideId).subscribe(() => {
+    this.rideService.timeoutRide(this.rideId).subscribe(() => {
       this.router.navigate(['/driver/dashboard']);
     });
   }

@@ -85,6 +85,9 @@
               <button class="action-btn" (click)="activeSection = activeSection === 'emergencyContacts' ? '' : 'emergencyContacts'; loadEmergencyContacts()">
                 🆘 Contacts d'urgence
               </button>
+              <a class="action-btn" routerLink="/settings/sounds">
+                🔊 {{ langService.t('settings.sound.title') }}
+              </a>
             </div>
           }
         </div>

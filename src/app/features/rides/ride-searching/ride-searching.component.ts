@@ -379,6 +379,7 @@ export class RideSearchingComponent implements OnInit, OnDestroy {
   ride = signal<Ride | null>(null);
   timerSeconds = signal(180);
   timerPercent = signal(100);
+  searchTimeout = signal(180);
   statusIndex = signal(0);
   driverFoundMessage = signal<string>('');
   rejectedMessage = signal<string>('');
@@ -403,7 +404,7 @@ export class RideSearchingComponent implements OnInit, OnDestroy {
     this.ensureWsConnected();
     this.rideId = this.route.snapshot.paramMap.get('id') || '';
     this.loadRide();
-    this.startTimer();
+    this.loadSearchTimeout();
     this.startStatusAnimation();
     this.listenForDriverFound();
     this.refreshInterval = setInterval(() => this.loadRide(), 5000);
@@ -444,6 +445,59 @@ export class RideSearchingComponent implements OnInit, OnDestroy {
     });
   }
 
+  private loadSearchTimeout() {
+    let adminDefaults: Record<string, string> = {};
+
+    this.rideService.getSearchTimeoutConfig().subscribe({
+      next: (res: any) => {
+        if (res && res.data) {
+          this.searchTimeout.set(res.data.timeoutSeconds || 180);
+          this.timerSeconds.set(this.searchTimeout());
+          this.timerPercent.set(100);
+          if (res.data.notificationVolume !== undefined && res.data.notificationVolume !== null) {
+            this.notificationSound.setVolume(res.data.notificationVolume);
+          }
+          adminDefaults = {
+            'ride-request': res.data.defaultRideRequestSound || 'classic',
+            'ride-accepted': res.data.defaultRideAcceptedSound || 'success',
+            'ride-cancelled': res.data.defaultRideCancelledSound || 'alert',
+            'ride-completed': res.data.defaultRideCompletedSound || 'tada',
+            'message': res.data.defaultMessageSound || 'ping',
+            'sos': res.data.defaultSosSound || 'siren',
+          };
+          this.notificationSound.setPrefs(adminDefaults);
+          this.startTimer();
+        } else {
+          this.timerSeconds.set(180);
+          this.startTimer();
+        }
+        this.rideService.getSoundPreferences().subscribe({
+          next: (res2: any) => {
+            if (res2 && res2.data) {
+              const d = res2.data;
+              if (d.notificationVolume !== undefined && d.notificationVolume !== null) {
+                this.notificationSound.setVolume(d.notificationVolume);
+              }
+              const merged = { ...adminDefaults };
+              if (d.rideRequestSound) merged['ride-request'] = d.rideRequestSound;
+              if (d.rideAcceptedSound) merged['ride-accepted'] = d.rideAcceptedSound;
+              if (d.rideCancelledSound) merged['ride-cancelled'] = d.rideCancelledSound;
+              if (d.rideCompletedSound) merged['ride-completed'] = d.rideCompletedSound;
+              if (d.messageSound) merged['message'] = d.messageSound;
+              if (d.sosSound) merged['sos'] = d.sosSound;
+              this.notificationSound.setPrefs(merged as any);
+            }
+          },
+          error: () => {}
+        });
+      },
+      error: () => {
+        this.timerSeconds.set(180);
+        this.startTimer();
+      }
+    });
+  }
+
   private startTimer() {
     this.countdown = setInterval(() => {
       const current = this.timerSeconds();
@@ -453,7 +507,7 @@ export class RideSearchingComponent implements OnInit, OnDestroy {
         return;
       }
       this.timerSeconds.set(current - 1);
-      this.timerPercent.set((current - 1) / 180 * 100);
+      this.timerPercent.set((current - 1) / this.searchTimeout() * 100);
     }, 1000);
   }
 
