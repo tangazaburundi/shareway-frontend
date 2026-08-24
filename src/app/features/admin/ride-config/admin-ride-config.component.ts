@@ -34,6 +34,11 @@ import { NotificationSoundService, SOUND_CATALOG, SoundType, SoundOption } from 
               <input type="number" [(ngModel)]="rebroadcastRadius" min="1" max="50" placeholder="2" />
               <span class="hint">Rayon de recherche autour du point de prise en charge.</span>
             </div>
+            <div class="form-group">
+              <label>Pénalité après annulation/rendu (minutes)</label>
+              <input type="number" [(ngModel)]="driverCooldown" min="0" max="120" />
+              <span class="hint">Durée pendant laquelle un chauffeur ne peut pas se remettre en ligne après avoir rendu ou annulé une course acceptée. 0 = désactivé.</span>
+            </div>
           </div>
         </div>
 
@@ -104,6 +109,7 @@ export class AdminRideConfigComponent implements OnInit {
   loading = signal(true);
   searchTimeout = 3;
   rebroadcastRadius = 2;
+  driverCooldown = 15;
   notificationVolume = 0.3;
   userSoundConfigEnabled = true;
 
@@ -163,6 +169,9 @@ export class AdminRideConfigComponent implements OnInit {
           if (res.data['ride.rebroadcast_radius_km']) {
             this.rebroadcastRadius = parseInt(res.data['ride.rebroadcast_radius_km'], 10) || 2;
           }
+          if (res.data['ride.driver_cooldown_minutes']) {
+            this.driverCooldown = parseInt(res.data['ride.driver_cooldown_minutes'], 10) || 15;
+          }
           if (res.data['ride.notification_volume']) {
             this.notificationVolume = parseFloat(res.data['ride.notification_volume']) || 0.3;
           }
@@ -206,10 +215,15 @@ export class AdminRideConfigComponent implements OnInit {
       this.toast.error('Le rayon doit être entre 1 et 50 km');
       return;
     }
+    if (this.driverCooldown < 0 || this.driverCooldown > 120) {
+      this.toast.error('Le délai de pénalité doit être entre 0 et 120 minutes');
+      return;
+    }
 
     const settings: Record<string, string> = {
       'ride.search_timeout_minutes': String(this.searchTimeout),
       'ride.rebroadcast_radius_km': String(this.rebroadcastRadius),
+      'ride.driver_cooldown_minutes': String(this.driverCooldown),
       'ride.notification_volume': String(this.notificationVolume),
       'ride.user_sound_config_enabled': String(this.userSoundConfigEnabled),
       'ride.default_ride_request_sound': this.selectedSounds['ride-request'],

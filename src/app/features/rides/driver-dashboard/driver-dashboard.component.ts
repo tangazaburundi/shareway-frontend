@@ -17,8 +17,9 @@ import { Ride } from '../../../core/models/ride.model';
         <div class="cooldown-card">
           <div class="cooldown-lock">🔒</div>
           <h2>Accès temporairement bloqué</h2>
-          <p>Vous avez rendu ou annulé une course récemment.</p>
-          <p>Vous pourrez vous reconnecter dans :</p>
+          <p class="cooldown-reason">Vous avez rendu ou annulé une course <strong>après l'avoir acceptée</strong>.</p>
+          <p class="cooldown-consequence">Pour éviter tout abus, vous ne pouvez pas vous remettre en ligne pendant <strong>{{ cooldownConfigMinutes() }} minutes</strong>.</p>
+          <p>Il vous reste :</p>
           <div class="cooldown-timer">{{ formatCooldown() }}</div>
           <div class="cooldown-bar">
             <div class="cooldown-bar-fill" [style.width.%]="cooldownPercent()"></div>
@@ -552,6 +553,7 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   cooldownBlocked = signal<boolean>(false);
   cooldownRemaining = signal<number>(0);
   cooldownTotal = signal<number>(0);
+  cooldownConfigMinutes = signal<number>(15);
   cooldownPercent = computed(() => {
     const total = this.cooldownTotal();
     const rem = this.cooldownRemaining();
@@ -706,6 +708,9 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
         if (res && res.data) {
           this.cooldownBlocked.set(res.data.blocked);
           this.cooldownRemaining.set(res.data.remainingSeconds || 0);
+          if (res.data.cooldownMinutes) {
+            this.cooldownConfigMinutes.set(res.data.cooldownMinutes);
+          }
           if (this.cooldownBlocked() && this.cooldownRemaining() > 0) {
             this.cooldownTotal.set(res.data.remainingSeconds);
             this.startCooldownTimer();
