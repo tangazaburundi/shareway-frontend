@@ -127,6 +127,7 @@
   border: 1px solid #e2e8f0;
   padding: 24px;
   margin-bottom: 24px;
+  overflow-x: hidden;
 }
 
 .cal-nav {
@@ -185,6 +186,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
+  min-width: 0;
 }
 
 .cal-cell {
@@ -199,6 +201,8 @@
   position: relative;
   gap: 2px;
   min-height: 52px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .cal-cell.empty { cursor: default; }
@@ -456,22 +460,255 @@
 /* ── Responsive ──────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
+  .earnings-page { padding: 16px 12px 80px; }
+  .page-header h1 { font-size: 22px; }
   .highlight-grid { grid-template-columns: repeat(2, 1fr); }
   .form-grid { grid-template-columns: 1fr; }
   .alltime-grid { grid-template-columns: repeat(2, 1fr); }
   .hl-value { font-size: 16px; }
   .at-value { font-size: 16px; }
 
+  .calendar-section { padding: 16px 12px; }
+
   .cal-cell { min-height: 44px; }
-  .cal-day-num { font-size: 13px; }
+  .cal-day-num { font-size: 12px; }
   .cal-day-earnings { font-size: 9px; }
+  .cal-day-trips { font-size: 8px; }
+  .cal-day-fuel { font-size: 9px; }
+  .cal-weekdays span { font-size: 10px; }
+
+  .day-detail { margin-top: 16px; padding-top: 16px; }
+  .day-detail-header h3 { font-size: 15px; margin-bottom: 8px; }
+
+  .day-summary-row { gap: 6px; }
+  .day-badge { font-size: 11px; padding: 5px 8px; white-space: nowrap; }
 
   .day-ride-card {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
+    align-items: stretch;
+    gap: 6px;
+    padding: 10px 12px;
   }
 
-  .day-summary-row { gap: 6px; }
-  .day-badge { font-size: 11px; padding: 4px 8px; }
+  .day-ride-time { min-width: auto; }
+  .day-ride-route { white-space: normal; }
+  .day-ride-stats { white-space: normal; }
+
+  .fuel-header { padding: 16px; }
+  .fuel-form { padding: 0 16px 16px; }
+  .form-group input { font-size: 16px; }
+
+  /* Fuel entries list mobile */
+  .fuel-list { padding: 0 16px 16px; }
+  .fuel-entry-card { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px; }
+  .fuel-entry-top { flex-direction: column; }
+  .fuel-entry-actions { justify-content: flex-end; }
+}
+
+/* ── Fuel Entries List ───────────────────────────────────────── */
+
+.fuel-list {
+  padding: 0 24px 24px;
+}
+
+.fuel-list-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #475569;
+  margin: 0 0 12px;
+}
+
+.fuel-entry-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+  margin-bottom: 8px;
+  transition: border-color 0.2s;
+}
+
+.fuel-entry-card:hover {
+  border-color: #cbd5e1;
+}
+
+.fuel-entry-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.fuel-entry-date {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4F46E5;
+  white-space: nowrap;
+}
+
+.fuel-entry-info {
+  flex: 1;
+  font-size: 13px;
+  color: #475569;
+  min-width: 0;
+}
+
+.fuel-entry-info strong {
+  color: #1a1a2e;
+}
+
+.fuel-entry-station {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fuel-entry-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.fuel-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.fuel-action-btn.edit:hover {
+  background: #eef2ff;
+  border-color: #4F46E5;
+  color: #4F46E5;
+}
+
+.fuel-action-btn.delete:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.fuel-action-btn.edit { color: #64748b; }
+.fuel-action-btn.delete { color: #64748b; }
+
+/* ── Delete Confirm Modal ────────────────────────────────────── */
+
+.fuel-delete-confirm {
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #fecaca;
+  padding: 16px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.fuel-delete-confirm p {
+  font-size: 14px;
+  color: #991b1b;
+  margin: 0 0 12px;
+  font-weight: 500;
+}
+
+.fuel-delete-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.fuel-delete-actions button {
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+}
+
+.fuel-delete-cancel {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.fuel-delete-confirm-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.fuel-delete-cancel:hover { opacity: 0.8; }
+.fuel-delete-confirm-btn:hover { opacity: 0.8; }
+
+/* ── Edit Fuel Form ──────────────────────────────────────────── */
+
+.fuel-edit-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.fuel-edit-modal {
+  background: white;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 500px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 24px;
+  animation: slideUp 0.25s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.fuel-edit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.fuel-edit-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.fuel-edit-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  transition: all 0.15s;
+}
+
+.fuel-edit-close:hover {
+  background: #f1f5f9;
+  color: #1a1a2e;
 }

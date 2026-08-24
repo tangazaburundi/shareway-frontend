@@ -42,6 +42,18 @@ export class DriverEarningsComponent implements OnInit {
   fuelSuccess = signal(false);
   fuelError = signal('');
 
+  // Fuel entries list
+  fuelEntries = signal<any[]>([]);
+
+  // Edit fuel
+  editingFuel = signal<any | null>(null);
+  editFuelForm = signal<any>({});
+  fuelEditSubmitting = signal(false);
+  fuelEditError = signal('');
+
+  // Delete fuel
+  deletingFuelId = signal<string | null>(null);
+
   constructor(
     private rideService: RideService,
     langService: LanguageService,
@@ -63,6 +75,7 @@ export class DriverEarningsComponent implements OnInit {
         this.fuelForm.update(f => ({ ...f, currency: d?.currency || 'FBU' }));
         this.loading.set(false);
         this.loadDaily();
+        this.loadFuelEntries();
       },
       error: () => {
         this.loading.set(false);
@@ -209,6 +222,94 @@ export class DriverEarningsComponent implements OnInit {
       error: () => {
         this.fuelSubmitting.set(false);
         this.fuelError.set("Erreur lors de l'enregistrement.");
+      }
+    });
+  }
+
+  // ── Fuel entries CRUD ────────────────────────────────────────
+
+  loadFuelEntries(): void {
+    this.rideService.getFuelEntries().subscribe({
+      next: (res: any) => {
+        const d = res?.data || res;
+        this.fuelEntries.set(Array.isArray(d) ? d : []);
+      },
+      error: () => {}
+    });
+  }
+
+  editFuelEntry(entry: any): void {
+    this.editingFuel.set(entry);
+    this.editFuelForm.set({
+      refuelDate: entry.refuelDate || '',
+      liters: entry.liters ?? '',
+      pricePerLiter: entry.pricePerLiter ?? '',
+      odometerKm: entry.odometerKm ?? '',
+      stationName: entry.stationName || '',
+      notes: entry.notes || '',
+      currency: entry.currency || 'FBU'
+    });
+    this.fuelEditError.set('');
+  }
+
+  updateEditFuelField(field: string, value: any): void {
+    this.editFuelForm.update(f => ({ ...f, [field]: value }));
+  }
+
+  cancelEditFuel(): void {
+    this.editingFuel.set(null);
+    this.fuelEditError.set('');
+  }
+
+  submitEditFuelEntry(): void {
+    const f = this.editFuelForm();
+    if (!f.refuelDate || !f.liters || !f.pricePerLiter) {
+      this.fuelEditError.set('Remplissez au moins la date, les litres et le prix par litre.');
+      return;
+    }
+    const entry = this.editingFuel();
+    if (!entry) return;
+    this.fuelEditSubmitting.set(true);
+    this.fuelEditError.set('');
+    this.rideService.updateFuelEntry(entry.id, {
+      refuelDate: f.refuelDate,
+      liters: parseFloat(f.liters),
+      pricePerLiter: parseFloat(f.pricePerLiter),
+      odometerKm: f.odometerKm ? parseFloat(f.odometerKm) : null,
+      stationName: f.stationName || null,
+      notes: f.notes || null,
+      currency: f.currency
+    }).subscribe({
+      next: () => {
+        this.fuelEditSubmitting.set(false);
+        this.editingFuel.set(null);
+        this.loadFuelEntries();
+      },
+      error: () => {
+        this.fuelEditSubmitting.set(false);
+        this.fuelEditError.set("Erreur lors de la mise à jour.");
+      }
+    });
+  }
+
+  askDeleteFuel(id: string): void {
+    this.deletingFuelId.set(id);
+  }
+
+  cancelDeleteFuel(): void {
+    this.deletingFuelId.set(null);
+  }
+
+  confirmDeleteFuel(): void {
+    const id = this.deletingFuelId();
+    if (!id) return;
+    this.rideService.deleteFuelEntry(id).subscribe({
+      next: () => {
+        this.deletingFuelId.set(null);
+        this.loadFuelEntries();
+      },
+      error: () => {
+        this.deletingFuelId.set(null);
       }
     });
   }

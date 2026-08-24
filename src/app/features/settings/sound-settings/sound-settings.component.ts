@@ -80,6 +80,7 @@ export class SoundSettingsComponent implements OnInit {
     { type: 'ride-accepted', label: 'Course acceptée' },
     { type: 'ride-cancelled', label: 'Course annulée' },
     { type: 'ride-completed', label: 'Course terminée' },
+    { type: 'ride-rendered', label: 'Course rendue' },
     { type: 'message', label: 'Message' },
     { type: 'sos', label: 'SOS' },
   ];
@@ -89,6 +90,7 @@ export class SoundSettingsComponent implements OnInit {
     'ride-accepted': 'success',
     'ride-cancelled': 'alert',
     'ride-completed': 'tada',
+    'ride-rendered': 'transfer',
     'message': 'ping',
     'sos': 'siren',
   };
@@ -127,6 +129,7 @@ export class SoundSettingsComponent implements OnInit {
           this.selectedSounds['ride-accepted'] = d.rideAcceptedSound || 'success';
           this.selectedSounds['ride-cancelled'] = d.rideCancelledSound || 'alert';
           this.selectedSounds['ride-completed'] = d.rideCompletedSound || 'tada';
+          this.selectedSounds['ride-rendered'] = d.rideRenderedSound || 'transfer';
           this.selectedSounds['message'] = d.messageSound || 'ping';
           this.selectedSounds['sos'] = d.sosSound || 'siren';
         }
@@ -168,6 +171,7 @@ export class SoundSettingsComponent implements OnInit {
       rideAcceptedSound: this.selectedSounds['ride-accepted'],
       rideCancelledSound: this.selectedSounds['ride-cancelled'],
       rideCompletedSound: this.selectedSounds['ride-completed'],
+      rideRenderedSound: this.selectedSounds['ride-rendered'],
       messageSound: this.selectedSounds['message'],
       sosSound: this.selectedSounds['sos'],
       notificationVolume: this.volume,
@@ -181,6 +185,7 @@ export class SoundSettingsComponent implements OnInit {
             'ride-accepted': res.data.rideAcceptedSound,
             'ride-cancelled': res.data.rideCancelledSound,
             'ride-completed': res.data.rideCompletedSound,
+            'ride-rendered': res.data.rideRenderedSound,
             'message': res.data.messageSound,
             'sos': res.data.sosSound,
           });

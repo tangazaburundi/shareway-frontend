@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-export type SoundType = 'ride-request' | 'ride-accepted' | 'ride-cancelled' | 'ride-completed' | 'sos' | 'message';
+export type SoundType = 'ride-request' | 'ride-accepted' | 'ride-cancelled' | 'ride-completed' | 'ride-rendered' | 'sos' | 'message';
 
 export interface SoundOption {
   id: string;
@@ -34,6 +34,10 @@ export const SOUND_CATALOG: Record<SoundType, SoundOption[]> = {
     { id: 'thud', label: 'Sourde' },
     { id: 'fail', label: 'Echec' },
     { id: 'wah', label: 'Wah-wah' },
+    { id: 'deny', label: 'Refus' },
+    { id: 'crash', label: 'Impact' },
+    { id: 'plummet', label: 'Chute libre' },
+    { id: 'error', label: 'Erreur' },
   ],
   'ride-completed': [
     { id: 'tada', label: 'Tada' },
@@ -42,6 +46,16 @@ export const SOUND_CATALOG: Record<SoundType, SoundOption[]> = {
     { id: 'bell', label: 'Clochette' },
     { id: 'applause', label: 'Applaudissement' },
     { id: 'cheer', label: 'Hourra' },
+  ],
+  'ride-rendered': [
+    { id: 'transfer', label: 'Transfert' },
+    { id: 'whoosh', label: 'Whoosh' },
+    { id: 'swoosh', label: 'Swoosh' },
+    { id: 'swap', label: 'Swap' },
+    { id: 'elevator', label: 'Ascenseur' },
+    { id: 'pingpong', label: 'Ping-pong' },
+    { id: 'ripple', label: 'Ondulation' },
+    { id: 'chime', label: 'Carillon' },
   ],
   'message': [
     { id: 'ping', label: 'Ping' },
@@ -63,16 +77,47 @@ export class NotificationSoundService {
   volume = this._volume.asReadonly();
   private lastPlayed = new Map<SoundType, number>();
   private readonly DEBOUNCE_MS = 1500;
+  private unlocked = false;
 
   private _prefs = signal<Record<SoundType, string>>({
     'ride-request': 'classic',
     'ride-accepted': 'success',
     'ride-cancelled': 'alert',
     'ride-completed': 'tada',
+    'ride-rendered': 'transfer',
     'message': 'ping',
     'sos': 'siren',
   });
   prefs = this._prefs.asReadonly();
+
+  constructor() {
+    this.unlockOnUserGesture();
+  }
+
+  private unlockOnUserGesture(): void {
+    if (typeof document === 'undefined') return;
+    const handler = () => {
+      if (this.unlocked) return;
+      this.getCtx().then(ctx => {
+        if (ctx) {
+          this.unlocked = true;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          gain.gain.value = 0;
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.01);
+        }
+      });
+      document.removeEventListener('click', handler);
+      document.removeEventListener('touchstart', handler);
+      document.removeEventListener('keydown', handler);
+    };
+    document.addEventListener('click', handler, { once: false });
+    document.addEventListener('touchstart', handler, { once: false });
+    document.addEventListener('keydown', handler, { once: false });
+  }
 
   private async getCtx(): Promise<AudioContext | null> {
     try {
@@ -130,6 +175,7 @@ export class NotificationSoundService {
       case 'ride-accepted':   this.playRideAccepted(ctx, soundId, vol);   break;
       case 'ride-cancelled':  this.playRideCancelled(ctx, soundId, vol);  break;
       case 'ride-completed':  this.playRideCompleted(ctx, soundId, vol);  break;
+      case 'ride-rendered':   this.playRideRendered(ctx, soundId, vol);   break;
       case 'message':         this.playMessage(ctx, soundId, vol);        break;
       case 'sos':             this.playSOS(ctx, soundId, vol);            break;
     }
@@ -462,6 +508,59 @@ export class NotificationSoundService {
         osc.start(now); osc.stop(now + 1.05);
         break;
       }
+      case 'deny': {
+        [0, 0.15].forEach((delay, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.value = i === 0 ? 440 : 330;
+          gain.gain.setValueAtTime(vol * 0.35, now + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.15);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now + delay); osc.stop(now + delay + 0.18);
+        });
+        break;
+      }
+      case 'crash': {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(60, now + 0.3);
+        gain.gain.setValueAtTime(vol * 0.6, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(now); osc.stop(now + 0.45);
+        break;
+      }
+      case 'plummet': {
+        const notes = [600, 480, 360, 240, 160];
+        notes.forEach((freq, i) => {
+          const delay = i * 0.1;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(vol * 0.45, now + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.12);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now + delay); osc.stop(now + delay + 0.15);
+        });
+        break;
+      }
+      case 'error': {
+        [0, 0.2, 0.4].forEach((delay, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.value = 200;
+          gain.gain.setValueAtTime(vol * 0.3, now + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.12);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now + delay); osc.stop(now + delay + 0.15);
+        });
+        break;
+      }
     }
   }
 
@@ -552,6 +651,124 @@ export class NotificationSoundService {
           gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.2);
           osc.connect(gain); gain.connect(ctx.destination);
           osc.start(now + delay); osc.stop(now + delay + 0.22);
+        });
+        break;
+      }
+    }
+  }
+
+  // ── ride-rendered ───────────────────────────────────────────────
+  private playRideRendered(ctx: AudioContext, id: string, vol: number): void {
+    const now = ctx.currentTime;
+    switch (id) {
+      case 'transfer': {
+        const notes = [880, 660, 440];
+        notes.forEach((freq, i) => {
+          const delay = i * 0.12;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(vol * 0.55, now + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.2);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now + delay); osc.stop(now + delay + 0.25);
+        });
+        break;
+      }
+      case 'whoosh': {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1200, now);
+        osc.frequency.exponentialRampToValueAtTime(200, now + 0.5);
+        gain.gain.setValueAtTime(vol * 0.5, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(now); osc.stop(now + 0.6);
+        break;
+      }
+      case 'swoosh': {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.linearRampToValueAtTime(1500, now + 0.2);
+        osc.frequency.linearRampToValueAtTime(400, now + 0.4);
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(vol * 0.35, now + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(now); osc.stop(now + 0.5);
+        break;
+      }
+      case 'swap': {
+        [0, 0.15, 0.3].forEach((delay, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = i === 0 ? 600 : i === 1 ? 800 : 600;
+          gain.gain.setValueAtTime(vol * 0.45, now + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.12);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now + delay); osc.stop(now + delay + 0.15);
+        });
+        break;
+      }
+      case 'elevator': {
+        const notes = [330, 440, 550, 440];
+        notes.forEach((freq, i) => {
+          const delay = i * 0.15;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(vol * 0.5, now + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.18);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now + delay); osc.stop(now + delay + 0.2);
+        });
+        break;
+      }
+      case 'pingpong': {
+        [0, 0.12, 0.2].forEach((delay, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = i === 1 ? 1200 : 800;
+          gain.gain.setValueAtTime(vol * 0.5, now + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.08);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now + delay); osc.stop(now + delay + 0.1);
+        });
+        break;
+      }
+      case 'ripple': {
+        const notes = [440, 554, 659, 880];
+        notes.forEach((freq, i) => {
+          const delay = i * 0.1;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(vol * 0.35, now + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.3);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now + delay); osc.stop(now + delay + 0.32);
+        });
+        break;
+      }
+      case 'chime': {
+        [880, 1109, 1319].forEach((freq, i) => {
+          const delay = i * 0.12;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(vol * 0.5, now + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.4);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now + delay); osc.stop(now + delay + 0.45);
         });
         break;
       }
