@@ -112,6 +112,7 @@ export class AdminRideConfigComponent implements OnInit {
     { type: 'ride-accepted', label: 'Course acceptée' },
     { type: 'ride-cancelled', label: 'Course annulée' },
     { type: 'ride-completed', label: 'Course terminée' },
+    { type: 'ride-rendered', label: 'Course rendue' },
     { type: 'message', label: 'Message' },
     { type: 'sos', label: 'SOS' },
   ];
@@ -121,6 +122,7 @@ export class AdminRideConfigComponent implements OnInit {
     'ride-accepted': 'success',
     'ride-cancelled': 'alert',
     'ride-completed': 'tada',
+    'ride-rendered': 'transfer',
     'message': 'ping',
     'sos': 'siren',
   };
@@ -179,6 +181,9 @@ export class AdminRideConfigComponent implements OnInit {
           if (res.data['ride.default_ride_completed_sound']) {
             this.selectedSounds['ride-completed'] = res.data['ride.default_ride_completed_sound'];
           }
+          if (res.data['ride.default_ride_rendered_sound']) {
+            this.selectedSounds['ride-rendered'] = res.data['ride.default_ride_rendered_sound'];
+          }
           if (res.data['ride.default_message_sound']) {
             this.selectedSounds['message'] = res.data['ride.default_message_sound'];
           }
@@ -211,6 +216,7 @@ export class AdminRideConfigComponent implements OnInit {
       'ride.default_ride_accepted_sound': this.selectedSounds['ride-accepted'],
       'ride.default_ride_cancelled_sound': this.selectedSounds['ride-cancelled'],
       'ride.default_ride_completed_sound': this.selectedSounds['ride-completed'],
+      'ride.default_ride_rendered_sound': this.selectedSounds['ride-rendered'],
       'ride.default_message_sound': this.selectedSounds['message'],
       'ride.default_sos_sound': this.selectedSounds['sos'],
     };

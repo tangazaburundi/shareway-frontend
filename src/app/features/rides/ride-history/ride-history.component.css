@@ -18,6 +18,7 @@
     .filter-tabs {
       display: flex;
       gap: 8px;
+      margin-bottom: 12px;
     }
 
     .tab {
@@ -41,6 +42,35 @@
     .tab:hover:not(.active) {
       border-color: #1a1a2e;
       color: #1a1a2e;
+    }
+
+    .status-filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .status-tab {
+      padding: 5px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      background: white;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .status-tab.active {
+      background: #4F46E5;
+      color: white;
+      border-color: #4F46E5;
+    }
+
+    .status-tab:hover:not(.active) {
+      border-color: #4F46E5;
+      color: #4F46E5;
     }
 
     .stats-summary {
@@ -117,6 +147,9 @@
     .status-cancelled { background: #fee2e2; color: #dc2626; }
     .status-in_progress { background: #dbeafe; color: #2563eb; }
     .status-searching { background: #fef3c7; color: #d97706; }
+    .status-rendered { background: #f3e8ff; color: #9333ea; }
+    .status-archived { background: #f1f5f9; color: #64748b; }
+    .status-expired { background: #fef2f2; color: #9ca3af; }
 
     .ride-route {
       margin-bottom: 12px;
@@ -208,6 +241,13 @@
 
     .btn-archive:hover {
       background: #fecaca;
+    }
+
+    .archived-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #9ca3af;
+      font-style: italic;
     }
 
     .pagination {

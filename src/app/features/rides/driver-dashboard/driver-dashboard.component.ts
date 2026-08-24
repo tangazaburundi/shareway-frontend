@@ -11,7 +11,24 @@ import { Ride } from '../../../core/models/ride.model';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="dashboard-container">
+    <!-- Cooldown Blocking Overlay -->
+    @if (cooldownBlocked()) {
+      <div class="cooldown-overlay">
+        <div class="cooldown-card">
+          <div class="cooldown-lock">🔒</div>
+          <h2>Accès temporairement bloqué</h2>
+          <p>Vous avez rendu ou annulé une course récemment.</p>
+          <p>Vous pourrez vous reconnecter dans :</p>
+          <div class="cooldown-timer">{{ formatCooldown() }}</div>
+          <div class="cooldown-bar">
+            <div class="cooldown-bar-fill" [style.width.%]="cooldownPercent()"></div>
+          </div>
+          <p class="cooldown-hint">Vous serez automatiquement débloqué à la fin du délai.</p>
+        </div>
+      </div>
+    }
+
+    <div class="dashboard-container" [class.blurred]="cooldownBlocked()">
       <!-- Header -->
       <header class="dashboard-header">
         <div class="header-left">
@@ -38,10 +55,12 @@ import { Ride } from '../../../core/models/ride.model';
           class="availability-toggle"
           [class.online]="isOnline()"
           [class.offline]="!isOnline()"
+          [class.cooldown]="cooldownBlocked() && !isOnline()"
+          [disabled]="cooldownBlocked() && !isOnline()"
           (click)="toggleAvailability()"
         >
           <span class="toggle-icon">{{ isOnline() ? '🟢' : '🔴' }}</span>
-          <span class="toggle-text">{{ isOnline() ? 'Vous êtes en ligne' : 'Mettre en ligne' }}</span>
+          <span class="toggle-text">{{ isOnline() ? 'Vous êtes en ligne' : (cooldownBlocked() ? 'Cooldown actif' : 'Mettre en ligne') }}</span>
         </button>
       </section>
 
@@ -192,6 +211,9 @@ import { Ride } from '../../../core/models/ride.model';
                   <button class="action-btn primary" (click)="completeRide()">
                     Terminer la course
                   </button>
+                  <div class="render-too-late">
+                    🚫 Il est trop tard pour rendre cette course
+                  </div>
                 }
               }
               <button class="action-btn secondary" (click)="viewOnMap(activeRide()!.id)">
@@ -293,9 +315,9 @@ import { Ride } from '../../../core/models/ride.model';
                     Annuler
                   </button>
                 }
-                @if (ride.status === 'COMPLETED' || ride.status === 'CANCELLED' || ride.status === 'EXPIRED') {
-                  <button class="action-btn danger" (click)="archiveRide(ride.id)">
-                    Supprimer
+                @if (ride.status === 'COMPLETED' || ride.status === 'CANCELLED' || ride.status === 'EXPIRED' || ride.status === 'RENDERED') {
+                  <button class="action-btn archive" (click)="archiveRide(ride.id)">
+                    📦 Archiver
                   </button>
                 }
                 @if (ride.status === 'COMPLETED') {
@@ -527,6 +549,16 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   sosLoading = signal<boolean>(false);
   sosResult = signal<'success' | 'error' | null>(null);
 
+  cooldownBlocked = signal<boolean>(false);
+  cooldownRemaining = signal<number>(0);
+  cooldownTotal = signal<number>(0);
+  cooldownPercent = computed(() => {
+    const total = this.cooldownTotal();
+    const rem = this.cooldownRemaining();
+    return total > 0 ? (rem / total) * 100 : 0;
+  });
+  private cooldownInterval: ReturnType<typeof setInterval> | null = null;
+
   userProfile = signal<any>(null);
 
   incomingRequest = signal<any>(null);
@@ -581,6 +613,7 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
     this.loadEarnings();
     this.loadCurrentUserId();
     this.loadSearchTimeout();
+    this.loadCooldown();
 
     const token = localStorage.getItem('shareway_token') || '';
     this.websocketService.connect(token);
@@ -590,6 +623,9 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
         if (this.incomingRequest() && this.incomingRequest().rideId === msg.rideId) {
           this.dismissIncoming();
         }
+      }
+      if (msg && msg.status === 'RENDERED') {
+        this.notificationSound.play('ride-rendered');
       }
       this.loadActiveRide();
       this.loadHistory();
@@ -645,6 +681,9 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
     if (this.requestTimerInterval) {
       clearInterval(this.requestTimerInterval);
     }
+    if (this.cooldownInterval) {
+      clearInterval(this.cooldownInterval);
+    }
     this.websocketService.disconnect();
   }
 
@@ -659,6 +698,49 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
         console.error('Failed to load availability:', err);
       }
     });
+  }
+
+  loadCooldown(): void {
+    this.rideService.getCooldownStatus().subscribe({
+      next: (res: any) => {
+        if (res && res.data) {
+          this.cooldownBlocked.set(res.data.blocked);
+          this.cooldownRemaining.set(res.data.remainingSeconds || 0);
+          if (this.cooldownBlocked() && this.cooldownRemaining() > 0) {
+            this.cooldownTotal.set(res.data.remainingSeconds);
+            this.startCooldownTimer();
+          } else {
+            this.cooldownTotal.set(0);
+          }
+        }
+      },
+      error: () => {}
+    });
+  }
+
+  private startCooldownTimer(): void {
+    if (this.cooldownInterval) clearInterval(this.cooldownInterval);
+    this.cooldownInterval = setInterval(() => {
+      const rem = this.cooldownRemaining() - 1;
+      if (rem <= 0) {
+        this.cooldownRemaining.set(0);
+        this.cooldownBlocked.set(false);
+        clearInterval(this.cooldownInterval!);
+        this.cooldownInterval = null;
+      } else {
+        this.cooldownRemaining.set(rem);
+      }
+    }, 1000);
+  }
+
+  formatCooldown(): string {
+    const s = this.cooldownRemaining();
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    if (m > 0) {
+      return m + ' min ' + String(sec).padStart(2, '0') + ' sec';
+    }
+    return sec + ' sec';
   }
 
   loadSearchTimeout(): void {
@@ -757,6 +839,7 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   }
 
   toggleAvailability(): void {
+    if (this.cooldownBlocked() && !this.isOnline()) return;
     const newStatus = !this.isOnline();
     this.rideService.toggleAvailability().subscribe({
       next: () => {
@@ -764,6 +847,7 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         console.error('Failed to toggle availability:', err);
+        this.loadCooldown();
       }
     });
   }
@@ -870,10 +954,15 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   }
 
   archiveRide(rideId: string): void {
-    const updated = new Set(this.archivedIds());
-    updated.add(rideId);
-    this.archivedIds.set(updated);
-    localStorage.setItem('archivedRides', JSON.stringify([...updated]));
+    this.rideService.archiveRide(rideId).subscribe({
+      next: () => {
+        const updated = new Set(this.archivedIds());
+        updated.add(rideId);
+        this.archivedIds.set(updated);
+        localStorage.setItem('archivedRides', JSON.stringify([...updated]));
+      },
+      error: () => {}
+    });
   }
 
   downloadInvoice(rideId: string): void {
@@ -987,6 +1076,7 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   confirmSos(): void {
     if (!this.activeRide()) return;
     this.sosLoading.set(true);
+    this.notificationSound.play('sos');
     this.rideService.sosAlert(this.activeRide()!.id).subscribe({
       next: () => {
         this.sosLoading.set(false);
@@ -1165,7 +1255,9 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
       'COMPLETED': 'Terminée',
       'CANCELLED': 'Annulée',
       'EXPIRED': 'Expirée',
-      'TRANSFERRED': 'Rendue'
+      'TRANSFERRED': 'Rendue',
+      'RENDERED': 'Rendue',
+      'ARCHIVED': 'Archivée'
     };
     return labels[status] || status;
   }

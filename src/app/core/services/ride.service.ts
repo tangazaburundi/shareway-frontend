@@ -45,6 +45,16 @@ export class RideService {
     return this.http.get<ApiResponse<Ride[]>>(`${this.API}/my-history`);
   }
 
+  getMyHistoryByStatus(status: string): Observable<ApiResponse<Ride[]>> {
+    return this.http.get<ApiResponse<Ride[]>>(`${this.API}/my-history/filtered`, {
+      params: { status }
+    });
+  }
+
+  archiveRide(id: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.API}/${id}/archive`, {});
+  }
+
   getRideById(id: string): Observable<ApiResponse<Ride>> {
     return this.http.get<ApiResponse<Ride>>(`${this.API}/${id}`);
   }
@@ -105,6 +115,10 @@ export class RideService {
     return this.http.get<ApiResponse<DriverAvailability>>(`${this.API}/driver/availability`);
   }
 
+  getCooldownStatus(): Observable<ApiResponse<{ blocked: boolean; remainingSeconds: number; blockedUntil?: string }>> {
+    return this.http.get<any>(`${this.API}/driver/cooldown`);
+  }
+
   updateLocation(lat: number, lng: number, heading?: number): Observable<ApiResponse<void>> {
     return this.http.put<ApiResponse<void>>(`${this.API}/driver/location`, { lat, lng, heading });
   }
@@ -115,6 +129,12 @@ export class RideService {
 
   getDriverHistory(): Observable<ApiResponse<Ride[]>> {
     return this.http.get<ApiResponse<Ride[]>>(`${this.API}/driver/history`);
+  }
+
+  getDriverHistoryByStatus(status: string): Observable<ApiResponse<Ride[]>> {
+    return this.http.get<ApiResponse<Ride[]>>(`${this.API}/driver/history/filtered`, {
+      params: { status }
+    });
   }
 
   // ── Admin — Pricing Config ─────────────────────────────────────
@@ -221,6 +241,18 @@ export class RideService {
 
   addFuelEntry(entry: any): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.API}/driver/fuel-entries`, entry);
+  }
+
+  getFuelEntries(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.API}/driver/fuel-entries`);
+  }
+
+  updateFuelEntry(id: string, entry: any): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.API}/driver/fuel-entries/${id}`, entry);
+  }
+
+  deleteFuelEntry(id: string): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.API}/driver/fuel-entries/${id}`);
   }
 
   getDriverEarningsDaily(year: number, month: number): Observable<ApiResponse<any>> {

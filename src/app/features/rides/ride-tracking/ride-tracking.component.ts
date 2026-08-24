@@ -107,15 +107,35 @@ import * as L from 'leaflet';
 
         <button
           class="btn-sos"
-          *ngIf="ride()?.status !== 'COMPLETED' && ride()?.status !== 'CANCELLED' && ride()?.status !== 'EXPIRED' && ride()?.driverFirstName && !sosSent()"
-          (click)="triggerSOS()"
+          *ngIf="ride()?.status !== 'COMPLETED' && ride()?.status !== 'CANCELLED' && ride()?.status !== 'EXPIRED' && ride()?.driverFirstName"
+          (click)="showSosConfirm = true"
         >
           🚨 SOS
         </button>
+      </div>
 
-        <div class="sos-sent" *ngIf="sosSent()">
-          🚨 Alerte SOS envoyée — L'administration a été notifiée
+      <!-- SOS Confirm Modal -->
+      <div class="sos-overlay" *ngIf="showSosConfirm" (click)="showSosConfirm = false">
+        <div class="sos-modal" (click)="$event.stopPropagation()">
+          <div class="sos-modal-icon">🚨</div>
+          <h3>Alerte SOS</h3>
+          <p>Voulez-vous déclencher une alerte SOS ?</p>
+          <p class="sos-detail">L'administration sera notifiée avec votre position GPS.</p>
+          <div class="sos-count" *ngIf="sosCount() > 0">
+            Alertes envoyées : <strong>{{ sosCount() }}</strong>
+          </div>
+          <div class="sos-actions">
+            <button class="sos-btn-cancel" (click)="showSosConfirm = false">Annuler</button>
+            <button class="sos-btn-confirm" (click)="confirmSOS()" [disabled]="sosSending()">
+              {{ sosSending() ? 'Envoi...' : 'Confirmer' }}
+            </button>
+          </div>
         </div>
+      </div>
+
+      <!-- SOS Toast -->
+      <div class="sos-toast" *ngIf="sosLastSuccess()">
+        ✅ Alerte SOS envoyée
       </div>
 
       <!-- Chat Modal -->
@@ -187,7 +207,10 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
   chatMessages = signal<any[]>([]);
   chatInput = signal('');
   currentUserId = signal('');
-  sosSent = signal(false);
+  sosCount = signal(0);
+  sosSending = signal(false);
+  sosLastSuccess = signal(false);
+  showSosConfirm = false;
   private map: L.Map | null = null;
   private driverMarker: L.Marker | null = null;
   private refreshInterval: any;
@@ -234,6 +257,8 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
             this.notificationSound.play('ride-accepted');
           } else if (curr === 'CANCELLED' || curr === 'EXPIRED') {
             this.notificationSound.play('ride-cancelled');
+          } else if (curr === 'RENDERED') {
+            this.notificationSound.play('ride-rendered');
           }
         }
 
@@ -257,6 +282,10 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
           clearInterval(this.refreshInterval);
           this.ride.set({ ...this.ride()!, status: msg.status });
           setTimeout(() => this.router.navigate(['/ride/request']), 3000);
+        } else if (msg.status === 'RENDERED') {
+          this.notificationSound.play('ride-rendered');
+          this.ride.set({ ...this.ride()!, status: msg.status });
+          this.loadRide(rideId);
         } else if (msg.status === 'COMPLETED') {
           this.notificationSound.play('ride-completed');
           clearInterval(this.refreshInterval);
@@ -447,19 +476,21 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
     return msg.id || _index;
   }
 
-  triggerSOS(): void {
-    if (!this.ride() || this.sosSent()) return;
-    if (!confirm('Êtes-vous sûr de vouloir déclencher une alerte SOS ?\nL\'administration et le chauffeur seront notifiés avec votre position GPS.')) {
-      return;
-    }
-    this.notificationSound.play('sos');
+  confirmSOS(): void {
+    if (!this.ride() || this.sosSending()) return;
+    this.sosSending.set(true);
     this.rideService.sosAlert(this.ride()!.id).subscribe({
       next: () => {
-        this.sosSent.set(true);
+        this.sosSending.set(false);
+        this.showSosConfirm = false;
+        this.sosCount.update(n => n + 1);
+        this.sosLastSuccess.set(true);
+        setTimeout(() => this.sosLastSuccess.set(false), 3000);
       },
       error: (err: any) => {
         console.error('SOS alert failed:', err);
-        alert('Erreur lors de l\'envoi de l\'alerte SOS. Veuillez réessayer.');
+        this.sosSending.set(false);
+        this.showSosConfirm = false;
       }
     });
   }

@@ -56,6 +56,19 @@
     .send-btn { padding: 10px 16px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; }
     .send-btn:disabled { background: #93c5fd; cursor: not-allowed; }
     .btn-sos { flex: 1 1 100%; padding: 14px; background: #dc2626; color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: pointer; animation: pulse-sos 1.5s infinite; }
-    .sos-sent { flex: 1 1 100%; padding: 14px; background: #fef2f2; color: #991b1b; border: 2px solid #fecaca; border-radius: 10px; font-weight: 600; text-align: center; font-size: 14px; }
     @keyframes pulse-sos { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+    .sos-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+    .sos-modal { background: white; border-radius: 16px; padding: 32px 28px; max-width: 380px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .sos-modal-icon { font-size: 48px; margin-bottom: 8px; }
+    .sos-modal h3 { font-size: 20px; color: #991b1b; margin: 0 0 8px; }
+    .sos-modal p { font-size: 14px; color: #555; margin: 0 0 4px; }
+    .sos-detail { font-size: 12px !important; color: #888 !important; }
+    .sos-count { margin-top: 12px; padding: 8px 12px; background: #fef2f2; border-radius: 8px; font-size: 13px; color: #991b1b; }
+    .sos-actions { display: flex; gap: 12px; margin-top: 20px; }
+    .sos-btn-cancel { flex: 1; padding: 12px; border: 1px solid #d1d5db; background: white; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .sos-btn-confirm { flex: 1; padding: 12px; border: none; background: #dc2626; color: white; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .sos-btn-confirm:disabled { background: #fca5a5; cursor: not-allowed; }
+    .sos-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); padding: 12px 24px; background: #166534; color: white; border-radius: 10px; font-size: 14px; font-weight: 600; z-index: 10000; animation: fadeIn 0.3s; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(8px); } to { opacity: 1; transform: translateX(-50%) none; } }
   

@@ -4,6 +4,7 @@ import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AdminService } from '../../../core/services/admin.service';
 import { WebSocketService } from '../../../core/services/websocket.service';
 import { NotificationSoundService } from '../../../core/services/notification-sound.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -109,6 +110,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     public adminService: AdminService,
     private wsService: WebSocketService,
     public notificationSound: NotificationSoundService,
+    private toast: ToastService,
     private router: Router
   ) {}
 
@@ -131,6 +133,8 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     this.wsService.subscribe('/topic/admin/sos').subscribe((msg: any) => {
       this.notificationSound.play('sos');
       this.sosAlerts.update(alerts => [msg, ...alerts].slice(0, 10));
+      const name = msg.passengerFirstName || msg.passengerName || 'Passager';
+      this.toast.warning('🚨 SOS de ' + name + ' — Position GPS transmise', 10000);
     });
 
     this.wsService.subscribe('/topic/admin/ride-rejections').subscribe((msg: any) => {

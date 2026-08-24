@@ -12,15 +12,39 @@ import { Ride } from '../../../core/models/ride.model';
     <div class="history-page">
       <div class="page-header">
         <h1>Historique des courses</h1>
+
+        <!-- Role Filters -->
         <div class="filter-tabs">
-          <button class="tab" [class.active]="activeFilter() === 'all'" (click)="setFilter('all')">
+          <button class="tab" [class.active]="activeRoleFilter() === 'all'" (click)="setRoleFilter('all')">
             Toutes
           </button>
-          <button class="tab" [class.active]="activeFilter() === 'passenger'" (click)="setFilter('passenger')">
+          <button class="tab" [class.active]="activeRoleFilter() === 'passenger'" (click)="setRoleFilter('passenger')">
             Passager
           </button>
-          <button class="tab" [class.active]="activeFilter() === 'driver'" (click)="setFilter('driver')">
+          <button class="tab" [class.active]="activeRoleFilter() === 'driver'" (click)="setRoleFilter('driver')">
             Chauffeur
+          </button>
+        </div>
+
+        <!-- Status Filters -->
+        <div class="status-filters">
+          <button class="status-tab" [class.active]="activeStatusFilter() === 'ALL'" (click)="setStatusFilter('ALL')">
+            Tous
+          </button>
+          <button class="status-tab" [class.active]="activeStatusFilter() === 'COMPLETED'" (click)="setStatusFilter('COMPLETED')">
+            Terminées
+          </button>
+          <button class="status-tab" [class.active]="activeStatusFilter() === 'CANCELLED'" (click)="setStatusFilter('CANCELLED')">
+            Annulées
+          </button>
+          <button class="status-tab" [class.active]="activeStatusFilter() === 'RENDERED'" (click)="setStatusFilter('RENDERED')">
+            Rendues
+          </button>
+          <button class="status-tab" [class.active]="activeStatusFilter() === 'EXPIRED'" (click)="setStatusFilter('EXPIRED')">
+            Expirées
+          </button>
+          <button class="status-tab" [class.active]="activeStatusFilter() === 'ARCHIVED'" (click)="setStatusFilter('ARCHIVED')">
+            Archivées
           </button>
         </div>
       </div>
@@ -84,11 +108,15 @@ import { Ride } from '../../../core/models/ride.model';
               <span *ngIf="ride.estimatedDurationMin">{{ ride.estimatedDurationMin }} min</span>
             </div>
 
-            @if (ride.status === 'COMPLETED' || ride.status === 'CANCELLED' || ride.status === 'EXPIRED') {
+            @if (ride.status === 'COMPLETED' || ride.status === 'CANCELLED' || ride.status === 'EXPIRED' || ride.status === 'RENDERED' || ride.status === 'ARCHIVED') {
               <div class="ride-actions">
-                <button class="btn-archive" (click)="archiveRide(ride.id, $event)">
-                  Supprimer
-                </button>
+                @if (ride.status !== 'ARCHIVED') {
+                  <button class="btn-archive" (click)="archiveRide(ride.id, $event)">
+                    📦 Archiver
+                  </button>
+                } @else {
+                  <span class="archived-label">Archivée</span>
+                }
               </div>
             }
           </div>
@@ -96,7 +124,7 @@ import { Ride } from '../../../core/models/ride.model';
           <div class="empty-state">
             <span class="empty-icon">🚗</span>
             <h3>Aucune course</h3>
-            <p>Vous n'avez pas encore de courses.</p>
+            <p>Aucune course ne correspond à vos filtres.</p>
           </div>
         }
       </div>
@@ -120,10 +148,10 @@ import { Ride } from '../../../core/models/ride.model';
 export class RideHistoryComponent implements OnInit {
   allRides = signal<Ride[]>([]);
   filteredRides = signal<Ride[]>([]);
-  activeFilter = signal<'all' | 'passenger' | 'driver'>('all');
+  activeRoleFilter = signal<'all' | 'passenger' | 'driver'>('all');
+  activeStatusFilter = signal<string>('ALL');
   completedCount = signal(0);
   totalEarnings = signal('0');
-  archivedIds = signal<Set<string>>(new Set(JSON.parse(localStorage.getItem('archivedRides') || '[]')));
 
   currentPage = signal<number>(1);
   pageSize = 10;
@@ -165,22 +193,32 @@ export class RideHistoryComponent implements OnInit {
     });
   }
 
-  setFilter(filter: 'all' | 'passenger' | 'driver') {
-    this.activeFilter.set(filter);
+  setRoleFilter(filter: 'all' | 'passenger' | 'driver') {
+    this.activeRoleFilter.set(filter);
+    this.currentPage.set(1);
+    this.applyFilter();
+  }
+
+  setStatusFilter(status: string) {
+    this.activeStatusFilter.set(status);
     this.currentPage.set(1);
     this.applyFilter();
   }
 
   private applyFilter() {
     const rides = this.allRides();
-    const filter = this.activeFilter();
-    const archived = this.archivedIds();
-    let filtered = rides.filter(r => !archived.has(r.id));
+    const roleFilter = this.activeRoleFilter();
+    const statusFilter = this.activeStatusFilter();
+    let filtered = [...rides];
 
-    if (filter === 'passenger') {
+    if (roleFilter === 'passenger') {
       filtered = filtered.filter(r => !(r as any)._role || (r as any)._role === 'passenger');
-    } else if (filter === 'driver') {
+    } else if (roleFilter === 'driver') {
       filtered = filtered.filter(r => (r as any)._role === 'driver');
+    }
+
+    if (statusFilter !== 'ALL') {
+      filtered = filtered.filter(r => r.status === statusFilter);
     }
 
     this.filteredRides.set(filtered);
@@ -194,11 +232,15 @@ export class RideHistoryComponent implements OnInit {
 
   archiveRide(rideId: string, event: Event) {
     event.stopPropagation();
-    const updated = new Set(this.archivedIds());
-    updated.add(rideId);
-    this.archivedIds.set(updated);
-    localStorage.setItem('archivedRides', JSON.stringify([...updated]));
-    this.applyFilter();
+    this.rideService.archiveRide(rideId).subscribe({
+      next: () => {
+        this.allRides.update(rides =>
+          rides.map(r => r.id === rideId ? { ...r, status: 'ARCHIVED' as any } : r)
+        );
+        this.applyFilter();
+      },
+      error: () => {}
+    });
   }
 
   goToPage(page: number) {
@@ -215,7 +257,9 @@ export class RideHistoryComponent implements OnInit {
       'IN_PROGRESS': 'En cours',
       'COMPLETED': 'Terminée',
       'CANCELLED': 'Annulée',
-      'EXPIRED': 'Expirée'
+      'EXPIRED': 'Expirée',
+      'RENDERED': 'Rendue',
+      'ARCHIVED': 'Archivée'
     };
     return labels[status] || status;
   }
