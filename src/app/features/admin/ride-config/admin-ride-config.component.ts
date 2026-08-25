@@ -74,6 +74,23 @@ import { NotificationSoundService, SOUND_CATALOG, SoundType, SoundOption } from 
         </div>
 
         <div class="form-card">
+          <h2>Paiement — Frais et amendes</h2>
+          <p style="color:#6b7280;font-size:13px;margin-bottom:16px">Appliqués quand un passager refuse de payer. Le passager est bloqué jusqu'au règlement.</p>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Frais de dossier (% du montant)</label>
+              <input type="number" [(ngModel)]="unpaidFeePercent" min="0" max="100" />
+              <span class="hint">Pourcentage ajouté au montant de la course</span>
+            </div>
+            <div class="form-group">
+              <label>Amende fixe (devise locale)</label>
+              <input type="number" [(ngModel)]="unpaidFineAmount" min="0" />
+              <span class="hint">Montant fixe ajouté en plus des frais</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card">
           <h2>Sons de notification</h2>
           <div class="form-group">
             <label>Volume des notifications sonores</label>
@@ -150,6 +167,8 @@ export class AdminRideConfigComponent implements OnInit {
   refusalT4 = 120;
   refusalT5 = 180;
   refusalT6plus = 240;
+  unpaidFeePercent = 10;
+  unpaidFineAmount = 5000;
 
   soundTypes: { type: SoundType; label: string }[] = [
     { type: 'ride-request', label: 'Demande de course' },
@@ -255,6 +274,12 @@ export class AdminRideConfigComponent implements OnInit {
           if (res.data['ride.refusal_penalty_t6plus']) {
             this.refusalT6plus = parseInt(res.data['ride.refusal_penalty_t6plus'], 10) || 240;
           }
+          if (res.data['ride.unpaid_fee_percent']) {
+            this.unpaidFeePercent = parseInt(res.data['ride.unpaid_fee_percent'], 10) || 10;
+          }
+          if (res.data['ride.unpaid_fine_amount']) {
+            this.unpaidFineAmount = parseInt(res.data['ride.unpaid_fine_amount'], 10) || 5000;
+          }
         }
         this.loading.set(false);
       },
@@ -295,6 +320,8 @@ export class AdminRideConfigComponent implements OnInit {
       'ride.refusal_penalty_t4': String(this.refusalT4),
       'ride.refusal_penalty_t5': String(this.refusalT5),
       'ride.refusal_penalty_t6plus': String(this.refusalT6plus),
+      'ride.unpaid_fee_percent': String(this.unpaidFeePercent),
+      'ride.unpaid_fine_amount': String(this.unpaidFineAmount),
     };
 
     const keys = Object.keys(settings);

@@ -23,6 +23,8 @@
     .action-buttons { padding: 12px 16px; background: white; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
     .btn-cancel { padding: 8px 16px; background: #fee2e2; color: #dc2626; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
     .btn-rate { padding: 8px 16px; background: #fbbf24; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
+    .btn-refuse { padding: 8px 16px; background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
+    .btn-blocked { padding: 8px 16px; background: #fee2e2; color: #dc2626; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: default; }
     .btn-done { padding: 8px 16px; background: #22c55e; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
     .btn-invoice { padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
     .btn-receipt { padding: 8px 16px; background: #16a34a; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
