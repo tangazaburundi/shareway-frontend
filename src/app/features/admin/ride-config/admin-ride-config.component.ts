@@ -43,6 +43,37 @@ import { NotificationSoundService, SOUND_CATALOG, SoundType, SoundOption } from 
         </div>
 
         <div class="form-card">
+          <h2>Pénalité progressive par refus</h2>
+          <p style="color:#6b7280;font-size:13px;margin-bottom:16px">Le compteur de refus successifs se remet à zéro quand le chauffeur accepte une course. Le 1er refus (sans accepter) est toléré.</p>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>1er refus (minutes)</label>
+              <input type="number" [(ngModel)]="refusalT1" min="0" max="480" />
+            </div>
+            <div class="form-group">
+              <label>2e refus consécutif (minutes)</label>
+              <input type="number" [(ngModel)]="refusalT2" min="0" max="480" />
+            </div>
+            <div class="form-group">
+              <label>3e refus consécutif (minutes)</label>
+              <input type="number" [(ngModel)]="refusalT3" min="0" max="1440" />
+            </div>
+            <div class="form-group">
+              <label>4e refus consécutif (minutes)</label>
+              <input type="number" [(ngModel)]="refusalT4" min="0" max="1440" />
+            </div>
+            <div class="form-group">
+              <label>5e refus consécutif (minutes)</label>
+              <input type="number" [(ngModel)]="refusalT5" min="0" max="1440" />
+            </div>
+            <div class="form-group">
+              <label>6e refus et plus (minutes)</label>
+              <input type="number" [(ngModel)]="refusalT6plus" min="0" max="4320" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card">
           <h2>Sons de notification</h2>
           <div class="form-group">
             <label>Volume des notifications sonores</label>
@@ -112,6 +143,13 @@ export class AdminRideConfigComponent implements OnInit {
   driverCooldown = 15;
   notificationVolume = 0.3;
   userSoundConfigEnabled = true;
+
+  refusalT1 = 5;
+  refusalT2 = 10;
+  refusalT3 = 60;
+  refusalT4 = 120;
+  refusalT5 = 180;
+  refusalT6plus = 240;
 
   soundTypes: { type: SoundType; label: string }[] = [
     { type: 'ride-request', label: 'Demande de course' },
@@ -199,6 +237,24 @@ export class AdminRideConfigComponent implements OnInit {
           if (res.data['ride.default_sos_sound']) {
             this.selectedSounds['sos'] = res.data['ride.default_sos_sound'];
           }
+          if (res.data['ride.refusal_penalty_t1']) {
+            this.refusalT1 = parseInt(res.data['ride.refusal_penalty_t1'], 10) || 5;
+          }
+          if (res.data['ride.refusal_penalty_t2']) {
+            this.refusalT2 = parseInt(res.data['ride.refusal_penalty_t2'], 10) || 10;
+          }
+          if (res.data['ride.refusal_penalty_t3']) {
+            this.refusalT3 = parseInt(res.data['ride.refusal_penalty_t3'], 10) || 60;
+          }
+          if (res.data['ride.refusal_penalty_t4']) {
+            this.refusalT4 = parseInt(res.data['ride.refusal_penalty_t4'], 10) || 120;
+          }
+          if (res.data['ride.refusal_penalty_t5']) {
+            this.refusalT5 = parseInt(res.data['ride.refusal_penalty_t5'], 10) || 180;
+          }
+          if (res.data['ride.refusal_penalty_t6plus']) {
+            this.refusalT6plus = parseInt(res.data['ride.refusal_penalty_t6plus'], 10) || 240;
+          }
         }
         this.loading.set(false);
       },
@@ -233,6 +289,12 @@ export class AdminRideConfigComponent implements OnInit {
       'ride.default_ride_rendered_sound': this.selectedSounds['ride-rendered'],
       'ride.default_message_sound': this.selectedSounds['message'],
       'ride.default_sos_sound': this.selectedSounds['sos'],
+      'ride.refusal_penalty_t1': String(this.refusalT1),
+      'ride.refusal_penalty_t2': String(this.refusalT2),
+      'ride.refusal_penalty_t3': String(this.refusalT3),
+      'ride.refusal_penalty_t4': String(this.refusalT4),
+      'ride.refusal_penalty_t5': String(this.refusalT5),
+      'ride.refusal_penalty_t6plus': String(this.refusalT6plus),
     };
 
     const keys = Object.keys(settings);

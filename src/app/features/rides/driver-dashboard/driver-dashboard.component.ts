@@ -16,9 +16,14 @@ import { Ride } from '../../../core/models/ride.model';
       <div class="cooldown-overlay">
         <div class="cooldown-card">
           <div class="cooldown-lock">🔒</div>
-          <h2>Accès temporairement bloqué</h2>
-          <p class="cooldown-reason">Vous avez rendu ou annulé une course <strong>après l'avoir acceptée</strong>.</p>
-          <p class="cooldown-consequence">Pour éviter tout abus, vous ne pouvez pas vous remettre en ligne pendant <strong>{{ cooldownConfigMinutes() }} minutes</strong>.</p>
+          <h2>Compte bloqué temporairement</h2>
+          @if (consecutiveRefusals() > 0) {
+            <p class="cooldown-reason">Vous avez refusé <strong>{{ consecutiveRefusals() }} course(s) consécutivement</strong>.</p>
+            <p class="cooldown-consequence">Pénalité progressive appliquée : bloqué pendant <strong>{{ formatRefusalMinutes(nextRefusalPenalty()) }}</strong>. Si vous refusez à nouveau, vous serez bloqué <strong>{{ formatRefusalMinutes(nextRefusalPenalty()) }}</strong>.</p>
+          } @else {
+            <p class="cooldown-reason">Vous avez rendu ou annulé une course <strong>après l'avoir acceptée</strong>.</p>
+            <p class="cooldown-consequence">Pour éviter tout abus, vous ne pouvez pas vous remettre en ligne pendant <strong>{{ cooldownConfigMinutes() }} minutes</strong>.</p>
+          }
           <p>Il vous reste :</p>
           <div class="cooldown-timer">{{ formatCooldown() }}</div>
           <div class="cooldown-bar">
@@ -554,6 +559,8 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   cooldownRemaining = signal<number>(0);
   cooldownTotal = signal<number>(0);
   cooldownConfigMinutes = signal<number>(15);
+  consecutiveRefusals = signal<number>(0);
+  nextRefusalPenalty = signal<number>(0);
   cooldownPercent = computed(() => {
     const total = this.cooldownTotal();
     const rem = this.cooldownRemaining();
@@ -711,6 +718,12 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
           if (res.data.cooldownMinutes) {
             this.cooldownConfigMinutes.set(res.data.cooldownMinutes);
           }
+          if (res.data.consecutiveRefusals !== undefined) {
+            this.consecutiveRefusals.set(res.data.consecutiveRefusals);
+          }
+          if (res.data.nextRefusalPenalty !== undefined) {
+            this.nextRefusalPenalty.set(res.data.nextRefusalPenalty);
+          }
           if (this.cooldownBlocked() && this.cooldownRemaining() > 0) {
             this.cooldownTotal.set(res.data.remainingSeconds);
             this.startCooldownTimer();
@@ -746,6 +759,13 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
       return m + ' min ' + String(sec).padStart(2, '0') + ' sec';
     }
     return sec + ' sec';
+  }
+
+  formatRefusalMinutes(minutes: number): string {
+    if (minutes < 60) return minutes + ' minutes';
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m > 0 ? h + 'h ' + m + 'min' : h + 'h';
   }
 
   loadSearchTimeout(): void {
