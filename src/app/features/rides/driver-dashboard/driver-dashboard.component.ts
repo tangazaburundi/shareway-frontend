@@ -832,6 +832,9 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
         if (res.success && res.data) {
           this.activeRide.set(res.data);
         } else {
+          if (this.activeRide() && this.activeRide()!.status === 'COMPLETED' && this.activeRide()!.paymentStatus !== 'CAPTURED') {
+            return;
+          }
           this.activeRide.set(null);
         }
       },
@@ -928,8 +931,12 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   completeRide(): void {
     if (!this.activeRide()) return;
     this.rideService.completeRide(this.activeRide()!.id).subscribe({
-      next: () => {
-        this.activeRide.set(null);
+      next: (res) => {
+        if (res.success && res.data) {
+          this.activeRide.set(res.data);
+        } else {
+          this.activeRide.set(null);
+        }
         this.loadHistory();
         this.loadStats();
         this.loadEarnings();
@@ -946,9 +953,10 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
     this.rideService.payRide(this.activeRide()!.id).subscribe({
       next: (res) => {
         this.confirmingPayment.set(false);
-        if (res.success && res.data) {
-          this.activeRide.set(res.data);
-        }
+        this.activeRide.set(null);
+        this.loadHistory();
+        this.loadStats();
+        this.loadEarnings();
       },
       error: (err) => {
         this.confirmingPayment.set(false);

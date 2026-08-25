@@ -35,7 +35,7 @@
     .estimate-row.price { border-top: 1px solid #ddd; margin-top: 6px; padding-top: 8px; }
     .estimate-row.price .estimate-value { font-size: 1.1rem; color: #16a34a; }
     .estimate-row.surge .estimate-value { color: #ea580c; }
-    .btn-request { width: 100%; padding: 14px; background: #22c55e; color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-request { padding: 8px 16px; background: #22c55e; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
     .btn-request:hover:not(:disabled) { background: #16a34a; }
     .btn-request:disabled { background: #ccc; cursor: not-allowed; }
     .error-msg { background: #fef2f2; color: #dc2626; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 8px; border: 1px solid #fecaca; }
