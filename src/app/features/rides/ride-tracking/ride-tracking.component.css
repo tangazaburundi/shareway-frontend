@@ -26,6 +26,9 @@
     .btn-done { flex: 1 1 45%; padding: 12px; background: #22c55e; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
     .btn-invoice { flex: 1 1 45%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
     .btn-receipt { flex: 1 1 45%; padding: 12px; background: #16a34a; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    .btn-pay { flex: 1 1 100%; padding: 14px; background: linear-gradient(135deg, #2563eb, #16a34a); color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: pointer; }
+    .btn-pay:disabled { background: #93c5fd; cursor: not-allowed; }
+    .btn-paid { flex: 1 1 100%; padding: 14px; background: #16a34a; color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: default; }
     .btn-chat { flex: 1 1 45%; padding: 12px; background: #8b5cf6; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
     .rating-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; }
     .rating-content { background: white; border-radius: 16px; padding: 24px; width: 90%; max-width: 360px; }

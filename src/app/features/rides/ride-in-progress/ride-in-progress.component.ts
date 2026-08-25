@@ -254,7 +254,20 @@ export class RideInProgressComponent implements OnInit, OnDestroy {
   confirmSOS() {
     this.showSosConfirm.set(false);
     if (!this.ride()) return;
-    this.rideService.sosAlert(this.rideId).subscribe({
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => this.sendSosRequest(pos.coords.latitude, pos.coords.longitude),
+        () => this.sendSosRequest(undefined, undefined),
+        { timeout: 8000, enableHighAccuracy: true }
+      );
+    } else {
+      this.sendSosRequest(undefined, undefined);
+    }
+  }
+
+  private sendSosRequest(lat?: number, lng?: number) {
+    this.rideService.sosAlert(this.rideId, lat, lng).subscribe({
       next: () => this.sosResult.set('ok'),
       error: () => this.sosResult.set('error')
     });

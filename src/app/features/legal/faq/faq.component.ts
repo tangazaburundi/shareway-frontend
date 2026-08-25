@@ -13,8 +13,8 @@ import { LanguageService } from '../../../core/services/language.service';
 export class FaqComponent {
   langService = inject(LanguageService);
 
-  openIndex: number | null = null;
-  openTaxiIndex: number | null = null;
+  covoiturageOpen = false;
+  taxiOpen = false;
 
   faqs = [
     { qKey: 'faq.q1', aKey: 'faq.a1' },
@@ -39,11 +39,11 @@ export class FaqComponent {
     { qKey: 'faq.tq7', aKey: 'faq.ta7' },
   ];
 
-  toggle(index: number): void {
-    this.openIndex = this.openIndex === index ? null : index;
+  toggleCovoiturage(): void {
+    this.covoiturageOpen = !this.covoiturageOpen;
   }
 
-  toggleTaxi(index: number): void {
-    this.openTaxiIndex = this.openTaxiIndex === index ? null : index;
+  toggleTaxi(): void {
+    this.taxiOpen = !this.taxiOpen;
   }
 }

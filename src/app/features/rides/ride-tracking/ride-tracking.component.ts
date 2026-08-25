@@ -74,6 +74,22 @@ import * as L from 'leaflet';
         </button>
 
         <button
+          class="btn-pay"
+          *ngIf="ride()?.status === 'COMPLETED' && ride()?.paymentStatus !== 'CAPTURED'"
+          (click)="payRide()"
+          [disabled]="paying()"
+        >
+          {{ paying() ? 'Paiement...' : 'Payer ' + formatPrice(ride()!.finalPrice || ride()!.estimatedPrice || 0) + ' ' + ride()?.currency }}
+        </button>
+
+        <button
+          class="btn-paid"
+          *ngIf="ride()?.status === 'COMPLETED' && ride()?.paymentStatus === 'CAPTURED'"
+        >
+          ✅ Payé
+        </button>
+
+        <button
           class="btn-done"
           *ngIf="ride()?.status === 'COMPLETED'"
           (click)="goHome()"
@@ -211,6 +227,7 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
   sosSending = signal(false);
   sosLastSuccess = signal(false);
   showSosConfirm = false;
+  paying = signal(false);
   private map: L.Map | null = null;
   private driverMarker: L.Marker | null = null;
   private refreshInterval: any;
@@ -246,29 +263,38 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
   }
 
   private loadRide(id: string) {
-    this.rideService.getRideById(id).subscribe(res => {
-      if (res.success && res.data) {
-        const prev = this.previousStatus;
-        const curr = res.data.status;
-        this.previousStatus = curr;
+    this.rideService.getRideById(id).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          const prev = this.previousStatus;
+          const curr = res.data.status;
+          this.previousStatus = curr;
 
-        if (prev && curr !== prev) {
-          if (curr === 'ACCEPTED' || curr === 'DRIVER_FOUND') {
-            this.notificationSound.play('ride-accepted');
-          } else if (curr === 'CANCELLED' || curr === 'EXPIRED') {
-            this.notificationSound.play('ride-cancelled');
-          } else if (curr === 'RENDERED') {
-            this.notificationSound.play('ride-rendered');
+          if (prev && curr !== prev) {
+            if (curr === 'ACCEPTED' || curr === 'DRIVER_FOUND') {
+              this.notificationSound.play('ride-accepted');
+            } else if (curr === 'CANCELLED' || curr === 'EXPIRED') {
+              this.notificationSound.play('ride-cancelled');
+            } else if (curr === 'RENDERED') {
+              this.notificationSound.play('ride-rendered');
+            }
           }
-        }
 
-        this.ride.set(res.data);
-        this.updateMap(res.data);
-        this.setupWebSocket(id);
+          this.ride.set(res.data);
+          this.updateMap(res.data);
+          this.setupWebSocket(id);
 
-        if (curr === 'COMPLETED' || curr === 'CANCELLED' || curr === 'EXPIRED') {
+          if (curr === 'COMPLETED' || curr === 'CANCELLED' || curr === 'EXPIRED') {
+            clearInterval(this.refreshInterval);
+          }
+        } else {
           clearInterval(this.refreshInterval);
+          this.router.navigate(['/']);
         }
+      },
+      error: () => {
+        clearInterval(this.refreshInterval);
+        this.router.navigate(['/']);
       }
     });
   }
@@ -290,7 +316,6 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
           this.notificationSound.play('ride-completed');
           clearInterval(this.refreshInterval);
           this.ride.set({ ...this.ride()!, status: msg.status });
-          setTimeout(() => this.router.navigate(['/ride/' + rideId + '/rate']), 2000);
         } else {
           if (msg.status === 'ACCEPTED' || msg.status === 'DRIVER_FOUND') {
             this.notificationSound.play('ride-accepted');
@@ -400,6 +425,23 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
     this.router.navigate(['/']);
   }
 
+  payRide() {
+    if (!this.ride()) return;
+    this.paying.set(true);
+    this.rideService.payRide(this.ride()!.id).subscribe({
+      next: (res) => {
+        this.paying.set(false);
+        if (res.success && res.data) {
+          this.ride.set(res.data);
+        }
+      },
+      error: (err) => {
+        this.paying.set(false);
+        console.error('Payment failed:', err);
+      }
+    });
+  }
+
   downloadInvoice() {
     if (!this.ride()) return;
     this.rideService.downloadInvoice(this.ride()!.id).subscribe({
@@ -479,7 +521,25 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
   confirmSOS(): void {
     if (!this.ride() || this.sosSending()) return;
     this.sosSending.set(true);
-    this.rideService.sosAlert(this.ride()!.id).subscribe({
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          this.sendSosRequest(pos.coords.latitude, pos.coords.longitude);
+        },
+        () => {
+          // GPS refused → send without coords (backend will use fallback)
+          this.sendSosRequest(undefined, undefined);
+        },
+        { timeout: 8000, enableHighAccuracy: true }
+      );
+    } else {
+      this.sendSosRequest(undefined, undefined);
+    }
+  }
+
+  private sendSosRequest(lat?: number, lng?: number): void {
+    this.rideService.sosAlert(this.ride()!.id, lat, lng).subscribe({
       next: () => {
         this.sosSending.set(false);
         this.showSosConfirm = false;

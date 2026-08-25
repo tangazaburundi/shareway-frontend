@@ -1082,7 +1082,20 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
     if (!this.activeRide()) return;
     this.sosLoading.set(true);
     this.notificationSound.play('sos');
-    this.rideService.sosAlert(this.activeRide()!.id).subscribe({
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => this.sendSosWithCoords(pos.coords.latitude, pos.coords.longitude),
+        () => this.sendSosWithCoords(undefined, undefined),
+        { timeout: 8000, enableHighAccuracy: true }
+      );
+    } else {
+      this.sendSosWithCoords(undefined, undefined);
+    }
+  }
+
+  private sendSosWithCoords(lat?: number, lng?: number): void {
+    this.rideService.sosAlert(this.activeRide()!.id, lat, lng).subscribe({
       next: () => {
         this.sosLoading.set(false);
         this.sosConfirmOpen.set(false);
