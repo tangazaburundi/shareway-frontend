@@ -16,9 +16,14 @@ import { Ride } from '../../../core/models/ride.model';
       <div class="cooldown-overlay">
         <div class="cooldown-card">
           <div class="cooldown-lock">🔒</div>
-          <h2>Accès temporairement bloqué</h2>
-          <p class="cooldown-reason">Vous avez rendu ou annulé une course <strong>après l'avoir acceptée</strong>.</p>
-          <p class="cooldown-consequence">Pour éviter tout abus, vous ne pouvez pas vous remettre en ligne pendant <strong>{{ cooldownConfigMinutes() }} minutes</strong>.</p>
+          <h2>Compte bloqué temporairement</h2>
+          @if (consecutiveRefusals() > 0) {
+            <p class="cooldown-reason">Vous avez refusé <strong>{{ consecutiveRefusals() }} course(s) consécutivement</strong>.</p>
+            <p class="cooldown-consequence">Pénalité progressive appliquée : bloqué pendant <strong>{{ formatRefusalMinutes(nextRefusalPenalty()) }}</strong>. Si vous refusez à nouveau, vous serez bloqué <strong>{{ formatRefusalMinutes(nextRefusalPenalty()) }}</strong>.</p>
+          } @else {
+            <p class="cooldown-reason">Vous avez rendu ou annulé une course <strong>après l'avoir acceptée</strong>.</p>
+            <p class="cooldown-consequence">Pour éviter tout abus, vous ne pouvez pas vous remettre en ligne pendant <strong>{{ cooldownConfigMinutes() }} minutes</strong>.</p>
+          }
           <p>Il vous reste :</p>
           <div class="cooldown-timer">{{ formatCooldown() }}</div>
           <div class="cooldown-bar">
@@ -210,11 +215,26 @@ import { Ride } from '../../../core/models/ride.model';
                 }
                 @case ('IN_PROGRESS') {
                   <button class="action-btn primary" (click)="completeRide()">
-                    Terminer la course
+                    Arrivé à destination
                   </button>
                   <div class="render-too-late">
                     🚫 Il est trop tard pour rendre cette course
                   </div>
+                }
+                @case ('COMPLETED') {
+                  @if (activeRide()!.paymentStatus === 'REFUSED') {
+                    <button class="action-btn warning" (click)="finalizeRide()">
+                      Confirmer le refus de paiement
+                    </button>
+                  } @else if (activeRide()!.paymentStatus !== 'CAPTURED') {
+                    <button class="action-btn primary" (click)="confirmPayment()" [disabled]="confirmingPayment()">
+                      {{ confirmingPayment() ? 'Confirmation...' : 'Confirmer paiement reçu' }}
+                    </button>
+                  } @else {
+                    <button class="action-btn primary" (click)="finalizeRide()">
+                      Terminer la course
+                    </button>
+                  }
                 }
               }
               <button class="action-btn secondary" (click)="viewOnMap(activeRide()!.id)">
@@ -546,6 +566,7 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   chatInput = signal<string>('');
   currentUserId = signal<string>('');
 
+  confirmingPayment = signal<boolean>(false);
   sosConfirmOpen = signal<boolean>(false);
   sosLoading = signal<boolean>(false);
   sosResult = signal<'success' | 'error' | null>(null);
@@ -554,6 +575,8 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   cooldownRemaining = signal<number>(0);
   cooldownTotal = signal<number>(0);
   cooldownConfigMinutes = signal<number>(15);
+  consecutiveRefusals = signal<number>(0);
+  nextRefusalPenalty = signal<number>(0);
   cooldownPercent = computed(() => {
     const total = this.cooldownTotal();
     const rem = this.cooldownRemaining();
@@ -711,6 +734,12 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
           if (res.data.cooldownMinutes) {
             this.cooldownConfigMinutes.set(res.data.cooldownMinutes);
           }
+          if (res.data.consecutiveRefusals !== undefined) {
+            this.consecutiveRefusals.set(res.data.consecutiveRefusals);
+          }
+          if (res.data.nextRefusalPenalty !== undefined) {
+            this.nextRefusalPenalty.set(res.data.nextRefusalPenalty);
+          }
           if (this.cooldownBlocked() && this.cooldownRemaining() > 0) {
             this.cooldownTotal.set(res.data.remainingSeconds);
             this.startCooldownTimer();
@@ -746,6 +775,13 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
       return m + ' min ' + String(sec).padStart(2, '0') + ' sec';
     }
     return sec + ' sec';
+  }
+
+  formatRefusalMinutes(minutes: number): string {
+    if (minutes < 60) return minutes + ' minutes';
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m > 0 ? h + 'h ' + m + 'min' : h + 'h';
   }
 
   loadSearchTimeout(): void {
@@ -800,6 +836,9 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
         if (res.success && res.data) {
           this.activeRide.set(res.data);
         } else {
+          if (this.activeRide() && this.activeRide()!.status === 'COMPLETED' && this.activeRide()!.paymentStatus !== 'CAPTURED') {
+            return;
+          }
           this.activeRide.set(null);
         }
       },
@@ -896,8 +935,12 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   completeRide(): void {
     if (!this.activeRide()) return;
     this.rideService.completeRide(this.activeRide()!.id).subscribe({
-      next: () => {
-        this.activeRide.set(null);
+      next: (res) => {
+        if (res.success && res.data) {
+          this.activeRide.set(res.data);
+        } else {
+          this.activeRide.set(null);
+        }
         this.loadHistory();
         this.loadStats();
         this.loadEarnings();
@@ -906,6 +949,30 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
         console.error('Failed to complete ride:', err);
       }
     });
+  }
+
+  confirmPayment(): void {
+    if (!this.activeRide()) return;
+    this.confirmingPayment.set(true);
+    this.rideService.payRide(this.activeRide()!.id).subscribe({
+      next: (res) => {
+        this.confirmingPayment.set(false);
+        if (res.success && res.data) {
+          this.activeRide.set(res.data);
+        }
+      },
+      error: (err) => {
+        this.confirmingPayment.set(false);
+        console.error('Failed to confirm payment:', err);
+      }
+    });
+  }
+
+  finalizeRide(): void {
+    this.activeRide.set(null);
+    this.loadHistory();
+    this.loadStats();
+    this.loadEarnings();
   }
 
   cancelRide(): void {
@@ -1082,7 +1149,20 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
     if (!this.activeRide()) return;
     this.sosLoading.set(true);
     this.notificationSound.play('sos');
-    this.rideService.sosAlert(this.activeRide()!.id).subscribe({
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => this.sendSosWithCoords(pos.coords.latitude, pos.coords.longitude),
+        () => this.sendSosWithCoords(undefined, undefined),
+        { timeout: 8000, enableHighAccuracy: true }
+      );
+    } else {
+      this.sendSosWithCoords(undefined, undefined);
+    }
+  }
+
+  private sendSosWithCoords(lat?: number, lng?: number): void {
+    this.rideService.sosAlert(this.activeRide()!.id, lat, lng).subscribe({
       next: () => {
         this.sosLoading.set(false);
         this.sosConfirmOpen.set(false);

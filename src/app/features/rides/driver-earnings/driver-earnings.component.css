@@ -61,16 +61,21 @@
   padding: 28px 24px;
   color: white;
   margin-bottom: 24px;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .highlight-header {
   display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
-.highlight-icon { font-size: 28px; }
+.highlight-icon { font-size: 28px; flex-shrink: 0; }
 
 .highlight-header h2 {
-  font-size: 18px; font-weight: 700; margin: 0; opacity: 0.95;
+  font-size: 16px; font-weight: 700; margin: 0; opacity: 0.95;
+  word-break: break-word;
 }
 
 .highlight-grid {
@@ -86,7 +91,7 @@
   text-align: center;
 }
 
-.hl-value { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+.hl-value { font-size: 20px; font-weight: 800; margin-bottom: 4px; word-break: break-all; }
 .hl-label { font-size: 12px; opacity: 0.8; font-weight: 500; }
 
 /* ── All Time ────────────────────────────────────────────────── */
@@ -127,7 +132,9 @@
   border: 1px solid #e2e8f0;
   padding: 24px;
   margin-bottom: 24px;
-  overflow-x: hidden;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .cal-nav {
@@ -462,26 +469,53 @@
 @media (max-width: 640px) {
   .earnings-page { padding: 16px 12px 80px; }
   .page-header h1 { font-size: 22px; }
-  .highlight-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .highlight-card { padding: 20px 16px; overflow: hidden; }
+  .highlight-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .hl-value { font-size: 14px; word-break: break-all; }
+  .hl-label { font-size: 11px; }
+  .hl-item { padding: 12px 8px; }
+
   .form-grid { grid-template-columns: 1fr; }
   .alltime-grid { grid-template-columns: repeat(2, 1fr); }
-  .hl-value { font-size: 16px; }
-  .at-value { font-size: 16px; }
+  .at-value { font-size: 16px; word-break: break-all; }
 
-  .calendar-section { padding: 16px 12px; }
+  .calendar-section { padding: 16px 12px; overflow: hidden; }
 
-  .cal-cell { min-height: 44px; }
+  .cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+  }
+
+  .cal-weekdays span {
+    font-size: 10px;
+    padding: 2px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+  }
+
+  .cal-cell {
+    min-height: 42px;
+    padding: 2px;
+    overflow: hidden;
+  }
   .cal-day-num { font-size: 12px; }
-  .cal-day-earnings { font-size: 9px; }
-  .cal-day-trips { font-size: 8px; }
-  .cal-day-fuel { font-size: 9px; }
-  .cal-weekdays span { font-size: 10px; }
+  .cal-day-earnings { font-size: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cal-day-trips { font-size: 7px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cal-day-fuel { font-size: 8px; }
 
   .day-detail { margin-top: 16px; padding-top: 16px; }
   .day-detail-header h3 { font-size: 15px; margin-bottom: 8px; }
 
   .day-summary-row { gap: 6px; }
-  .day-badge { font-size: 11px; padding: 5px 8px; white-space: nowrap; }
+  .day-badge { font-size: 11px; padding: 5px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
   .day-ride-card {
     flex-direction: column;
@@ -491,8 +525,8 @@
   }
 
   .day-ride-time { min-width: auto; }
-  .day-ride-route { white-space: normal; }
-  .day-ride-stats { white-space: normal; }
+  .day-ride-route { white-space: normal; overflow: visible; }
+  .day-ride-stats { white-space: normal; overflow: visible; }
 
   .fuel-header { padding: 16px; }
   .fuel-form { padding: 0 16px 16px; }

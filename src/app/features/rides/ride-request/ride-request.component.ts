@@ -6,6 +6,7 @@ import { RideService } from '../../../core/services/ride.service';
 import { MapService } from '../../../core/services/map.service';
 import { DriverLocationService } from '../../../core/services/driver-location.service';
 import { GeocodingService } from '../../../core/services/geocoding.service';
+import { NotificationSoundService } from '../../../core/services/notification-sound.service';
 import { GeocodingItem } from '../../../core/services/geocoding.service';
 import { RideEstimate, NearbyDriver, Ride } from '../../../core/models/ride.model';
 import { Currency } from '../../../core/models/trip.model';
@@ -141,6 +142,56 @@ import * as L from 'leaflet';
           <span *ngIf="loading()">Recherche en cours...</span>
         </button>
       </div>
+
+      <!-- Address Confirmation Popup -->
+      @if (showConfirm()) {
+        <div class="confirm-overlay" (click)="cancelConfirm()">
+          <div class="confirm-modal" (click)="$event.stopPropagation()">
+            <div class="confirm-icon">📍</div>
+            <h3>Confirmer votre course</h3>
+            <p class="confirm-subtitle">Vérifiez vos adresses avant de confirmer</p>
+
+            <div class="confirm-addresses">
+              <div class="confirm-row">
+                <span class="confirm-dot pickup"></span>
+                <div class="confirm-addr">
+                  <span class="confirm-label">Prise en charge</span>
+                  <span class="confirm-value">{{ pickupAddress() || 'Position actuelle' }}</span>
+                </div>
+              </div>
+              <div class="confirm-line"></div>
+              <div class="confirm-row">
+                <span class="confirm-dot destination"></span>
+                <div class="confirm-addr">
+                  <span class="confirm-label">Destination</span>
+                  <span class="confirm-value">{{ destinationAddress() || '—' }}</span>
+                </div>
+              </div>
+            </div>
+
+            @if (estimate()) {
+              <div class="confirm-details">
+                <span>{{ estimate()!.distanceKm }} km</span>
+                <span class="confirm-sep">·</span>
+                <span>{{ estimate()!.durationMin }} min</span>
+                <span class="confirm-sep">·</span>
+                <span class="confirm-price">{{ formatPrice(estimate()!.estimatedPrice) }}</span>
+              </div>
+            }
+
+            @if (selectedDriver()) {
+              <div class="confirm-driver">
+                Chauffeur : <strong>{{ selectedDriver()!.firstName }} {{ selectedDriver()!.lastName }}</strong>
+              </div>
+            }
+
+            <div class="confirm-actions">
+              <button class="confirm-btn cancel" (click)="cancelConfirm()">Modifier</button>
+              <button class="confirm-btn confirm" (click)="confirmRequestRide()">Confirmer la course</button>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   `,
   styleUrls: ['./ride-request.component.css']
@@ -165,12 +216,14 @@ export class RideRequestComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedDriver = signal<NearbyDriver | null>(null);
   nearbyDrivers = signal<NearbyDriver[]>([]);
   currency = signal<Currency>('FBU');
+  showConfirm = signal(false);
 
   constructor(
     private rideService: RideService,
     private mapService: MapService,
     private driverLocationService: DriverLocationService,
     private geocodingService: GeocodingService,
+    private notificationSound: NotificationSoundService,
     private router: Router
   ) {}
 
@@ -410,6 +463,14 @@ export class RideRequestComponent implements OnInit, AfterViewInit, OnDestroy {
     const pickup = this.pickupCoords();
     const dest = this.destinationCoords();
     if (!pickup || !dest) return;
+    this.showConfirm.set(true);
+  }
+
+  confirmRequestRide() {
+    this.showConfirm.set(false);
+    const pickup = this.pickupCoords();
+    const dest = this.destinationCoords();
+    if (!pickup || !dest) return;
 
     this.loading.set(true);
     this.errorMsg.set('');
@@ -427,6 +488,7 @@ export class RideRequestComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (res) => {
         this.loading.set(false);
         if (res.success) {
+          this.notificationSound.play('ride-request');
           this.router.navigate(['/ride/tracking', res.data.id]);
         } else {
           this.errorMsg.set(res.message || 'Erreur lors de la demande');
@@ -437,6 +499,10 @@ export class RideRequestComponent implements OnInit, AfterViewInit, OnDestroy {
         this.errorMsg.set(err.error?.message || err.error?.error || 'Erreur lors de la demande de course');
       }
     });
+  }
+
+  cancelConfirm() {
+    this.showConfirm.set(false);
   }
 
   loadActiveRide() {

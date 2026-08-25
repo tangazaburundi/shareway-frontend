@@ -34,6 +34,15 @@
   margin-top: 24px;
 }
 
+.faq-category.clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.faq-category.clickable:hover .category-title {
+  color: var(--primary, #4F46E5);
+}
+
 .category-title {
   font-size: 20px;
   font-weight: 700;
@@ -72,6 +81,17 @@
 
 .faq-question:hover {
   color: var(--primary);
+}
+
+.faq-question-static {
+  padding: 16px 24px 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.faq-answer.open {
+  padding: 4px 24px 20px;
 }
 
 .faq-chevron {

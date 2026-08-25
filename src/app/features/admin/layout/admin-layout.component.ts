@@ -81,7 +81,7 @@ import { filter } from 'rxjs/operators';
               {{ notificationSound.enabled() ? '🔊' : '🔇' }}
             </button>
             @if (sosAlerts().length > 0) {
-              <div class="sos-badge" title="Alertes SOS actives">
+              <div class="sos-badge" title="Alertes SOS actives" (click)="goToLatestSosRide()">
                 🚨 {{ sosAlerts().length }}
               </div>
             }
@@ -133,8 +133,10 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     this.wsService.subscribe('/topic/admin/sos').subscribe((msg: any) => {
       this.notificationSound.play('sos');
       this.sosAlerts.update(alerts => [msg, ...alerts].slice(0, 10));
-      const name = msg.passengerFirstName || msg.passengerName || 'Passager';
-      this.toast.warning('🚨 SOS de ' + name + ' — Position GPS transmise', 10000);
+      const name = msg.userName || msg.passengerFirstName || msg.passengerName || 'Passager';
+      const lat = msg.currentLat ? Number(msg.currentLat).toFixed(5) : '?';
+      const lng = msg.currentLng ? Number(msg.currentLng).toFixed(5) : '?';
+      this.toast.warning('🚨 SOS de ' + name + ' — GPS: ' + lat + ', ' + lng, 12000);
     });
 
     this.wsService.subscribe('/topic/admin/ride-rejections').subscribe((msg: any) => {
@@ -149,6 +151,13 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     }
     this.adminService.logout();
     this.router.navigate(['/admin/login']);
+  }
+
+  goToLatestSosRide(): void {
+    const latest = this.sosAlerts()[0];
+    if (latest?.rideId) {
+      this.router.navigate(['/ride/tracking', latest.rideId]);
+    }
   }
 
   ngOnDestroy(): void {

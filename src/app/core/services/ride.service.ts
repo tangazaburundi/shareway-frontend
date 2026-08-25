@@ -63,6 +63,14 @@ export class RideService {
     return this.http.post<ApiResponse<void>>(`${this.API}/${id}/cancel`, { reason: reason || '' });
   }
 
+  payRide(id: string): Observable<ApiResponse<Ride>> {
+    return this.http.post<ApiResponse<Ride>>(`${this.API}/${id}/pay`, {});
+  }
+
+  refusePayment(id: string): Observable<ApiResponse<Ride>> {
+    return this.http.post<ApiResponse<Ride>>(`${this.API}/${id}/refuse-payment`, {});
+  }
+
   rateRide(id: string, rating: number, comment?: string): Observable<ApiResponse<RideRating>> {
     return this.http.post<ApiResponse<RideRating>>(`${this.API}/${id}/rate`, { rating, comment });
   }
@@ -203,8 +211,8 @@ export class RideService {
 
   // ── SOS ───────────────────────────────────────────────────────
 
-  sosAlert(rideId: string): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${this.API}/${rideId}/sos`, {});
+  sosAlert(rideId: string, lat?: number, lng?: number): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.API}/${rideId}/sos`, { lat, lng });
   }
 
   // ── Chat (in-ride) ────────────────────────────────────────────

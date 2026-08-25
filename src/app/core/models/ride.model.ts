@@ -1,5 +1,5 @@
 export type RideStatus = 'SEARCHING' | 'DRIVER_FOUND' | 'ACCEPTED' | 'DRIVER_EN_ROUTE' | 'ARRIVED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED' | 'RENDERED' | 'ARCHIVED';
-export type RidePaymentStatus = 'PENDING' | 'AUTHORIZED' | 'CAPTURED' | 'REFUNDED' | 'FAILED';
+export type RidePaymentStatus = 'PENDING' | 'AUTHORIZED' | 'CAPTURED' | 'REFUNDED' | 'FAILED' | 'REFUSED';
 export type DriverAvailabilityStatus = 'OFFLINE' | 'AVAILABLE' | 'BUSY' | 'ON_TRIP';
 
 export interface Ride {

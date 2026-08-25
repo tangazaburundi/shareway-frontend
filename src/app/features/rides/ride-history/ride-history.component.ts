@@ -47,6 +47,21 @@ import { Ride } from '../../../core/models/ride.model';
             Archivées
           </button>
         </div>
+
+        <div class="payment-filters">
+          <button class="status-tab" [class.active]="activePaymentFilter() === 'ALL'" (click)="setPaymentFilter('ALL')">
+            Tous paiements
+          </button>
+          <button class="status-tab" [class.active]="activePaymentFilter() === 'PAID'" (click)="setPaymentFilter('PAID')">
+            ✅ Payées
+          </button>
+          <button class="status-tab" [class.active]="activePaymentFilter() === 'UNPAID'" (click)="setPaymentFilter('UNPAID')">
+            ⏳ Non payées
+          </button>
+          <button class="status-tab" [class.active]="activePaymentFilter() === 'REFUSED'" (click)="setPaymentFilter('REFUSED')">
+            ❌ Refusées
+          </button>
+        </div>
       </div>
 
       <!-- Stats Summary -->
@@ -73,6 +88,9 @@ import { Ride } from '../../../core/models/ride.model';
               <div class="ride-date">{{ formatDate(ride.createdAt) }}</div>
               <div class="ride-status" [class]="'status-' + ride.status.toLowerCase()">
                 {{ getStatusLabel(ride.status) }}
+              </div>
+              <div class="ride-payment" *ngIf="ride.status === 'COMPLETED'" [class]="'payment-' + (ride.paymentStatus || 'PENDING').toLowerCase()">
+                {{ getPaymentLabel(ride.paymentStatus) }}
               </div>
             </div>
 
@@ -150,6 +168,7 @@ export class RideHistoryComponent implements OnInit {
   filteredRides = signal<Ride[]>([]);
   activeRoleFilter = signal<'all' | 'passenger' | 'driver'>('all');
   activeStatusFilter = signal<string>('ALL');
+  activePaymentFilter = signal<string>('ALL');
   completedCount = signal(0);
   totalEarnings = signal('0');
 
@@ -205,10 +224,29 @@ export class RideHistoryComponent implements OnInit {
     this.applyFilter();
   }
 
+  setPaymentFilter(filter: string) {
+    this.activePaymentFilter.set(filter);
+    this.currentPage.set(1);
+    this.applyFilter();
+  }
+
+  getPaymentLabel(status?: string): string {
+    switch (status) {
+      case 'CAPTURED': return '✅ Payé';
+      case 'REFUSED': return '❌ Refusé';
+      case 'PENDING': return '⏳ En attente';
+      case 'AUTHORIZED': return '⏳ Autorisé';
+      case 'REFUNDED': return '↩️ Remboursé';
+      case 'FAILED': return '⚠️ Échoué';
+      default: return '⏳ En attente';
+    }
+  }
+
   private applyFilter() {
     const rides = this.allRides();
     const roleFilter = this.activeRoleFilter();
     const statusFilter = this.activeStatusFilter();
+    const paymentFilter = this.activePaymentFilter();
     let filtered = [...rides];
 
     if (roleFilter === 'passenger') {
@@ -219,6 +257,15 @@ export class RideHistoryComponent implements OnInit {
 
     if (statusFilter !== 'ALL') {
       filtered = filtered.filter(r => r.status === statusFilter);
+    }
+
+    if (paymentFilter !== 'ALL') {
+      filtered = filtered.filter(r => {
+        if (paymentFilter === 'PAID') return r.paymentStatus === 'CAPTURED';
+        if (paymentFilter === 'UNPAID') return r.status === 'COMPLETED' && (!r.paymentStatus || r.paymentStatus === 'PENDING' || r.paymentStatus === 'AUTHORIZED');
+        if (paymentFilter === 'REFUSED') return r.paymentStatus === 'REFUSED';
+        return true;
+      });
     }
 
     this.filteredRides.set(filtered);
