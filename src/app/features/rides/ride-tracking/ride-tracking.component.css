@@ -20,16 +20,16 @@
     .driver-plate { font-size: 0.8rem; color: #888; font-family: monospace; }
     .driver-rating { font-weight: 600; color: #f59e0b; }
     .eta-bar { padding: 10px 16px; background: #eff6ff; text-align: center; font-weight: 500; color: #2563eb; }
-    .action-buttons { padding: 16px; background: white; display: flex; flex-wrap: wrap; gap: 10px; }
-    .btn-cancel { flex: 1 1 45%; padding: 12px; background: #fee2e2; color: #dc2626; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .btn-rate { flex: 1 1 45%; padding: 12px; background: #fbbf24; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .btn-done { flex: 1 1 45%; padding: 12px; background: #22c55e; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .btn-invoice { flex: 1 1 45%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .btn-receipt { flex: 1 1 45%; padding: 12px; background: #16a34a; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .btn-pay { flex: 1 1 100%; padding: 14px; background: linear-gradient(135deg, #2563eb, #16a34a); color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: pointer; }
+    .action-buttons { padding: 12px 16px; background: white; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .btn-cancel { padding: 8px 16px; background: #fee2e2; color: #dc2626; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
+    .btn-rate { padding: 8px 16px; background: #fbbf24; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
+    .btn-done { padding: 8px 16px; background: #22c55e; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
+    .btn-invoice { padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
+    .btn-receipt { padding: 8px 16px; background: #16a34a; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
+    .btn-pay { padding: 10px 20px; background: linear-gradient(135deg, #2563eb, #16a34a); color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
     .btn-pay:disabled { background: #93c5fd; cursor: not-allowed; }
-    .btn-paid { flex: 1 1 100%; padding: 14px; background: #16a34a; color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: default; }
-    .btn-chat { flex: 1 1 45%; padding: 12px; background: #8b5cf6; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    .btn-paid { padding: 8px 16px; background: #16a34a; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: default; }
+    .btn-chat { padding: 8px 16px; background: #8b5cf6; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; }
     .rating-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; }
     .rating-content { background: white; border-radius: 16px; padding: 24px; width: 90%; max-width: 360px; }
     .rating-content h3 { text-align: center; margin-bottom: 16px; }
@@ -40,7 +40,6 @@
     .btn-skip { flex: 1; padding: 10px; background: #f5f5f5; border: none; border-radius: 8px; cursor: pointer; }
     .btn-submit { flex: 1; padding: 10px; background: #22c55e; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
     .btn-submit:disabled { background: #ccc; }
-    .btn-chat { flex: 1; padding: 12px; background: #8b5cf6; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; }
     .chat-modal { background: white; border-radius: 16px; width: 100%; max-width: 400px; height: 70vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
     .chat-header { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #e5e7eb; }
@@ -58,7 +57,7 @@
     .chat-input:focus { border-color: #2563eb; }
     .send-btn { padding: 10px 16px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; }
     .send-btn:disabled { background: #93c5fd; cursor: not-allowed; }
-    .btn-sos { flex: 1 1 100%; padding: 14px; background: #dc2626; color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: pointer; animation: pulse-sos 1.5s infinite; }
+    .btn-sos { padding: 8px 16px; background: #dc2626; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; animation: pulse-sos 1.5s infinite; }
     @keyframes pulse-sos { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
     .sos-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; }

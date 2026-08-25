@@ -221,6 +221,17 @@ import { Ride } from '../../../core/models/ride.model';
                     🚫 Il est trop tard pour rendre cette course
                   </div>
                 }
+                @case ('COMPLETED') {
+                  @if (activeRide()!.paymentStatus !== 'CAPTURED') {
+                    <button class="action-btn primary" (click)="confirmPayment()" [disabled]="confirmingPayment()">
+                      {{ confirmingPayment() ? 'Confirmation...' : 'Confirmer paiement reçu' }}
+                    </button>
+                  } @else {
+                    <button class="action-btn secondary" disabled>
+                      ✅ Paiement confirmé
+                    </button>
+                  }
+                }
               }
               <button class="action-btn secondary" (click)="viewOnMap(activeRide()!.id)">
                 Voir sur la carte
@@ -551,6 +562,7 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   chatInput = signal<string>('');
   currentUserId = signal<string>('');
 
+  confirmingPayment = signal<boolean>(false);
   sosConfirmOpen = signal<boolean>(false);
   sosLoading = signal<boolean>(false);
   sosResult = signal<'success' | 'error' | null>(null);
@@ -924,6 +936,23 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Failed to complete ride:', err);
+      }
+    });
+  }
+
+  confirmPayment(): void {
+    if (!this.activeRide()) return;
+    this.confirmingPayment.set(true);
+    this.rideService.payRide(this.activeRide()!.id).subscribe({
+      next: (res) => {
+        this.confirmingPayment.set(false);
+        if (res.success && res.data) {
+          this.activeRide.set(res.data);
+        }
+      },
+      error: (err) => {
+        this.confirmingPayment.set(false);
+        console.error('Failed to confirm payment:', err);
       }
     });
   }

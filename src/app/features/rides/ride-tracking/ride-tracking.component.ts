@@ -74,19 +74,26 @@ import * as L from 'leaflet';
         </button>
 
         <button
-          class="btn-pay"
-          *ngIf="ride()?.status === 'COMPLETED' && ride()?.paymentStatus !== 'CAPTURED'"
-          (click)="payRide()"
-          [disabled]="paying()"
-        >
-          {{ paying() ? 'Paiement...' : 'Payer ' + formatPrice(ride()!.finalPrice || ride()!.estimatedPrice || 0) + ' ' + ride()?.currency }}
-        </button>
-
-        <button
           class="btn-paid"
           *ngIf="ride()?.status === 'COMPLETED' && ride()?.paymentStatus === 'CAPTURED'"
         >
           ✅ Payé
+        </button>
+
+        <button
+          class="btn-invoice"
+          *ngIf="ride()?.status === 'COMPLETED' && ride()?.paymentStatus === 'CAPTURED'"
+          (click)="downloadInvoice()"
+        >
+          Facture PDF
+        </button>
+
+        <button
+          class="btn-receipt"
+          *ngIf="ride()?.status === 'COMPLETED' && ride()?.paymentStatus === 'CAPTURED'"
+          (click)="downloadReceipt()"
+        >
+          Ticket
         </button>
 
         <button
@@ -95,22 +102,6 @@ import * as L from 'leaflet';
           (click)="goHome()"
         >
           Retour à l'accueil
-        </button>
-
-        <button
-          class="btn-invoice"
-          *ngIf="ride()?.status === 'COMPLETED'"
-          (click)="downloadInvoice()"
-        >
-          Facture PDF
-        </button>
-
-        <button
-          class="btn-receipt"
-          *ngIf="ride()?.status === 'COMPLETED'"
-          (click)="downloadReceipt()"
-        >
-          Ticket
         </button>
 
         <button
