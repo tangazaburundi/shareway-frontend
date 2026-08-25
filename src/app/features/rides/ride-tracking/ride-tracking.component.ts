@@ -74,14 +74,6 @@ import * as L from 'leaflet';
         </button>
 
         <button
-          class="btn-refuse"
-          *ngIf="ride()?.status === 'COMPLETED' && ride()?.paymentStatus !== 'CAPTURED' && ride()?.paymentStatus !== 'REFUSED'"
-          (click)="showRefuseConfirm = true"
-        >
-          Refuser de payer
-        </button>
-
-        <button
           class="btn-paid"
           *ngIf="ride()?.status === 'COMPLETED' && ride()?.paymentStatus === 'CAPTURED'"
         >
@@ -160,22 +152,6 @@ import * as L from 'leaflet';
         ✅ Alerte SOS envoyée
       </div>
 
-      <!-- Refuse Payment Confirm Modal -->
-      <div class="sos-overlay" *ngIf="showRefuseConfirm" (click)="showRefuseConfirm = false">
-        <div class="sos-modal" (click)="$event.stopPropagation()">
-          <div class="sos-modal-icon">🚫</div>
-          <h3>Refuser le paiement</h3>
-          <p>Vous êtes sur le point de refuser de payer cette course.</p>
-          <p class="sos-detail">Un dossier sera ouvert avec des frais de dossier et une amende. Vous serez bloqué jusqu'au règlement de la somme totale.</p>
-          <div class="sos-actions">
-            <button class="sos-btn-cancel" (click)="showRefuseConfirm = false">Annuler</button>
-            <button class="sos-btn-confirm" style="background:#dc2626" (click)="confirmRefusePayment()" [disabled]="refusingPayment()">
-              {{ refusingPayment() ? 'Envoi...' : 'Confirmer le refus' }}
-            </button>
-          </div>
-        </div>
-      </div>
-
       <!-- Chat Modal -->
       <div class="modal-overlay" *ngIf="chatOpen()" (click)="closeChat()">
         <div class="chat-modal" (click)="$event.stopPropagation()">
@@ -250,8 +226,6 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
   sosLastSuccess = signal(false);
   showSosConfirm = false;
   paying = signal(false);
-  refusingPayment = signal(false);
-  showRefuseConfirm = false;
   private map: L.Map | null = null;
   private driverMarker: L.Marker | null = null;
   private refreshInterval: any;
@@ -465,25 +439,6 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.paying.set(false);
         console.error('Payment failed:', err);
-      }
-    });
-  }
-
-  confirmRefusePayment() {
-    if (!this.ride()) return;
-    this.refusingPayment.set(true);
-    this.rideService.refusePayment(this.ride()!.id).subscribe({
-      next: (res) => {
-        this.refusingPayment.set(false);
-        this.showRefuseConfirm = false;
-        if (res.success && res.data) {
-          this.ride.set({ ...res.data, paymentStatus: 'REFUSED' });
-        }
-      },
-      error: (err) => {
-        this.refusingPayment.set(false);
-        this.showRefuseConfirm = false;
-        console.error('Refuse payment failed:', err);
       }
     });
   }

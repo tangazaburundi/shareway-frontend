@@ -215,20 +215,24 @@ import { Ride } from '../../../core/models/ride.model';
                 }
                 @case ('IN_PROGRESS') {
                   <button class="action-btn primary" (click)="completeRide()">
-                    Terminer la course
+                    Arrivé à destination
                   </button>
                   <div class="render-too-late">
                     🚫 Il est trop tard pour rendre cette course
                   </div>
                 }
                 @case ('COMPLETED') {
-                  @if (activeRide()!.paymentStatus !== 'CAPTURED') {
+                  @if (activeRide()!.paymentStatus === 'REFUSED') {
+                    <button class="action-btn warning" (click)="finalizeRide()">
+                      Confirmer le refus de paiement
+                    </button>
+                  } @else if (activeRide()!.paymentStatus !== 'CAPTURED') {
                     <button class="action-btn primary" (click)="confirmPayment()" [disabled]="confirmingPayment()">
                       {{ confirmingPayment() ? 'Confirmation...' : 'Confirmer paiement reçu' }}
                     </button>
                   } @else {
-                    <button class="action-btn secondary" disabled>
-                      ✅ Paiement confirmé
+                    <button class="action-btn primary" (click)="finalizeRide()">
+                      Terminer la course
                     </button>
                   }
                 }
@@ -953,16 +957,22 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
     this.rideService.payRide(this.activeRide()!.id).subscribe({
       next: (res) => {
         this.confirmingPayment.set(false);
-        this.activeRide.set(null);
-        this.loadHistory();
-        this.loadStats();
-        this.loadEarnings();
+        if (res.success && res.data) {
+          this.activeRide.set(res.data);
+        }
       },
       error: (err) => {
         this.confirmingPayment.set(false);
         console.error('Failed to confirm payment:', err);
       }
     });
+  }
+
+  finalizeRide(): void {
+    this.activeRide.set(null);
+    this.loadHistory();
+    this.loadStats();
+    this.loadEarnings();
   }
 
   cancelRide(): void {
