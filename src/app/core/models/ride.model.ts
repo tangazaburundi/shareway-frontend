@@ -46,6 +46,9 @@ export interface Ride {
   cancelReason?: string;
   cancelledBy?: string;
   surgeMultiplier?: number;
+  rejectedByDriver?: boolean;
+  rejectionReason?: string;
+  rejectedAt?: string;
 }
 
 export interface RideEstimate {
