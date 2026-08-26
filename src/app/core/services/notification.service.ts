@@ -2,6 +2,8 @@ import { Injectable, signal, inject } from '@angular/core';
 import { UserService } from './user.service';
 import { WebSocketService } from './websocket.service';
 import { AuthService } from './auth.service';
+import { ToastService } from './toast.service';
+import { NotificationSoundService } from './notification-sound.service';
 import { Notification } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
@@ -9,6 +11,8 @@ export class NotificationService {
   private userService = inject(UserService);
   private wsService = inject(WebSocketService);
   private auth = inject(AuthService);
+  private toast = inject(ToastService);
+  private sound = inject(NotificationSoundService);
   private _notifications = signal<Notification[]>([]);
 
   notifications = this._notifications.asReadonly();
@@ -22,6 +26,18 @@ export class NotificationService {
     this.wsService.subscribe<any>('/user/queue/notifications').subscribe(msg => {
       if (msg) {
         this._notifications.update(ns => [msg, ...ns]);
+        const title = msg.title || '';
+        const body = msg.body || '';
+        if (title || body) {
+          this.toast.info(title + (body ? ' — ' + body : ''));
+        }
+        if (msg.type === 'MESSAGE') {
+          this.sound.play('message');
+        } else if (msg.type === 'SOS') {
+          this.sound.play('sos');
+        } else {
+          this.sound.play('ride-request');
+        }
       }
     });
   }
