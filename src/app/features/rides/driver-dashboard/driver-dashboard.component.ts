@@ -222,19 +222,24 @@ import { Ride } from '../../../core/models/ride.model';
                   </div>
                 }
                 @case ('COMPLETED') {
-                  @if (activeRide()!.paymentStatus === 'REFUSED') {
-                    <button class="action-btn warning" (click)="finalizeRide()">
-                      Confirmer le refus de paiement
-                    </button>
-                  } @else if (activeRide()!.paymentStatus !== 'CAPTURED') {
-                    <button class="action-btn primary" (click)="confirmPayment()" [disabled]="confirmingPayment()">
-                      {{ confirmingPayment() ? 'Confirmation...' : 'Confirmer paiement reçu' }}
-                    </button>
-                  } @else {
+                  @if (activeRide()!.paymentStatus === 'CAPTURED') {
                     <button class="action-btn primary" (click)="finalizeRide()">
                       Terminer la course
                     </button>
+                  } @else {
+                    <button class="action-btn primary" (click)="confirmPayment()" [disabled]="confirmingPayment()">
+                      {{ confirmingPayment() ? 'Confirmation...' : 'Confirmer paiement reçu' }}
+                    </button>
+                    <button class="action-btn warning" (click)="confirmRefusePayment()">
+                      Confirmer le refus de paiement
+                    </button>
                   }
+                  <button class="action-btn invoice" (click)="downloadInvoice(activeRide()!.id)">
+                    Facture PDF
+                  </button>
+                  <button class="action-btn receipt" (click)="downloadReceipt(activeRide()!.id)">
+                    Ticket
+                  </button>
                 }
               }
               <button class="action-btn secondary" (click)="viewOnMap(activeRide()!.id)">
@@ -836,7 +841,7 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
         if (res.success && res.data) {
           this.activeRide.set(res.data);
         } else {
-          if (this.activeRide() && this.activeRide()!.status === 'COMPLETED' && this.activeRide()!.paymentStatus !== 'CAPTURED') {
+          if (this.activeRide() && this.activeRide()!.status === 'COMPLETED') {
             return;
           }
           this.activeRide.set(null);
@@ -968,11 +973,31 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  finalizeRide(): void {
+  confirmRefusePayment(): void {
     this.activeRide.set(null);
     this.loadHistory();
     this.loadStats();
     this.loadEarnings();
+  }
+
+  finalizeRide(): void {
+    if (!this.activeRide()) return;
+    const rideId = this.activeRide()!.id;
+    this.rideService.archiveRide(rideId).subscribe({
+      next: () => {
+        this.activeRide.set(null);
+        this.loadHistory();
+        this.loadStats();
+        this.loadEarnings();
+      },
+      error: (err: any) => {
+        console.error('Failed to archive ride:', err);
+        this.activeRide.set(null);
+        this.loadHistory();
+        this.loadStats();
+        this.loadEarnings();
+      }
+    });
   }
 
   cancelRide(): void {

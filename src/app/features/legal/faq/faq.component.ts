@@ -27,6 +27,8 @@ export class FaqComponent {
     { qKey: 'faq.q8', aKey: 'faq.a8' },
     { qKey: 'faq.q9', aKey: 'faq.a9' },
     { qKey: 'faq.q10', aKey: 'faq.a10' },
+    { qKey: 'faq.q11', aKey: 'faq.a11' },
+    { qKey: 'faq.q12', aKey: 'faq.a12' },
   ];
 
   taxiFaqs = [
@@ -37,6 +39,8 @@ export class FaqComponent {
     { qKey: 'faq.tq5', aKey: 'faq.ta5' },
     { qKey: 'faq.tq6', aKey: 'faq.ta6' },
     { qKey: 'faq.tq7', aKey: 'faq.ta7' },
+    { qKey: 'faq.tq8', aKey: 'faq.ta8' },
+    { qKey: 'faq.tq9', aKey: 'faq.ta9' },
   ];
 
   toggleCovoiturage(): void {
