@@ -89,7 +89,7 @@ import { Ride } from '../../../core/models/ride.model';
               <div class="ride-status" [class]="'status-' + ride.status.toLowerCase()">
                 {{ getStatusLabel(ride.status) }}
               </div>
-              <div class="ride-payment" *ngIf="ride.status === 'COMPLETED'" [class]="'payment-' + (ride.paymentStatus || 'PENDING').toLowerCase()">
+              <div class="ride-payment" *ngIf="ride.status === 'COMPLETED' || ride.status === 'ARCHIVED'" [class]="'payment-' + (ride.paymentStatus || 'PENDING').toLowerCase()">
                 {{ getPaymentLabel(ride.paymentStatus) }}
               </div>
             </div>
@@ -263,7 +263,7 @@ export class RideHistoryComponent implements OnInit {
       filtered = filtered.filter(r => {
         if (paymentFilter === 'PAID') return r.paymentStatus === 'CAPTURED';
         if (paymentFilter === 'UNPAID') return r.status === 'COMPLETED' && (!r.paymentStatus || r.paymentStatus === 'PENDING' || r.paymentStatus === 'AUTHORIZED');
-        if (paymentFilter === 'REFUSED') return r.paymentStatus === 'REFUSED';
+        if (paymentFilter === 'REFUSED') return (r.paymentStatus as string) === 'REFUSED' || (r.status === 'ARCHIVED' && (r.paymentStatus as string) === 'REFUSED');
         return true;
       });
     }
