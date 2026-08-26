@@ -83,14 +83,11 @@ import { Ride } from '../../../core/models/ride.model';
       <!-- Rides List -->
       <div class="rides-list">
         @for (ride of paginatedRides(); track ride.id) {
-          <div class="ride-card" (click)="viewRide(ride)">
+          <div class="ride-card" [class.payment-refused-card]="ride.paymentStatus === 'REFUSED'" (click)="viewRide(ride)">
             <div class="ride-header">
               <div class="ride-date">{{ formatDate(ride.createdAt) }}</div>
               <div class="ride-status" [class]="'status-' + ride.status.toLowerCase()">
                 {{ getStatusLabel(ride.status) }}
-              </div>
-              <div class="ride-payment" *ngIf="ride.status === 'COMPLETED' || ride.status === 'ARCHIVED'" [class]="'payment-' + (ride.paymentStatus || 'PENDING').toLowerCase()">
-                {{ getPaymentLabel(ride.paymentStatus) }}
               </div>
             </div>
 
@@ -120,6 +117,12 @@ import { Ride } from '../../../core/models/ride.model';
                 {{ formatPrice(ride.finalPrice || ride.estimatedPrice || 0) }} {{ ride.currency }}
               </div>
             </div>
+
+            @if (ride.status === 'COMPLETED' || ride.status === 'ARCHIVED') {
+              <div class="ride-payment-line" [class]="'payment-line-' + (ride.paymentStatus || 'PENDING').toLowerCase()">
+                Paiement : <strong>{{ getPaymentLabel(ride.paymentStatus) }}</strong>
+              </div>
+            }
 
             <div class="ride-meta" *ngIf="ride.estimatedDistanceKm || ride.estimatedDurationMin">
               <span *ngIf="ride.estimatedDistanceKm">{{ ride.estimatedDistanceKm }} km</span>

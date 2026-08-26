@@ -19,7 +19,7 @@ import { Ride } from '../../../core/models/ride.model';
           <h2>Compte bloqué temporairement</h2>
           @if (consecutiveRefusals() > 0) {
             <p class="cooldown-reason">Vous avez refusé <strong>{{ consecutiveRefusals() }} course(s) consécutivement</strong>.</p>
-            <p class="cooldown-consequence">Pénalité progressive appliquée : bloqué pendant <strong>{{ formatRefusalMinutes(nextRefusalPenalty()) }}</strong>. Si vous refusez à nouveau, vous serez bloqué <strong>{{ formatRefusalMinutes(nextRefusalPenalty()) }}</strong>.</p>
+            <p class="cooldown-consequence">Pénalité progressive appliquée : bloqué pendant <strong>{{ formatRefusalMinutes(currentPenaltyMinutes()) }}</strong>. Si vous refusez à nouveau, vous serez bloqué <strong>{{ formatRefusalMinutes(nextRefusalPenalty()) }}</strong>.</p>
           } @else {
             <p class="cooldown-reason">Vous avez rendu ou annulé une course <strong>après l'avoir acceptée</strong>.</p>
             <p class="cooldown-consequence">Pour éviter tout abus, vous ne pouvez pas vous remettre en ligne pendant <strong>{{ cooldownConfigMinutes() }} minutes</strong>.</p>
@@ -297,14 +297,46 @@ import { Ride } from '../../../core/models/ride.model';
           >
             Annulées
           </button>
+          <button
+            class="tab"
+            [class.active]="activeTab() === 'archived'"
+            (click)="setActiveTab('archived')"
+          >
+            Archivées
+          </button>
+          <button
+            class="tab"
+            [class.active]="activeTab() === 'rejected'"
+            (click)="setActiveTab('rejected')"
+          >
+            Refusées
+          </button>
+        </div>
+        <div class="payment-filters">
+          <button class="status-tab" [class.active]="activePaymentFilter() === 'ALL'" (click)="setPaymentFilter('ALL')">
+            Tous paiements
+          </button>
+          <button class="status-tab" [class.active]="activePaymentFilter() === 'PAID'" (click)="setPaymentFilter('PAID')">
+            ✅ Payées
+          </button>
+          <button class="status-tab" [class.active]="activePaymentFilter() === 'UNPAID'" (click)="setPaymentFilter('UNPAID')">
+            ⏳ Non payées
+          </button>
+          <button class="status-tab" [class.active]="activePaymentFilter() === 'REFUSED'" (click)="setPaymentFilter('REFUSED')">
+            ❌ Refusées
+          </button>
         </div>
         <div class="history-list">
           @for (ride of paginatedHistory(); track ride.id) {
-            <div class="ride-card history" [attr.data-status]="ride.status">
+            <div class="ride-card history" [attr.data-status]="ride.status" [class.payment-refused-card]="ride.paymentStatus === 'REFUSED'" [class.rejection-card]="ride.rejectedByDriver">
               <div class="ride-header">
-                <span class="status-badge" [attr.data-status]="ride.status">
-                  {{ getStatusLabel(ride.status) }}
-                </span>
+                @if (ride.rejectedByDriver) {
+                  <span class="status-badge rejected-badge">Refusée</span>
+                } @else {
+                  <span class="status-badge" [attr.data-status]="ride.status">
+                    {{ getStatusLabel(ride.status) }}
+                  </span>
+                }
                 <span class="ride-time">{{ ride.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
               </div>
               <div class="ride-route">
@@ -332,6 +364,16 @@ import { Ride } from '../../../core/models/ride.model';
                   <span class="detail-value">{{ ride.estimatedDistanceKm }} km</span>
                 </div>
               </div>
+              @if (ride.rejectedByDriver) {
+                <div class="rejection-banner">
+                  🚫 Motif : {{ ride.rejectionReason || 'Aucun motif' }}
+                </div>
+              }
+              @if (ride.status === 'COMPLETED' || ride.status === 'ARCHIVED') {
+                <div class="ride-payment-line" [class]="'payment-line-' + (ride.paymentStatus || 'PENDING').toLowerCase()">
+                  Paiement : <strong>{{ getPaymentLabel(ride.paymentStatus) }}</strong>
+                </div>
+              }
               <div class="ride-actions">
                 <button class="action-btn secondary" (click)="viewOnMap(ride.id)">
                   Voir
@@ -551,7 +593,8 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   activeRide = signal<Ride | null>(null);
   history = signal<Ride[]>([]);
   archivedIds = signal<Set<string>>(new Set(JSON.parse(localStorage.getItem('archivedRides') || '[]')));
-  activeTab = signal<'all' | 'completed' | 'cancelled'>('all');
+  activeTab = signal<'all' | 'completed' | 'cancelled' | 'archived' | 'rejected'>('all');
+  activePaymentFilter = signal<string>('ALL');
   stats = signal({
     coursesToday: 0,
     earningsToday: 0,
@@ -581,6 +624,7 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   cooldownTotal = signal<number>(0);
   cooldownConfigMinutes = signal<number>(15);
   consecutiveRefusals = signal<number>(0);
+  currentPenaltyMinutes = signal<number>(0);
   nextRefusalPenalty = signal<number>(0);
   cooldownPercent = computed(() => {
     const total = this.cooldownTotal();
@@ -604,15 +648,29 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
     const rides = this.history();
     const tab = this.activeTab();
     const archived = this.archivedIds();
+    const paymentFilter = this.activePaymentFilter();
 
-    return rides.filter(r => {
+    let filtered = rides.filter(r => {
       if (archived.has(r.id)) return false;
       switch (tab) {
-        case 'completed': return r.status === 'COMPLETED';
-        case 'cancelled': return r.status === 'CANCELLED' || r.status === 'EXPIRED';
+        case 'completed': return r.status === 'COMPLETED' && !r.rejectedByDriver;
+        case 'cancelled': return (r.status === 'CANCELLED' || r.status === 'EXPIRED') && !r.rejectedByDriver;
+        case 'archived': return r.status === 'ARCHIVED' && !r.rejectedByDriver;
+        case 'rejected': return !!r.rejectedByDriver;
         default: return true;
       }
     });
+
+    if (paymentFilter !== 'ALL') {
+      filtered = filtered.filter(r => {
+        if (paymentFilter === 'PAID') return (r.paymentStatus as string) === 'CAPTURED';
+        if (paymentFilter === 'UNPAID') return r.status === 'COMPLETED' && (!r.paymentStatus || r.paymentStatus === 'PENDING' || r.paymentStatus === 'AUTHORIZED');
+        if (paymentFilter === 'REFUSED') return (r.paymentStatus as string) === 'REFUSED' || (r.status === 'ARCHIVED' && (r.paymentStatus as string) === 'REFUSED');
+        return true;
+      });
+    }
+
+    return filtered;
   });
 
   totalPages = computed(() => Math.max(1, Math.ceil(this.filteredHistory().length / this.pageSize)));
@@ -741,6 +799,9 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
           }
           if (res.data.consecutiveRefusals !== undefined) {
             this.consecutiveRefusals.set(res.data.consecutiveRefusals);
+          }
+          if (res.data.currentPenaltyMinutes !== undefined) {
+            this.currentPenaltyMinutes.set(res.data.currentPenaltyMinutes);
           }
           if (res.data.nextRefusalPenalty !== undefined) {
             this.nextRefusalPenalty.set(res.data.nextRefusalPenalty);
@@ -974,10 +1035,23 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
   }
 
   confirmRefusePayment(): void {
-    this.activeRide.set(null);
-    this.loadHistory();
-    this.loadStats();
-    this.loadEarnings();
+    const ride = this.activeRide();
+    if (!ride) return;
+    this.rideService.confirmPaymentRefused(ride.id).subscribe({
+      next: () => {
+        this.activeRide.set(null);
+        this.loadHistory();
+        this.loadStats();
+        this.loadEarnings();
+      },
+      error: (err: any) => {
+        console.error('Failed to confirm payment refusal:', err);
+        this.activeRide.set(null);
+        this.loadHistory();
+        this.loadStats();
+        this.loadEarnings();
+      }
+    });
   }
 
   finalizeRide(): void {
@@ -1336,9 +1410,26 @@ export class DriverDashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/driver/earnings']);
   }
 
-  setActiveTab(tab: 'all' | 'completed' | 'cancelled'): void {
+  setActiveTab(tab: 'all' | 'completed' | 'cancelled' | 'archived' | 'rejected'): void {
     this.activeTab.set(tab);
     this.currentPage.set(1);
+  }
+
+  setPaymentFilter(filter: string): void {
+    this.activePaymentFilter.set(filter);
+    this.currentPage.set(1);
+  }
+
+  getPaymentLabel(status?: string): string {
+    switch (status) {
+      case 'CAPTURED': return '✅ Payé';
+      case 'REFUSED': return '❌ Refusé';
+      case 'PENDING': return '⏳ En attente';
+      case 'AUTHORIZED': return '⏳ Autorisé';
+      case 'REFUNDED': return '↩️ Remboursé';
+      case 'FAILED': return '⚠️ Échoué';
+      default: return '⏳ En attente';
+    }
   }
 
   goToPage(page: number): void {

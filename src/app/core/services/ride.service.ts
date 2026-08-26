@@ -71,6 +71,10 @@ export class RideService {
     return this.http.post<ApiResponse<Ride>>(`${this.API}/${id}/refuse-payment`, {});
   }
 
+  confirmPaymentRefused(id: string): Observable<ApiResponse<Ride>> {
+    return this.http.post<ApiResponse<Ride>>(`${this.API}/${id}/confirm-refused`, {});
+  }
+
   rateRide(id: string, rating: number, comment?: string): Observable<ApiResponse<RideRating>> {
     return this.http.post<ApiResponse<RideRating>>(`${this.API}/${id}/rate`, { rating, comment });
   }
