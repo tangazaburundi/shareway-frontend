@@ -534,6 +534,11 @@ import { Ride } from '../../../core/models/ride.model';
                 <span class="detail-value">{{ incomingRequest().passengerCount }}</span>
               </div>
             </div>
+            @if (incomingRequest().passengerPaymentRefusals > 0) {
+              <div class="payment-refusal-warning">
+                ⚠️ Attention : ce passager a refusé de payer <strong>{{ incomingRequest().passengerPaymentRefusals }}</strong> fois.
+              </div>
+            }
           </div>
           <div class="incoming-actions">
             @if (showRejectConfirm()) {
