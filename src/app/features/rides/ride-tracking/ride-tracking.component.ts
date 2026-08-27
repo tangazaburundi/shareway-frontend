@@ -134,7 +134,7 @@ import * as L from 'leaflet';
           <div class="sos-modal-icon">🚨</div>
           <h3>Alerte SOS</h3>
           <p>Voulez-vous déclencher une alerte SOS ?</p>
-          <p class="sos-detail">L'administration sera notifiée avec votre position GPS.</p>
+          <p class="sos-detail">L'administration sera notifiée avec votre position GPS en temps réel.</p>
           <div class="sos-count" *ngIf="sosCount() > 0">
             Alertes envoyées : <strong>{{ sosCount() }}</strong>
           </div>
@@ -145,6 +145,12 @@ import * as L from 'leaflet';
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- SOS Active banner / Stop -->
+      <div class="sos-active" *ngIf="sosActive()">
+        <span>🚨 SOS — <strong>{{ sosUserName() }}</strong><ng-container *ngIf="sosUserPhone()"> ({{ sosUserPhone() }})</ng-container> — localisation en temps réel.</span>
+        <button class="sos-btn-stop" (click)="stopSos()">Désactiver</button>
       </div>
 
       <!-- SOS Toast -->
@@ -224,10 +230,16 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
   sosCount = signal(0);
   sosSending = signal(false);
   sosLastSuccess = signal(false);
+  sosActive = signal(false);
+  sosUserName = signal('Passager');
+  sosUserPhone = signal('');
   showSosConfirm = false;
   paying = signal(false);
   private map: L.Map | null = null;
   private driverMarker: L.Marker | null = null;
+  private passengerMarker: L.Marker | null = null;
+  private sosWatchId: number | null = null;
+  private sosPingInterval: any = null;
   private refreshInterval: any;
   private wsSub: any;
   private previousStatus: string | null = null;
@@ -256,6 +268,7 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     clearInterval(this.refreshInterval);
+    this.stopSosTracking();
     if (this.wsSub) this.wsSub.unsubscribe();
     if (this.map) this.mapService.destroyMap('tracking-map');
   }
@@ -281,6 +294,7 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
           this.ride.set(res.data);
           this.updateMap(res.data);
           this.setupWebSocket(id);
+          this.loadSosLocation(id);
 
           if (curr === 'CANCELLED' || curr === 'EXPIRED') {
             clearInterval(this.refreshInterval);
@@ -342,6 +356,41 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
         this.notificationSound.play('message');
       }
     });
+    this.wsService.subscribe('/topic/ride/' + rideId + '/sos-tracking').subscribe((msg: any) => {
+      if (!msg) return;
+      if (msg.type === 'SOS_STOPPED') {
+        this.sosActive.set(false);
+        if (this.passengerMarker && this.map) {
+          (this.map as any).removeLayer(this.passengerMarker);
+        }
+        this.passengerMarker = null;
+      } else {
+        this.sosActive.set(true);
+        this.sosUserName.set(msg.userName || 'Passager');
+        this.sosUserPhone.set(msg.userPhone || '');
+        if (this.map && msg.currentLat && msg.currentLng) {
+          if (!this.passengerMarker) {
+            this.passengerMarker = this.mapService.addMarker(
+              this.map, Number(msg.currentLat), Number(msg.currentLng), 'passenger',
+              this.sosUserName(), undefined, this.buildSosPopup());
+          } else {
+            this.mapService.updateMarkerPosition(this.passengerMarker, Number(msg.currentLat), Number(msg.currentLng));
+          }
+        }
+      }
+    });
+  }
+
+  private buildSosPopup(): string {
+    const name = this.sosUserName() || 'Passager (SOS)';
+    const phone = this.sosUserPhone();
+    return `
+      <div style="min-width:180px;font-family:inherit;text-align:center;">
+        <div style="display:flex;justify-content:center;margin-bottom:6px;">🚨</div>
+        <div style="font-weight:700;font-size:1rem;color:#991b1b;">${name}</div>
+        ${phone ? `<div style="font-size:0.85rem;color:#374151;font-weight:600;margin-top:4px;">📞 ${phone}</div>` : ''}
+        <div style="font-size:0.8rem;color:#6b7280;margin-top:4px;">En SOS — localisation en direct</div>
+      </div>`;
   }
 
   private updateMap(ride: Ride) {
@@ -546,6 +595,8 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
         this.showSosConfirm = false;
         this.sosCount.update(n => n + 1);
         this.sosLastSuccess.set(true);
+        this.sosActive.set(true);
+        this.startSosTracking();
         setTimeout(() => this.sosLastSuccess.set(false), 3000);
       },
       error: (err: any) => {
@@ -553,6 +604,92 @@ export class RideTrackingComponent implements OnInit, OnDestroy {
         this.sosSending.set(false);
         this.showSosConfirm = false;
       }
+    });
+  }
+
+  private startSosTracking(): void {
+    if (!this.ride()) return;
+    this.stopSosTracking();
+    if (!navigator.geolocation) {
+      this.sendSosPing();
+      return;
+    }
+
+    const push = (lat: number, lng: number) => {
+      this.rideService.updateSosLocation(this.ride()!.id, lat, lng).subscribe({
+        error: (err) => console.error('Failed to update SOS location', err)
+      });
+    };
+
+    this.sosWatchId = navigator.geolocation.watchPosition(
+      (pos) => push(pos.coords.latitude, pos.coords.longitude),
+      (error) => {
+        console.error('SOS geolocation error:', error);
+      },
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+    );
+
+    // Periodic ping so the position streams even when the passenger is stationary
+    this.sosPingInterval = setInterval(() => this.sendSosPing(), 4000);
+  }
+
+  private sendSosPing(): void {
+    if (!this.ride() || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        this.rideService.updateSosLocation(this.ride()!.id, pos.coords.latitude, pos.coords.longitude)
+          .subscribe({ error: (err) => console.error('Failed to update SOS location', err) });
+      },
+      (error) => {
+        console.error('SOS geolocation error:', error);
+      },
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+    );
+  }
+
+  private stopSosTracking(): void {
+    if (this.sosWatchId !== null) {
+      navigator.geolocation.clearWatch(this.sosWatchId);
+      this.sosWatchId = null;
+    }
+    if (this.sosPingInterval !== null) {
+      clearInterval(this.sosPingInterval);
+      this.sosPingInterval = null;
+    }
+  }
+
+  stopSos(): void {
+    if (!this.ride()) return;
+    this.stopSosTracking();
+    this.sosActive.set(false);
+    if (this.passengerMarker && this.map) {
+      (this.map as any).removeLayer(this.passengerMarker);
+    }
+    this.passengerMarker = null;
+    this.rideService.stopSosAlert(this.ride()!.id).subscribe({
+      error: (err: any) => console.error('Failed to stop SOS:', err)
+    });
+  }
+
+  private loadSosLocation(rideId: string): void {
+    this.rideService.getSosLocation(rideId).subscribe({
+      next: (res) => {
+        const data = res?.data || res;
+        if (!data || !data.active) return;
+        this.sosActive.set(true);
+        this.sosUserName.set(data.userName || 'Passager');
+        this.sosUserPhone.set(data.userPhone || '');
+        if (this.map && data.currentLat != null && data.currentLng != null) {
+          if (!this.passengerMarker) {
+            this.passengerMarker = this.mapService.addMarker(
+              this.map, Number(data.currentLat), Number(data.currentLng), 'passenger',
+              this.sosUserName(), undefined, this.buildSosPopup());
+          } else {
+            this.mapService.updateMarkerPosition(this.passengerMarker, Number(data.currentLat), Number(data.currentLng));
+          }
+        }
+      },
+      error: (err: any) => console.error('Failed to load SOS location:', err)
     });
   }
 }
