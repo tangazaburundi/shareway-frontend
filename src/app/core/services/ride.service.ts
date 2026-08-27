@@ -219,6 +219,18 @@ export class RideService {
     return this.http.post<ApiResponse<void>>(`${this.API}/${rideId}/sos`, { lat, lng });
   }
 
+  updateSosLocation(rideId: string, lat?: number, lng?: number): Observable<ApiResponse<void>> {
+    return this.http.put<ApiResponse<void>>(`${this.API}/${rideId}/sos/location`, { lat, lng });
+  }
+
+  stopSosAlert(rideId: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.API}/${rideId}/sos/stop`, {});
+  }
+
+  getSosLocation(rideId: string): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.API}/${rideId}/sos/location`);
+  }
+
   // ── Chat (in-ride) ────────────────────────────────────────────
 
   getRideMessages(rideId: string): Observable<ApiResponse<any[]>> {
