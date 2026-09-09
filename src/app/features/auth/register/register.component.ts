@@ -18,9 +18,11 @@ export class RegisterComponent {
 
   form = this.fb.group({
     role: ['PASSENGER', Validators.required],
-    firstName: ['', Validators.required], lastName: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    phone: [''],     password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/)]]
+    firstName: ['', [Validators.required, Validators.maxLength(100)]],
+    lastName: ['', [Validators.required, Validators.maxLength(100)]],
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
+    phone: ['', [Validators.maxLength(20)]],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128), Validators.pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/)]]
   });
 
   loading = false; error = ''; showPwd = false; registered = false;

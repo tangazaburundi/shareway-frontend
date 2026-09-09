@@ -287,9 +287,7 @@ export class TripDetailComponent implements OnInit {
       this.tripService.getPassengerProfile(tripId, passengerId)
         .subscribe({
           next: (res: any) => {
-            console.log("res.data",res.data);
             this.selectedPassenger = res.data;
-            //this.selectedBookingId = b.id;
           }
         });
     }
