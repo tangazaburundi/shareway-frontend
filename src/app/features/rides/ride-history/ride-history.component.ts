@@ -28,37 +28,33 @@ import { Ride } from '../../../core/models/ride.model';
 
         <!-- Status Filters -->
         <div class="status-filters">
-          <button class="status-tab" [class.active]="activeStatusFilter() === 'ALL'" (click)="setStatusFilter('ALL')">
-            Tous
-          </button>
-          <button class="status-tab" [class.active]="activeStatusFilter() === 'COMPLETED'" (click)="setStatusFilter('COMPLETED')">
-            Terminées
-          </button>
-          <button class="status-tab" [class.active]="activeStatusFilter() === 'CANCELLED'" (click)="setStatusFilter('CANCELLED')">
-            Annulées
-          </button>
-          <button class="status-tab" [class.active]="activeStatusFilter() === 'RENDERED'" (click)="setStatusFilter('RENDERED')">
-            Rendues
-          </button>
-          <button class="status-tab" [class.active]="activeStatusFilter() === 'EXPIRED'" (click)="setStatusFilter('EXPIRED')">
-            Expirées
-          </button>
-          <button class="status-tab" [class.active]="activeStatusFilter() === 'ARCHIVED'" (click)="setStatusFilter('ARCHIVED')">
-            Archivées
-          </button>
+          <label class="filter-label" for="statusFilter">Statut :</label>
+          <select id="statusFilter" class="filter-select" [value]="activeStatusFilter()" (change)="setStatusFilter($any($event.target).value)">
+            <option value="ALL">Tous les statuts</option>
+            <option value="COMPLETED">Terminées</option>
+            <option value="CANCELLED">Annulées</option>
+            <option value="RENDERED">Rendues</option>
+            <option value="EXPIRED">Expirées</option>
+            <option value="ARCHIVED">Archivées</option>
+            <option value="IN_PROGRESS">En cours</option>
+            <option value="ACCEPTED">Acceptées</option>
+            <option value="DRIVER_EN_ROUTE">Chauffeur en route</option>
+            <option value="ARRIVED">Chauffeur arrivé</option>
+            <option value="SEARCHING">En recherche</option>
+          </select>
         </div>
 
         <div class="payment-filters">
-          <button class="status-tab" [class.active]="activePaymentFilter() === 'ALL'" (click)="setPaymentFilter('ALL')">
+          <button class="payment-tab" [class.active]="activePaymentFilter() === 'ALL'" (click)="setPaymentFilter('ALL')">
             Tous paiements
           </button>
-          <button class="status-tab" [class.active]="activePaymentFilter() === 'PAID'" (click)="setPaymentFilter('PAID')">
+          <button class="payment-tab" [class.active]="activePaymentFilter() === 'PAID'" (click)="setPaymentFilter('PAID')">
             ✅ Payées
           </button>
-          <button class="status-tab" [class.active]="activePaymentFilter() === 'UNPAID'" (click)="setPaymentFilter('UNPAID')">
+          <button class="payment-tab" [class.active]="activePaymentFilter() === 'UNPAID'" (click)="setPaymentFilter('UNPAID')">
             ⏳ Non payées
           </button>
-          <button class="status-tab" [class.active]="activePaymentFilter() === 'REFUSED'" (click)="setPaymentFilter('REFUSED')">
+          <button class="payment-tab" [class.active]="activePaymentFilter() === 'REFUSED'" (click)="setPaymentFilter('REFUSED')">
             ❌ Refusées
           </button>
         </div>

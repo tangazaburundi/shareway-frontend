@@ -50,9 +50,9 @@ export class ProfileComponent implements OnInit {
 
   cookieCategories = [
     { key: 'necessary',  label: 'Nécessaires',     description: 'Fonctionnement du site',        checked: true,  required: true },
-    { key: 'analytics',  label: 'Analytiques',      description: 'Audience et statistiques',      checked: true,  required: false },
-    { key: 'marketing',  label: 'Marketing',        description: 'Publicité ciblée',              checked: true,  required: false },
-    { key: 'functional', label: 'Fonctionnelles',   description: 'Préférences utilisateur',       checked: true,  required: false },
+    { key: 'analytics',  label: 'Analytiques',      description: 'Audience et statistiques',      checked: false, required: false },
+    { key: 'marketing',  label: 'Marketing',        description: 'Publicité ciblée',              checked: false, required: false },
+    { key: 'functional', label: 'Fonctionnelles',   description: 'Préférences utilisateur',       checked: false, required: false },
   ];
   cookieSaved = false;
 
@@ -284,8 +284,7 @@ export class ProfileComponent implements OnInit {
           this.toast.success('Avis signalé avec succès');
           this.closeReportModal();
         },
-        error: (err) => {
-          console.error(err);
+        error: () => {
           this.toast.error('Erreur lors du signalement');
         }
       });
@@ -370,8 +369,18 @@ export class ProfileComponent implements OnInit {
 
     addEmergencyContact() {
       if (!this.ecForm.name || !this.ecForm.phone) return;
+      const phoneRegex = /^\+?[0-9\s\-]{7,20}$/;
+      if (!phoneRegex.test(this.ecForm.phone)) {
+        this.ecError = 'Numéro de téléphone invalide';
+        return;
+      }
       this.ecSaving = true; this.ecError = '';
-      this.userService.addEmergencyContact(this.ecForm.name, this.ecForm.phone, this.ecForm.relationship).subscribe({
+      const sanitized = {
+        name: this.ecForm.name.trim().substring(0, 100),
+        phone: this.ecForm.phone.trim().substring(0, 20),
+        relationship: this.ecForm.relationship?.trim().substring(0, 50) || undefined
+      };
+      this.userService.addEmergencyContact(sanitized.name, sanitized.phone, sanitized.relationship).subscribe({
         next: (res) => {
           this.emergencyContacts.unshift(res.data!);
           this.ecForm = { name: '', phone: '', relationship: '' };

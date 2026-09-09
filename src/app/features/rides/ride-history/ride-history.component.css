@@ -46,34 +46,78 @@
 
     .status-filters {
       display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
     }
 
-    .status-tab {
-      padding: 5px 12px;
+    .filter-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #374151;
+      white-space: nowrap;
+    }
+
+    .filter-select {
+      flex: 1;
+      padding: 8px 12px;
       border: 1px solid #e5e7eb;
-      border-radius: 16px;
+      border-radius: 8px;
       background: white;
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       font-weight: 500;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+
+    .filter-select:hover {
+      border-color: #4F46E5;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: #4F46E5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .payment-filters { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+
+    .payment-tab {
+      padding: 6px 14px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 16px;
+      background: #f9fafb;
+      font-size: 0.78rem;
+      font-weight: 600;
       color: #6b7280;
       cursor: pointer;
       transition: all 0.2s;
     }
 
-    .status-tab.active {
-      background: #4F46E5;
+    .payment-tab.active {
+      background: #16a34a;
+      border-color: #16a34a;
       color: white;
-      border-color: #4F46E5;
+      box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
+      transform: scale(1.05);
+      font-weight: 700;
     }
 
-    .status-tab:hover:not(.active) {
-      border-color: #4F46E5;
-      color: #4F46E5;
+    .payment-tab:hover:not(.active) {
+      border-color: #16a34a;
+      color: #16a34a;
+      background: #f0fdf4;
     }
 
-    .payment-filters { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .payment-tab.active::after {
+      content: " ✓";
+    }
 
     .ride-payment {
       display: inline-block;

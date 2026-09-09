@@ -121,8 +121,6 @@ export class MyBookingsComponent implements OnInit {
      this.showReview=true
      const driverId = b?.driverId;
      const tripId = b?.tripId;
-      console.log("fuuuuuu tripId ",tripId);
-       console.log("fuuuuuu idDriver ",driverId);
       if (!tripId || !driverId) {
         return false;
       }

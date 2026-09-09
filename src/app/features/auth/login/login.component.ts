@@ -19,8 +19,8 @@ export class LoginComponent {
   langService = inject(LanguageService);
 
   form = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required]
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]]
   });
 
   loading = false;

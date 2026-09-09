@@ -31,7 +31,6 @@ export class AdminDashboardComponent implements OnInit {
       this.adminService.getDashboard().subscribe({
           next: (response: any) => {
               const data: DashboardStats = response?.data ?? response;
-              console.error('data 1',data);
               this.stats.set(data);
 
               if (data.userGrowth?.length) {

@@ -48,7 +48,11 @@ export class AuthService {
   }
 
   login(credentials: LoginRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.API}/login`, credentials).pipe(
+    const sanitized = {
+      email: AuthService.sanitizeInput(credentials.email),
+      password: credentials.password
+    };
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.API}/login`, sanitized).pipe(
       tap(res => {
         if (res.success && res.data) {
           this.saveSession(res.data);
@@ -58,7 +62,14 @@ export class AuthService {
   }
 
   register(data: RegisterRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.API}/register`, data).pipe(
+    const sanitized = {
+      ...data,
+      firstName: AuthService.sanitizeInput(data.firstName),
+      lastName: AuthService.sanitizeInput(data.lastName),
+      email: AuthService.sanitizeInput(data.email),
+      phone: data.phone ? AuthService.sanitizeInput(data.phone) : data.phone,
+    };
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.API}/register`, sanitized).pipe(
       tap(res => {
         if (res.success && res.data) {
           this.saveSession(res.data);
@@ -144,12 +155,26 @@ export class AuthService {
     return exp === null ? true : exp * 1000 <= Date.now();
   }
 
+  static sanitizeInput(value: string): string {
+    if (!value || typeof value !== 'string') return value;
+    return value
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;')
+      .trim()
+      .substring(0, 500);
+  }
+
   private static extractExp(token: string): number | null {
     try {
-      const payload = token.split('.')[1];
-      if (!payload) return null;
+      if (!token || typeof token !== 'string') return null;
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+      const payload = parts[1];
+      if (!payload || payload.length > 2048) return null;
       const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-      return typeof decoded?.exp === 'number' ? decoded.exp : null;
+      return typeof decoded?.exp === 'number' && decoded.exp > 0 ? decoded.exp : null;
     } catch {
       return null;
     }
@@ -204,8 +229,8 @@ export class AuthService {
           return rawUser ? JSON.parse(rawUser) : null;
         }
         return raw ? JSON.parse(raw) : null;
-     } catch (error) {
-      console.error('Erreur lors du parsing du user :', error);
+     } catch {
+      this.clearStoredSession();
       return null;
     }
   }
